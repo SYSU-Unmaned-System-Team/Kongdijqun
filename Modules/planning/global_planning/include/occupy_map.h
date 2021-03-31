@@ -35,10 +35,7 @@ class Occupy_map
         Occupy_map(){}
 
         // 全局点云指针
-        // sensor_msgs::PointCloud2ConstPtr global_env_;
-        pcl::PointCloud<pcl::PointXYZ>::Ptr gobalPointCloudMap;
-        pcl::PointCloud<pcl::PointXYZ>::Ptr inputPointCloud;
-        pcl::PointCloud<pcl::PointXYZ>::Ptr transformed_cloud;
+        sensor_msgs::PointCloud2ConstPtr global_env_;
         // 地图是否占据容器， 从编程角度来讲，这就是地图变为单一序列化后的索引
         std::vector<int> occupancy_buffer_;  // 0 is free, 1 is occupied
         // 地图分辨率
