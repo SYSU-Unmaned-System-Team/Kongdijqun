@@ -330,6 +330,27 @@
       </link>
     </model>
 
+    <!-- 待检测目标 -->
+    <model name='aruco'>
+      <static>true</static>
+      <link name="aruco_1">
+        <pose frame=''> -2.0 1.0 0.01 0.0 0.0 0.0</pose>
+        <visual name="visual">
+            <cast_shadows>false</cast_shadows>
+            <geometry>
+              <box>
+                <size>0.3 0.3 0.02</size>
+              </box>
+            </geometry>
+            <material>
+              <script>
+                <uri>model://texture_aruco/texture.material</uri>
+                <name>aruco_1</name>
+              </script>
+            </material>
+        </visual>
+      </link>
+    </model>
 
     <!-- <include>
       <uri>model://landing_pad</uri>

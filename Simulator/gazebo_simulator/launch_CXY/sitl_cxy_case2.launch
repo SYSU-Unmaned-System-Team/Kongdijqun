@@ -63,6 +63,17 @@
         <param name="map/map_size_z" value="3.0" type="double"/>
     </node>
 
+    <!-- 启动二维码检测算法 -->
+    <node pkg="prometheus_detection" type="aruco_det_v2" name="aruco_det_v2" output="screen">
+        <param name="camera_topic" type="string" value="/uav1/prometheus/sensor/monocular_down/image_raw" />
+        <param name="camera_parameters" type="string" value="$(find prometheus_gazebo)/config/camera_config/calib_monocular_down.yaml" />
+        <param name="output_topic" type="string" value="/prometheus/camera/rgb/image_aruco_det" />
+        <param name="dictionary_type" type="int" value="6" />
+        <param name="target_marker_length" type="double" value="0.3" />
+        <param name="calib_marker_length" type="double" value="0.3" />
+        <param name="calib_square_length" type="double" value="0.4" />
+    </node>
+
 	<!-- run the pub_goal.cpp -->
 	<node pkg="prometheus_mission" type="pub_goal" name="pub_goal" output="screen" launch-prefix="gnome-terminal --">	
 	</node>
