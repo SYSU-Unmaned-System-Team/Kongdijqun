@@ -74,9 +74,14 @@ add_executable(swarm_controller src/swarm_controller.cpp)
 add_dependencies(swarm_controller prometheus_swarm_control_gencpp)
 target_link_libraries(swarm_controller ${catkin_LIBRARIES})
 
-# add_executable(swarm_ground_station src/swarm_control/swarm_ground_station.cpp)
-# add_dependencies(swarm_ground_station prometheus_swarm_control_gencpp)
-# target_link_libraries(swarm_ground_station ${catkin_LIBRARIES})
+add_executable(swarm_ground_station src/swarm_ground_station.cpp)
+add_dependencies(swarm_ground_station prometheus_swarm_control_gencpp)
+target_link_libraries(swarm_ground_station ${catkin_LIBRARIES})
+
+add_executable(swarm_terminal_control src/swarm_terminal_control.cpp)
+add_dependencies(swarm_terminal_control prometheus_swarm_control_gencpp)
+target_link_libraries(swarm_terminal_control ${catkin_LIBRARIES})
+
 
 #############
 ## Install ##

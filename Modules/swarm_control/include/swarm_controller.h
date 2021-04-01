@@ -6,75 +6,52 @@
 #include <mavros_msgs/CommandBool.h>
 #include <mavros_msgs/SetMode.h>
 #include <mavros_msgs/State.h>
-#include <mavros_msgs/AttitudeTarget.h>
 #include <mavros_msgs/PositionTarget.h>
-#include <mavros_msgs/ActuatorControl.h>
-
-#include <geometry_msgs/PoseStamped.h>
-#include <geometry_msgs/TwistStamped.h>
-#include <sensor_msgs/Imu.h>
 
 #include <prometheus_msgs/DroneState.h>
-#include <prometheus_msgs/AttitudeReference.h>
-#include <prometheus_msgs/DroneState.h>
 
-#include "swarm_control_utils.h"
+#include "formation_utils.h"
 #include "message_utils.h"
-#include <math_utils.h>
+#include "math_utils.h"
 
-// 
-#define NODE_NAME "swarm_controller"
-using namespace std;
 
-//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>变量声明<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-int swarm_num;
-string uav_name;
-int num_neighbour = 2;
-int uav_id,neighbour_id1,neighbour_id2;
-string neighbour_name1,neighbour_name2;
+// 宏定义
+#define NODE_NAME "swarm_controller"            // 节点名字
+#define NUM_POINT 2                             // 打印小数点
 
-float Takeoff_height;                                       //默认起飞高度
-float Disarm_height;                                        //自动上锁高度
-float Land_speed;                                           //降落速度
-Eigen::MatrixXf formation_separation;
 
-// 速度控制参数
-float k_p;
-float k_aij;
-float k_gamma;
-
-bool flag_printf;
-
-//Geigraphical fence 地理围栏
-Eigen::Vector2f geo_fence_x;
-Eigen::Vector2f geo_fence_y;
-Eigen::Vector2f geo_fence_z;
-Eigen::Vector3f gazebo_offset;
-
-Eigen::Vector3d Takeoff_position;                              // 起飞位置
-prometheus_msgs::DroneState _DroneState;                         //无人机状态量
-
-Eigen::Vector3d pos_drone;
-Eigen::Vector3d vel_drone;
-
-Eigen::Vector3d pos_nei[2];
-Eigen::Vector3d vel_nei[2];
-
-prometheus_msgs::SwarmCommand Command_Now;                      //无人机当前执行命令
-prometheus_msgs::SwarmCommand Command_Last;                     //无人机上一条执行命令
-
-Eigen::Vector3d state_sp(0,0,0);
-Eigen::Vector3d state_sp_extra(0,0,0);
-float yaw_sp;
-
-float yita;
-Eigen::Vector3d accel_sp;
-Eigen::Vector3d throttle_sp;
-
-prometheus_msgs::Message message;
-
-float dt = 0;
-
+// 变量
+int swarm_num;                                  // 集群数量
+string uav_name;                                // 无人机名字
+int uav_id;                                     // 无人机编号
+int num_neighbour = 2;                          // 邻居数量,目前默认为2
+int neighbour_id1,neighbour_id2;                // 邻居ID
+string neighbour_name1,neighbour_name2;         // 邻居名字
+Eigen::Vector2f geo_fence_x,geo_fence_y,geo_fence_z; //Geigraphical fence 地理围栏
+prometheus_msgs::SwarmCommand Command_Now;      // 无人机当前执行命令
+prometheus_msgs::SwarmCommand Command_Last;     // 无人机上一条执行命令
+prometheus_msgs::DroneState _DroneState;        // 无人机状态
+Eigen::Vector3d pos_drone;                      // 无人机位置
+Eigen::Vector3d vel_drone;                      // 无人机速度
+Eigen::Vector3d pos_nei[2];                     // 邻居位置
+Eigen::Vector3d vel_nei[2];                     // 邻居速度
+float Takeoff_height;                           // 默认起飞高度
+Eigen::Vector3d Takeoff_position;               // 起飞位置
+float Disarm_height;                            // 自动上锁高度
+float Land_speed;                               // 降落速度
+Eigen::MatrixXf formation_separation;           // 阵型偏移量
+float k_p;                                      // 速度控制参数
+float k_aij;                                    // 速度控制参数
+float k_gamma;                                  // 速度控制参数
+float yita;                                     // 速度控制参数
+bool flag_printf;                               // 是否打印
+Eigen::Vector3f gazebo_offset;                  // 偏移量
+Eigen::Vector3d state_sp(0,0,0);                // 辅助变量
+Eigen::Vector3d state_sp_extra(0,0,0);          // 辅助变量
+float yaw_sp;                                   // 辅助变量
+Eigen::Vector3d accel_sp;                       // 辅助变量
+Eigen::Vector3d throttle_sp;                    // 辅助变量
+prometheus_msgs::Message message;               // 待打印消息
 
 // 订阅
 ros::Subscriber command_sub;
@@ -92,12 +69,69 @@ ros::ServiceClient arming_client;
 ros::ServiceClient set_mode_client;
 mavros_msgs::SetMode mode_cmd;
 mavros_msgs::CommandBool arm_cmd;
-namespace swarm_controller 
-{
+
 void init()
 {
+    // 初始化命令
+    Command_Now.Mode                = prometheus_msgs::SwarmCommand::Idle;
+    Command_Now.Command_ID          = 0;
+    Command_Now.position_ref[0]     = 0;
+    Command_Now.position_ref[1]     = 0;
+    Command_Now.position_ref[2]     = 0;
+    Command_Now.yaw_ref             = 0;
+    
+    // 初始化阵型偏移量
+    formation_separation = Eigen::MatrixXf::Zero(swarm_num,4); 
 
+    // cout << "swarm_num   : "<< swarm_num <<endl;
+}
 
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>回调函数<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+void swarm_command_cb(const prometheus_msgs::SwarmCommand::ConstPtr& msg)
+{
+    // CommandID必须递增才会被记录
+    Command_Now = *msg;
+    
+    // 无人机一旦接受到Disarm指令，则会屏蔽其他指令
+    if(Command_Last.Mode == prometheus_msgs::SwarmCommand::Disarm)
+    {
+        Command_Now = Command_Last;
+    }
+
+    if(Command_Now.Mode == prometheus_msgs::SwarmCommand::Position_Control ||
+        Command_Now.Mode == prometheus_msgs::SwarmCommand::Velocity_Control ||
+        Command_Now.Mode == prometheus_msgs::SwarmCommand::Accel_Control )
+    {
+        if (swarm_num == 1)
+        {
+            // swarm_num 为1时,即无人机无法变换阵型,并只能接收位置控制指令
+            Command_Now.Mode = prometheus_msgs::SwarmCommand::Position_Control;
+            formation_separation << 0,0,0,0;
+        }else if(swarm_num == 8)
+        {
+            formation_separation = formation_utils::get_formation_separation(Command_Now.swarm_shape, Command_Now.swarm_size, swarm_num);
+        }else
+        {
+            // 未指定阵型,如若想6机按照8机编队飞行,则设置swarm_num为8即可
+            Command_Now.Mode = prometheus_msgs::SwarmCommand::Position_Control;
+            formation_separation = Eigen::MatrixXf::Zero(swarm_num,4); 
+            pub_message(message_pub, prometheus_msgs::Message::ERROR, NODE_NAME, "Wrong swarm_num");
+        }
+    }
+}
+
+void drone_state_cb(const prometheus_msgs::DroneState::ConstPtr& msg)
+{
+    _DroneState = *msg;
+
+    pos_drone  = Eigen::Vector3d(msg->position[0], msg->position[1], msg->position[2]);
+    vel_drone  = Eigen::Vector3d(msg->velocity[0], msg->velocity[1], msg->velocity[2]);
+}
+
+void nei_state_cb(const prometheus_msgs::DroneState::ConstPtr& msg, int nei_id)
+{
+    pos_nei[nei_id]  = Eigen::Vector3d(msg->position[0], msg->position[1], msg->position[2]);
+    vel_nei[nei_id]  = Eigen::Vector3d(msg->velocity[0], msg->velocity[1], msg->velocity[2]);
 }
 
 void printf_param()
@@ -110,8 +144,6 @@ void printf_param()
     cout << "k_p    : "<< k_p <<"  "<<endl;
     cout << "k_aij       : "<< k_aij <<"  "<<endl;
     cout << "k_gamma       : "<< k_gamma <<"  "<<endl;
-    
-
     cout << "Takeoff_height   : "<< Takeoff_height<<" [m] "<<endl;
     cout << "Disarm_height    : "<< Disarm_height <<" [m] "<<endl;
     cout << "Land_speed       : "<< Land_speed <<" [m/s] "<<endl;
@@ -145,7 +177,6 @@ void printf_state()
     cout << "neighbour_vel [X Y Z] : " << vel_nei[1][0] << " [ m/s ] "<< vel_nei[1][1]<<" [ m/s ] "<<vel_nei[1][2]<<" [ m/s ] "<<endl;
 }
 
-
 int check_failsafe()
 {
     if (_DroneState.position[0] < geo_fence_x[0] || _DroneState.position[0] > geo_fence_x[1] ||
@@ -158,12 +189,6 @@ int check_failsafe()
     else{
         return 0;
     }
-}
-
-
-void timerCallback(const ros::TimerEvent& e)
-{
-    pub_message(message_pub, prometheus_msgs::Message::NORMAL, NODE_NAME, "[" + uav_name + "] : Program is running.");
 }
 
 void idle()
@@ -286,7 +311,47 @@ void send_acc_xyz_setpoint(const Eigen::Vector3d& accel_sp, float yaw_sp)
     // cout << "Yaw_target : " << euler_fcu_target[2] * 180/M_PI<<" [deg] "<<endl;
 
 }
+
+#define NUM_MOTOR 4
+#define MOTOR_P1 -0.00069
+#define MOTOR_P2 0.01271
+#define MOTOR_P3 -0.07948
+#define MOTOR_P4 0.3052
+#define MOTOR_P5 0.008775
+#define thrust_max_single_motor 6.0
+
+Eigen::Vector3d accelToThrottle(const Eigen::Vector3d& accel_sp, float mass, float tilt_max)
+{
+    Eigen::Vector3d thrust_sp;
+
+    //除以电机个数得到单个电机的期望推力
+    thrust_sp = mass * accel_sp / NUM_MOTOR;
+
+    // 推力限幅，根据最大倾斜角及最大油门
+    float thrust_max_XY_tilt = fabs(thrust_sp[2]) * tanf(tilt_max/180.0*M_PI);
+    float thrust_max_XY = sqrtf(thrust_max_single_motor * thrust_max_single_motor - pow(thrust_sp[2],2));
+    thrust_max_XY = min(thrust_max_XY_tilt, thrust_max_XY);
+
+    if ((pow(thrust_sp[0],2) + pow(thrust_sp[1],2)) > pow(thrust_max_XY,2)) 
+    {
+        float mag = sqrtf((pow(thrust_sp[0],2) + pow(thrust_sp[1],2)));
+        thrust_sp[0] = thrust_sp[0] / mag * thrust_max_XY;
+        thrust_sp[1] = thrust_sp[1] / mag * thrust_max_XY;
+    }
+
+    Eigen::Vector3d throttle_sp;
+
+    //电机模型，可通过辨识得到，推力-油门曲线
+    for (int i=0; i<3; i++)
+    {
+        throttle_sp[i] = MOTOR_P1 * pow(thrust_sp[i],4) + MOTOR_P2 * pow(thrust_sp[i],3) + MOTOR_P3 * pow(thrust_sp[i],2) + MOTOR_P4 * thrust_sp[i] + MOTOR_P5;
+        // PX4内部默认假设 0.5油门为悬停推力 ， 在无人机重量为1kg时，直接除20得到0.5
+        // throttle_sp[i] = thrust_sp[i]/20;
+    }
+
+    return throttle_sp;   
 }
+
 
 #endif
 

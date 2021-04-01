@@ -5,8 +5,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#include "swarm_control_utils.h"
-#include "message_utils.h"
+#include "swarm_ground_station.h"
 
 using namespace std;
 //参数声明
@@ -63,6 +62,7 @@ int main(int argc, char **argv)
     ros::NodeHandle nh("~");
 
     nh.param<int>("swarm_num", swarm_num, 1);
+
     for(int i = 1; i <= swarm_num; i++) 
     {
         // 设置无人机名字，none代表无
@@ -72,7 +72,6 @@ int main(int argc, char **argv)
         nh.param<int>((fmt2%(i)).str(), uav_id[i], 0);
         // 订阅
         command_sub[i] = nh.subscribe<prometheus_msgs::SwarmCommand>(uav_name[i] + "/prometheus/swarm_command", 10, swarm_command_cb[i]);
-        cout << uav_name[i] + "/prometheus/swarm_command" << endl;
         drone_state_sub[i] = nh.subscribe<prometheus_msgs::DroneState>(uav_name[i] + "/prometheus/drone_state", 10, drone_state_cb[i]);
         message_sub[i] = nh.subscribe<prometheus_msgs::Message>(uav_name[i] + "/prometheus/message/main", 100, msg_cb);
     }
@@ -86,7 +85,7 @@ int main(int argc, char **argv)
         {
             if(uav_id[i] != 0)
             {
-                swarm_control_utils::printf_swarm_state(swarm_num, uav_id[i], uav_name[i], State_uav[i], Command_uav[i]);
+                printf_swarm_state(swarm_num, uav_id[i], uav_name[i], State_uav[i], Command_uav[i]);
             }
             printf("send message to server: ");
             data = (fmt3%(i)%(State_uav[i].position[0])%(State_uav[i].position[1])%State_uav[i].position[2]%

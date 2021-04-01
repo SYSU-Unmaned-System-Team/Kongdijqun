@@ -1,36 +1,7 @@
 #include "swarm_controller.h"
 
-//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>回调函数<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-void swarm_command_cb(const prometheus_msgs::SwarmCommand::ConstPtr& msg)
-{
-    // CommandID必须递增才会被记录
-    Command_Now = *msg;
-    
-    // 无人机一旦接受到Disarm指令，则会屏蔽其他指令
-    if(Command_Last.Mode == prometheus_msgs::SwarmCommand::Disarm)
-    {
-        Command_Now = Command_Last;
-    }
+using namespace std;
 
-    if(Command_Now.Mode == prometheus_msgs::SwarmCommand::Position_Control ||
-        Command_Now.Mode == prometheus_msgs::SwarmCommand::Velocity_Control ||
-        Command_Now.Mode == prometheus_msgs::SwarmCommand::Accel_Control )
-    {
-        formation_separation = swarm_control_utils::get_formation_separation(Command_Now.swarm_shape, Command_Now.swarm_size, swarm_num);
-    }
-}
-void drone_state_cb(const prometheus_msgs::DroneState::ConstPtr& msg)
-{
-    _DroneState = *msg;
-
-    pos_drone  = Eigen::Vector3d(msg->position[0], msg->position[1], msg->position[2]);
-    vel_drone  = Eigen::Vector3d(msg->velocity[0], msg->velocity[1], msg->velocity[2]);
-}
-void nei_state_cb(const prometheus_msgs::DroneState::ConstPtr& msg, int nei_id)
-{
-    pos_nei[nei_id]  = Eigen::Vector3d(msg->position[0], msg->position[1], msg->position[2]);
-    vel_nei[nei_id]  = Eigen::Vector3d(msg->velocity[0], msg->velocity[1], msg->velocity[2]);
-}
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>主 函 数<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 int main(int argc, char **argv)
 {
@@ -41,32 +12,24 @@ int main(int argc, char **argv)
 
     // 集群数量
     nh.param<int>("swarm_num", swarm_num, 1);
-    // 如果是使用的ekf2_gps则需要设置，　如果使用的是ekf2_vision则不需要
-    nh.param<float>("x", gazebo_offset[0], 0);
-    nh.param<float>("y", gazebo_offset[1], 0);
-    nh.param<float>("z", gazebo_offset[2], 0);
-
     // 无人机编号 1号无人机则为1
     nh.param<int>("uav_id", uav_id, 0);
     nh.param<string>("uav_name", uav_name, "/uav0");
-    // 控制变量
-    nh.param<float>("k_p", k_p, 0.95);
-    nh.param<float>("k_aij", k_aij, 0.1);
-    nh.param<float>("k_gamma", k_gamma, 0.1);
     //可监听到的无人机编号，目前设定为可监听到两台无人机，后期考虑可通过数组传递参数，监听任意ID的无人机
     nh.param<int>("neighbour_id1", neighbour_id1, 0);
     nh.param<int>("neighbour_id2", neighbour_id2, 0);
     nh.param<string>("neighbour_name1", neighbour_name1, "/uav0");
     nh.param<string>("neighbour_name2", neighbour_name2, "/uav0");
-
+    // 控制变量
+    nh.param<float>("k_p", k_p, 0.95);
+    nh.param<float>("k_aij", k_aij, 0.1);
+    nh.param<float>("k_gamma", k_gamma, 0.1);
     // 起飞高度,上锁高度,降落速度
     nh.param<float>("Takeoff_height", Takeoff_height, 1.0);
     nh.param<float>("Disarm_height", Disarm_height, 0.15);
     nh.param<float>("Land_speed", Land_speed, 0.2);
-
     // 是否打印消息
     nh.param<bool>("flag_printf", flag_printf, true);
-
     // 地理围栏
     nh.param<float>("geo_fence/x_min", geo_fence_x[0], -100.0);
     nh.param<float>("geo_fence/x_max", geo_fence_x[1], 100.0);
@@ -74,21 +37,10 @@ int main(int argc, char **argv)
     nh.param<float>("geo_fence/y_max", geo_fence_y[1], 100.0);
     nh.param<float>("geo_fence/z_min", geo_fence_z[0], -100.0);
     nh.param<float>("geo_fence/z_max", geo_fence_z[1], 100.0);
-
-    // 初始化阵型偏移量
-    formation_separation = Eigen::MatrixXf::Zero(swarm_num,4); 
-
-    // 【发布】位置/速度/加速度期望值 坐标系 ENU系
-    //  本话题要发送至飞控(通过Mavros功能包 /plugins/setpoint_raw.cpp发送), 对应Mavlink消息为SET_POSITION_TARGET_LOCAL_NED (#84), 对应的飞控中的uORB消息为position_setpoint_triplet.msg
-    setpoint_raw_local_pub = nh.advertise<mavros_msgs::PositionTarget>(uav_name + "/mavros/setpoint_raw/local", 10);
-
-    // 【服务】解锁/上锁
-    //  本服务通过Mavros功能包 /plugins/command.cpp 实现
-    arming_client = nh.serviceClient<mavros_msgs::CommandBool>(uav_name + "/mavros/cmd/arming");
-
-    // 【服务】修改系统模式
-    //  本服务通过Mavros功能包 /plugins/command.cpp 实现
-    set_mode_client = nh.serviceClient<mavros_msgs::SetMode>(uav_name + "/mavros/set_mode");
+    // 如果是使用的ekf2_gps则需要设置，　如果使用的是ekf2_vision则不需要
+    nh.param<float>("gazebo_offset_x", gazebo_offset[0], 0);
+    nh.param<float>("gazebo_offset_y", gazebo_offset[1], 0);
+    nh.param<float>("gazebo_offset_z", gazebo_offset[2], 0);
 
     //【订阅】集群控制指令
     command_sub = nh.subscribe<prometheus_msgs::SwarmCommand>(uav_name + "/prometheus/swarm_command", 10, swarm_command_cb);
@@ -100,27 +52,29 @@ int main(int argc, char **argv)
     nei1_state_sub = nh.subscribe<prometheus_msgs::DroneState>(neighbour_name1 + "/prometheus/drone_state", 10, boost::bind(&nei_state_cb,_1, 0));
     nei2_state_sub = nh.subscribe<prometheus_msgs::DroneState>(neighbour_name2 + "/prometheus/drone_state", 10, boost::bind(&nei_state_cb,_1, 1));
 
+    // 【发布】位置/速度/加速度期望值 坐标系 ENU系
+    //  本话题要发送至飞控(通过Mavros功能包 /plugins/setpoint_raw.cpp发送), 对应Mavlink消息为SET_POSITION_TARGET_LOCAL_NED (#84), 对应的飞控中的uORB消息为position_setpoint_triplet.msg
+    setpoint_raw_local_pub = nh.advertise<mavros_msgs::PositionTarget>(uav_name + "/mavros/setpoint_raw/local", 10);
+
     // 【发布】用于地面站显示的提示消息
     message_pub = nh.advertise<prometheus_msgs::Message>(uav_name + "/prometheus/message/main", 10);
 
-    // 10秒定时打印，以确保程序在正确运行
-    //ros::Timer timer = nh.createTimer(ros::Duration(10.0), timerCallback);
+    // 【服务】解锁/上锁
+    //  本服务通过Mavros功能包 /plugins/command.cpp 实现
+    arming_client = nh.serviceClient<mavros_msgs::CommandBool>(uav_name + "/mavros/cmd/arming");
+
+    // 【服务】修改系统模式
+    //  本服务通过Mavros功能包 /plugins/command.cpp 实现
+    set_mode_client = nh.serviceClient<mavros_msgs::SetMode>(uav_name + "/mavros/set_mode");
 
     if(flag_printf)
     {
-        swarm_controller::printf_param();
+        printf_param();
     }
     
-    // 初始化命令-
-    // 默认设置：Idle模式 电机怠速旋转 等待来自上层的控制指令
-    Command_Now.Mode                                = prometheus_msgs::SwarmCommand::Idle;
-    Command_Now.Command_ID                          = 0;
-    Command_Now.position_ref[0]     = 0;
-    Command_Now.position_ref[1]     = 0;
-    Command_Now.position_ref[2]     = 0;
-    Command_Now.yaw_ref             = 0;
+    init();
 
-//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>主  循  环<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>主  循  环<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     while(ros::ok())
     {
         // 执行回调函数
@@ -129,11 +83,11 @@ int main(int argc, char **argv)
         // 一般选择不打印
         if(flag_printf)
         {
-            swarm_controller::printf_state();
+            printf_state();
         }
 
         // Check for geo fence: If drone is out of the geo fence, it will land now.
-        if(swarm_controller::check_failsafe() == 1)
+        if(check_failsafe() == 1)
         {
             Command_Now.Mode = prometheus_msgs::SwarmCommand::Land;
         }
@@ -143,7 +97,7 @@ int main(int argc, char **argv)
         // 【Idle】 怠速旋转，此时可以切入offboard模式，但不会起飞。
         case prometheus_msgs::SwarmCommand::Idle:
             
-            swarm_controller::idle();
+            idle();
 
             // 设定yaw_ref=999时，切换offboard模式，并解锁
             if(Command_Now.yaw_ref == 999)
@@ -177,7 +131,7 @@ int main(int argc, char **argv)
                 state_sp = Eigen::Vector3d(Takeoff_position[0],Takeoff_position[1],Takeoff_position[2] + Takeoff_height);
                 yaw_sp              = _DroneState.attitude[2]; 
             }
-            swarm_controller::send_pos_setpoint(state_sp, yaw_sp);
+            send_pos_setpoint(state_sp, yaw_sp);
             
             break;
 
@@ -193,7 +147,7 @@ int main(int argc, char **argv)
 
                 state_sp = Eigen::Vector3d(_DroneState.position[0],_DroneState.position[1],_DroneState.position[2]);
             }
-            swarm_controller::send_pos_setpoint(state_sp, Command_Now.yaw_ref);
+            send_pos_setpoint(state_sp, Command_Now.yaw_ref);
 
             break;
 
@@ -216,7 +170,7 @@ int main(int argc, char **argv)
                 state_sp = Eigen::Vector3d(Command_Now.position_ref[0],Command_Now.position_ref[1], Command_Now.position_ref[2] );
                 state_sp_extra = Eigen::Vector3d(0.0, 0.0 , Command_Now.velocity_ref[2]);
                 yaw_sp = Command_Now.yaw_ref;
-                swarm_controller::send_pos_vel_xyz_setpoint(state_sp, state_sp_extra, yaw_sp);
+                send_pos_vel_xyz_setpoint(state_sp, state_sp_extra, yaw_sp);
             }else
             {
                 //此处切换会manual模式是因为:PX4默认在offboard模式且有控制的情况下没法上锁,直接使用飞控中的land模式
@@ -254,7 +208,7 @@ int main(int argc, char **argv)
             state_sp[1] = Command_Now.position_ref[1] + formation_separation(uav_id-1,1) - gazebo_offset[1];
             state_sp[2] = Command_Now.position_ref[2] + formation_separation(uav_id-1,2) - gazebo_offset[2];
             yaw_sp = Command_Now.yaw_ref;
-            swarm_controller::send_pos_setpoint(state_sp, yaw_sp);
+            send_pos_setpoint(state_sp, yaw_sp);
             // cout << "curPos" << Command_Now.position_ref[0] << " " << Command_Now.position_ref[1] << " " << Command_Now.position_ref[2] << endl;
             // cout << "2pos:" << state_sp[0] << " " << state_sp[1] << " " << state_sp[2] << endl;
             break;
@@ -277,7 +231,7 @@ int main(int argc, char **argv)
             state_sp[2] = Command_Now.position_ref[2] + formation_separation(uav_id-1,2);
             yaw_sp = Command_Now.yaw_ref + formation_separation(uav_id-1,3);
 
-            swarm_controller::send_vel_xy_pos_z_setpoint(state_sp, yaw_sp);
+            send_vel_xy_pos_z_setpoint(state_sp, yaw_sp);
 
             break;
 
@@ -294,14 +248,14 @@ int main(int argc, char **argv)
             accel_sp[2] =  2.0 * (Command_Now.position_ref[2] + formation_separation(uav_id-1,2) - pos_drone[2]) + 3.0 * (Command_Now.velocity_ref[2] - vel_drone[2]) + 9.8;
             
             //　从加速度归一化到油门
-            throttle_sp =  swarm_control_utils::accelToThrottle(accel_sp, 1.0, 20.0);
+            throttle_sp =  accelToThrottle(accel_sp, 1.0, 20.0);
 
             state_sp[0] = throttle_sp[0] ;
             state_sp[1] = throttle_sp[1] ;
             state_sp[2] = throttle_sp[2] ;
 
             yaw_sp = Command_Now.yaw_ref + formation_separation(uav_id-1,3);
-            swarm_controller::send_acc_xyz_setpoint(state_sp, yaw_sp);
+            send_acc_xyz_setpoint(state_sp, yaw_sp);
 
             break;
 
@@ -312,7 +266,7 @@ int main(int argc, char **argv)
             state_sp[1] = Command_Now.position_ref[1];
             state_sp[2] = Command_Now.position_ref[2];
             yaw_sp = Command_Now.yaw_ref;
-            swarm_controller::send_pos_setpoint(state_sp, yaw_sp);
+            send_pos_setpoint(state_sp, yaw_sp);
 
             break;
 
