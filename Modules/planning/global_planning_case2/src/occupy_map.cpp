@@ -64,11 +64,8 @@ void Occupy_map::map_update_gpcl(const sensor_msgs::PointCloud2ConstPtr & global
     has_global_point = true;
 }
 
-// 地图更新函数 - 输入：局部点云
-void Occupy_map::map_update_lpcl(const sensor_msgs::PointCloud2ConstPtr & local_point, const nav_msgs::Odometry & odom)
+void Occupy_map::local_map_merge_odom(const nav_msgs::Odometry & odom)
 {
-    pcl::fromROSMsg(*local_point,*inputPointCloud);
-
     double x, y, z, roll, pitch, yaw;
     x = odom.pose.pose.position.x;
     y = odom.pose.pose.position.y;
@@ -82,12 +79,21 @@ void Occupy_map::map_update_lpcl(const sensor_msgs::PointCloud2ConstPtr & local_
     has_global_point = true;
 }
 
+// 地图更新函数 - 输入：局部点云
+void Occupy_map::map_update_lpcl(const sensor_msgs::PointCloud2ConstPtr & local_point, const nav_msgs::Odometry & odom)
+{
+    pcl::fromROSMsg(*local_point,*inputPointCloud);
+    local_map_merge_odom(odom);
+}
+
 // 地图更新函数 - 输入：laser
 void Occupy_map::map_update_laser(const sensor_msgs::LaserScanConstPtr & local_point, const nav_msgs::Odometry & odom)
 {
-    has_global_point = true;
-// 待更新
-// 将传递过来的数据转为全局点云
+    sensor_msgs::PointCloud2 input_laser_scan2;
+    
+    projector_.projectLaser(*local_point, input_laser_scan2);
+    pcl::fromROSMsg(input_laser_scan2,*inputPointCloud);
+    local_map_merge_odom(odom);
 }
 
 // 当global_planning节点接收到点云消息更新时，进行设置点云指针并膨胀

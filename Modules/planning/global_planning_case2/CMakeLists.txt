@@ -10,6 +10,7 @@ find_package(PCL 1.7 REQUIRED)
 find_package(catkin REQUIRED COMPONENTS
        roscpp
        rospy
+       laser_geometry
        std_msgs
 	   sensor_msgs
 	   geometry_msgs
