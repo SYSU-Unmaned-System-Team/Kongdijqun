@@ -38,10 +38,11 @@ class Occupy_map
         // 点云指针
         pcl::PointCloud<pcl::PointXYZ>::Ptr gobalPointCloudMap;
         pcl::PointCloud<pcl::PointXYZ>::Ptr inputPointCloud;
+        pcl::PointCloud<pcl::PointXYZ>::Ptr pcl_ptr;
         pcl::PointCloud<pcl::PointXYZ>::Ptr transformed_cloud;
-        sensor_msgs::LaserScan *input_laser_scan;
-        sensor_msgs::PointCloud2 input_laser_scan2;
+        sensor_msgs::PointCloud2 input_laser_scan;
         laser_geometry::LaserProjection projector_;
+        double f_x, f_y, f_z, f_roll, f_pitch, f_yaw;
         // 地图是否占据容器， 从编程角度来讲，这就是地图变为单一序列化后的索引
         std::vector<int> occupancy_buffer_;  // 0 is free, 1 is occupied
         // 地图分辨率
@@ -96,7 +97,5 @@ class Occupy_map
 };
 
 }
-
-
 
 #endif

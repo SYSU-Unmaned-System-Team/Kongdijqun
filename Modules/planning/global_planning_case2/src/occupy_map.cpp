@@ -73,9 +73,15 @@ void Occupy_map::local_map_merge_odom(const nav_msgs::Odometry & odom)
     tf::Quaternion orientation;
     tf::quaternionMsgToTF(odom.pose.pose.orientation, orientation);    
     tf::Matrix3x3(orientation).getRPY(roll, pitch, yaw);
+    pcl::transformPointCloud(*gobalPointCloudMap,*transformed_cloud,pcl::getTransformation(f_x-x, f_y-y, f_z-z, f_roll-roll, f_pitch-pitch, f_yaw-yaw));
+    *gobalPointCloudMap = *transformed_cloud + *inputPointCloud;
 
-    pcl::transformPointCloud(*inputPointCloud,*transformed_cloud,pcl::getTransformation(x, y, z, roll, pitch, yaw));
-    *gobalPointCloudMap += *transformed_cloud;
+    f_x = x;
+    f_y = y;
+    f_z = z;
+    f_roll = roll;
+    f_pitch = pitch;
+    f_yaw = yaw;
     has_global_point = true;
 }
 
@@ -89,10 +95,8 @@ void Occupy_map::map_update_lpcl(const sensor_msgs::PointCloud2ConstPtr & local_
 // 地图更新函数 - 输入：laser
 void Occupy_map::map_update_laser(const sensor_msgs::LaserScanConstPtr & local_point, const nav_msgs::Odometry & odom)
 {
-    sensor_msgs::PointCloud2 input_laser_scan2;
-    
-    projector_.projectLaser(*local_point, input_laser_scan2);
-    pcl::fromROSMsg(input_laser_scan2,*inputPointCloud);
+    projector_.projectLaser(*local_point, input_laser_scan);
+    pcl::fromROSMsg(input_laser_scan,*inputPointCloud);
     local_map_merge_odom(odom);
 }
 
@@ -109,6 +113,7 @@ void Occupy_map::inflate_point_cloud(void)
     // 发布未膨胀点云
     sensor_msgs::PointCloud2 global_env_;
     pcl::toROSMsg(*gobalPointCloudMap,global_env_);
+    global_env_.header.frame_id = "lidar_link";
     global_pcl_pub.publish(global_env_);
 
     //记录开始时间
