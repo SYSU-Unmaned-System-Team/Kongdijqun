@@ -27,5 +27,16 @@ plugin_blacklist:
 - setpoint_position
 - setpoint_accel
 - setpoint_velocity
+- altitude
+- esc_status
+- ftp
+- global_position
+- gps_status
+- log_transfer
+- onboard_computer_status
+- manual_control
+- rangefinder
+- setpoint_trajectory
+- trajectory
 plugin_whitelist: []
 #- 'sys_*'
