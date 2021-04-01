@@ -3,34 +3,32 @@
 
 // 头文件
 #include <ros/ros.h>
+#include <iostream>
 #include <bitset>
-#include <math_utils.h>
-#include <mavros_msgs/CommandBool.h>
-#include <mavros_msgs/SetMode.h>
+#include <Eigen/Eigen>
+
+#include <prometheus_msgs/DroneState.h>
+
 #include <mavros_msgs/State.h>
 #include <mavros_msgs/ExtendedState.h>
 #include <mavros_msgs/AttitudeTarget.h>
 #include <mavros_msgs/PositionTarget.h>
+
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/TwistStamped.h>
-#include <mavros_msgs/ActuatorControl.h>
+#include <geometry_msgs/TransformStamped.h>
+
 #include <sensor_msgs/Imu.h>
-#include <prometheus_msgs/DroneState.h>
-#include <prometheus_msgs/AttitudeReference.h>
 #include <nav_msgs/Odometry.h>
 #include <nav_msgs/Path.h>
 #include <std_msgs/Float64.h>
-#include <tf2_msgs/TFMessage.h>
-#include <geometry_msgs/TransformStamped.h>
-#include <tf/transform_listener.h>
-#include <iostream>
-#include <Eigen/Eigen>
+
 #include "math_utils.h"
-#include "prometheus_control_utils.h"
 #include "message_utils.h"
+#include <math_utils.h>
+
 
 // 声明
-
 using namespace std;
 #define TRA_WINDOW 1000
 #define TIMEOUT_MAX 0.05
@@ -156,6 +154,15 @@ void gazebo_cb(const nav_msgs::Odometry::ConstPtr &msg)
     }
 }
 
+// 【获取当前时间函数】 单位：秒
+float get_time_in_sec(const ros::Time& begin_time)
+{
+    ros::Time time_now = ros::Time::now();
+    float currTimeSec = time_now.sec - begin_time.sec;
+    float currTimenSec = time_now.nsec / 1e9 - begin_time.nsec / 1e9;
+    return (currTimeSec + currTimenSec);
+}
+
 void timercb_vision(const ros::TimerEvent &e)
 {
     geometry_msgs::PoseStamped vision;
@@ -172,7 +179,7 @@ void timercb_vision(const ros::TimerEvent &e)
         vision.pose.orientation.z = q_mocap.z();
         vision.pose.orientation.w = q_mocap.w();
         // 此处时间主要用于监测动捕，T265设备是否正常工作
-        if( prometheus_control_utils::get_time_in_sec(last_timestamp) > TIMEOUT_MAX)
+        if( get_time_in_sec(last_timestamp) > TIMEOUT_MAX)
         {
             pub_message(message_pub, prometheus_msgs::Message::ERROR, NODE_NAME, "Mocap Timeout.");
         }

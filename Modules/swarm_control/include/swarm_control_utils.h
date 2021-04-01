@@ -11,7 +11,6 @@
 #include <Eigen/Eigen>
 #include <math.h>
 #include <math_utils.h>
-#include <command_to_mavros.h>
 #include <prometheus_msgs/Message.h>
 #include <prometheus_msgs/ControlCommand.h>
 #include <prometheus_msgs/SwarmCommand.h>

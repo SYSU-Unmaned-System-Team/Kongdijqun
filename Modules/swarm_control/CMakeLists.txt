@@ -70,9 +70,9 @@ add_executable(swarm_estimator src/swarm_estimator.cpp)
 add_dependencies(swarm_estimator prometheus_swarm_control_gencpp)
 target_link_libraries(swarm_estimator ${catkin_LIBRARIES})
 
-# add_executable(swarm_controller src/swarm_control/swarm_controller.cpp)
-# add_dependencies(swarm_controller prometheus_swarm_control_gencpp)
-# target_link_libraries(swarm_controller ${catkin_LIBRARIES})
+add_executable(swarm_controller src/swarm_controller.cpp)
+add_dependencies(swarm_controller prometheus_swarm_control_gencpp)
+target_link_libraries(swarm_controller ${catkin_LIBRARIES})
 
 # add_executable(swarm_ground_station src/swarm_control/swarm_ground_station.cpp)
 # add_dependencies(swarm_ground_station prometheus_swarm_control_gencpp)
