@@ -55,13 +55,10 @@ void Global_Planner::init(ros::NodeHandle& nh)
     // time_per_path
     track_path_timer = nh.createTimer(ros::Duration(time_per_path), &Global_Planner::track_path_cb, this);        
 
-
-
     // Astar algorithm
     Astar_ptr.reset(new Astar);
     Astar_ptr->init(nh);
     pub_message(message_pub, prometheus_msgs::Message::NORMAL, NODE_NAME, "A_star init.");
-
 
     // 规划器状态参数初始化
     exec_state = EXEC_STATE::WAIT_GOAL;
@@ -79,7 +76,7 @@ void Global_Planner::init(ros::NodeHandle& nh)
     Command_Now.source = NODE_NAME;
     desired_yaw = 0.0;
 
-    //　仿真模式下直接发送切换模式与起飞指令
+    // 仿真模式下直接发送切换模式与起飞指令
     if(sim_mode == true)
     {
         // Waiting for input
@@ -237,7 +234,6 @@ void Global_Planner::Gpointcloud_cb(const sensor_msgs::PointCloud2ConstPtr &msg)
             update_num = 0;
         } 
     }
-    
 }
 
 // 根据局部点云更新地图
@@ -245,7 +241,7 @@ void Global_Planner::Gpointcloud_cb(const sensor_msgs::PointCloud2ConstPtr &msg)
 void Global_Planner::Lpointcloud_cb(const sensor_msgs::PointCloud2ConstPtr &msg)
 {
     /* need odom_ for center radius sensing */
-    if (!odom_ready) 
+    if (!odom_ready)
     {
         return;
     }
@@ -526,7 +522,4 @@ int Global_Planner::get_start_point_id(void)
 
     return id;
 }
-
-
-
 }
