@@ -5,10 +5,6 @@ namespace Global_Planning
 // 初始化函数
 void Occupy_map::init(ros::NodeHandle& nh)
 {
-    // 初始化点云指针
-    gobalPointCloudMap.reset(new pcl::PointCloud<pcl::PointXYZ>);
-    inputPointCloud.reset(new pcl::PointCloud<pcl::PointXYZ>);
-    transformed_cloud.reset(new pcl::PointCloud<pcl::PointXYZ>);
     // TRUE代表2D平面规划及搜索,FALSE代表3D 
     nh.param("global_planner/is_2D", is_2D, true); 
     // 2D规划时,定高高度
@@ -40,7 +36,11 @@ void Occupy_map::init(ros::NodeHandle& nh)
         // 占据图尺寸 = 地图尺寸 / 分辨率
         grid_size_(i) = ceil(map_size_3d_(i) / resolution_);
     }
-        
+    // 初始化点云指针
+    gobalPointCloudMap.reset(new pcl::PointCloud<pcl::PointXYZ>);
+    inputPointCloud.reset(new pcl::PointCloud<pcl::PointXYZ>);
+    transformed_cloud.reset(new pcl::PointCloud<pcl::PointXYZ>);
+    
     // 占据容器的大小 = 占据图尺寸 x*y*z
     occupancy_buffer_.resize(grid_size_(0) * grid_size_(1) * grid_size_(2));
     fill(occupancy_buffer_.begin(), occupancy_buffer_.end(), 0.0);
@@ -54,14 +54,6 @@ void Occupy_map::init(ros::NodeHandle& nh)
         min_range_(2) = fly_height_2D - resolution_;
         max_range_(2) = fly_height_2D + resolution_;
     }
-}
-
-// 地图更新函数 - 输入：全局点云
-void Occupy_map::map_update_gpcl(const sensor_msgs::PointCloud2ConstPtr & global_point)
-{
-    pcl::fromROSMsg(*global_point,*inputPointCloud);
-    gobalPointCloudMap = inputPointCloud;
-    has_global_point = true;
 }
 
 void Occupy_map::local_map_merge_odom(const nav_msgs::Odometry & odom)
@@ -85,18 +77,32 @@ void Occupy_map::local_map_merge_odom(const nav_msgs::Odometry & odom)
     has_global_point = true;
 }
 
+// 地图更新函数 - 输入：全局点云
+void Occupy_map::map_update_gpcl(const sensor_msgs::PointCloud2ConstPtr & global_point)
+{
+    pcl::fromROSMsg(*global_point,*inputPointCloud);
+    gobalPointCloudMap = inputPointCloud;
+    has_global_point = true;
+}
+
 // 地图更新函数 - 输入：局部点云
 void Occupy_map::map_update_lpcl(const sensor_msgs::PointCloud2ConstPtr & local_point, const nav_msgs::Odometry & odom)
 {
+    // 由sensor_msgs::PointCloud2 转为 pcl::PointCloud<pcl::PointXYZ>
     pcl::fromROSMsg(*local_point,*inputPointCloud);
+    // 将局部点云融合至全局点云
     local_map_merge_odom(odom);
 }
 
 // 地图更新函数 - 输入：laser
 void Occupy_map::map_update_laser(const sensor_msgs::LaserScanConstPtr & local_point, const nav_msgs::Odometry & odom)
 {
+    // 参考网页:http://wiki.ros.org/laser_geometry
+    // sensor_msgs::LaserScan 转为 sensor_msgs::PointCloud2 格式
     projector_.projectLaser(*local_point, input_laser_scan);
+    // 再由sensor_msgs::PointCloud2 转为 pcl::PointCloud<pcl::PointXYZ>
     pcl::fromROSMsg(input_laser_scan,*inputPointCloud);
+    // 将局部点云融合至全局点云
     local_map_merge_odom(odom);
 }
 

@@ -36,9 +36,13 @@ class Occupy_map
         Occupy_map(){}
 
         // 点云指针
+        // 全局点云指针
         pcl::PointCloud<pcl::PointXYZ>::Ptr gobalPointCloudMap;
+        // 输入的点云指针(辅助临时变量)
         pcl::PointCloud<pcl::PointXYZ>::Ptr inputPointCloud;
+        // 这个似乎没用
         pcl::PointCloud<pcl::PointXYZ>::Ptr pcl_ptr;
+        // 坐标转换辅助变量
         pcl::PointCloud<pcl::PointXYZ>::Ptr transformed_cloud;
         sensor_msgs::PointCloud2 input_laser_scan;
         laser_geometry::LaserProjection projector_;
