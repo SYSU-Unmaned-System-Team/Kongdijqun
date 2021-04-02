@@ -9,6 +9,8 @@ void Occupy_map::init(ros::NodeHandle& nh)
     gobalPointCloudMap.reset(new pcl::PointCloud<pcl::PointXYZ>);
     inputPointCloud.reset(new pcl::PointCloud<pcl::PointXYZ>);
     transformed_cloud.reset(new pcl::PointCloud<pcl::PointXYZ>);
+    pcl_ptr.reset(new pcl::PointCloud<pcl::PointXYZ>);
+    first_map = false;
     // TRUE代表2D平面规划及搜索,FALSE代表3D 
     nh.param("global_planner/is_2D", is_2D, true); 
     // 2D规划时,定高高度
@@ -66,6 +68,7 @@ void Occupy_map::map_update_gpcl(const sensor_msgs::PointCloud2ConstPtr & global
 
 void Occupy_map::local_map_merge_odom(const nav_msgs::Odometry & odom)
 {
+    //6DOF
     double x, y, z, roll, pitch, yaw;
     x = odom.pose.pose.position.x;
     y = odom.pose.pose.position.y;
@@ -73,21 +76,48 @@ void Occupy_map::local_map_merge_odom(const nav_msgs::Odometry & odom)
     tf::Quaternion orientation;
     tf::quaternionMsgToTF(odom.pose.pose.orientation, orientation);    
     tf::Matrix3x3(orientation).getRPY(roll, pitch, yaw);
-    pcl::transformPointCloud(*gobalPointCloudMap,*transformed_cloud,pcl::getTransformation(f_x-x, f_y-y, f_z-z, f_roll-roll, f_pitch-pitch, f_yaw-yaw));
-    *gobalPointCloudMap = *transformed_cloud + *inputPointCloud;
 
-    f_x = x;
-    f_y = y;
-    f_z = z;
-    f_roll = roll;
-    f_pitch = pitch;
-    f_yaw = yaw;
-    has_global_point = true;
+    //merge localmap
+    printf("x_dif:%f,y_dif:%f,z_dif:%f\n",f_x-x,f_y-y,f_z-z);
+    if(gobalPointCloudMap==nullptr||abs(f_x-x)>0.1||abs(f_y-y)>0.1||abs(f_z-z)>0.05) { //todo:angle change?
+        pcl::transformPointCloud(*gobalPointCloudMap,*transformed_cloud,pcl::getTransformation(f_x-x, f_y-y, f_z-z, f_roll-roll, f_pitch-pitch, f_yaw-yaw));
+        
+        printf("localmap merging...\n");
+
+        // downsample
+        vg.setInputCloud(inputPointCloud);
+        vg.setLeafSize(0.0025f, 0.0025f, 0.0025f);//change leaf size into 0.5cm
+        vg.filter(*pcl_ptr);
+        
+        pointCloudQueue.push(pcl_ptr);
+        *gobalPointCloudMap = *transformed_cloud + *pcl_ptr;
+        int queue_size = 10;
+        if(pointCloudQueue.size()>queue_size)
+        {
+            *gobalPointCloudMap = *(pointCloudQueue.front());
+            pointCloudQueue.pop();
+            for(int i = 1; i < queue_size; i++) 
+            {
+                *gobalPointCloudMap += *(pointCloudQueue.front());
+                pointCloudQueue.pop();
+            }
+        }
+
+        f_x = x;
+        f_y = y;
+        f_z = z;
+        f_roll = roll;
+        f_pitch = pitch;
+        f_yaw = yaw;
+        has_global_point = true;
+    }
+    else has_global_point = false;
 }
 
 // 地图更新函数 - 输入：局部点云
 void Occupy_map::map_update_lpcl(const sensor_msgs::PointCloud2ConstPtr & local_point, const nav_msgs::Odometry & odom)
 {
+    printf("rec localmap...\n");
     pcl::fromROSMsg(*local_point,*inputPointCloud);
     local_map_merge_odom(odom);
 }
@@ -191,19 +221,18 @@ void Occupy_map::inflate_point_cloud(void)
         // 膨胀地图效率与地图大小有关（有点久，Astar更新频率是多久呢？ 怎么才能提高膨胀效率呢？）
         printf("inflate global point take %f [s].\n",   (ros::Time::now()-time_start).toSec());
         exec_num=0;
-    }  
-
+    }
 }
 
 void Occupy_map::setOccupancy(Eigen::Vector3d pos, int occ) 
 {
-    if (occ != 1 && occ != 0) 
+    if(occ != 1 && occ != 0) 
     {
         pub_message(message_pub, prometheus_msgs::Message::WARN, NODE_NAME, "occ value error!\n");
         return;
     }
 
-    if (!isInMap(pos))
+    if(!isInMap(pos))
     {
         return;
     }
