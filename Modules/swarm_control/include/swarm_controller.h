@@ -312,6 +312,14 @@ void send_acc_xyz_setpoint(const Eigen::Vector3d& accel_sp, float yaw_sp)
 
 }
 
+// 【坐标系旋转函数】- 机体系到enu系
+// body_frame是机体系,enu_frame是惯性系，yaw_angle是当前偏航角[rad]
+void rotation_yaw(float yaw_angle, float body_frame[2], float enu_frame[2])
+{
+    enu_frame[0] = body_frame[0] * cos(yaw_angle) - body_frame[1] * sin(yaw_angle);
+    enu_frame[1] = body_frame[0] * sin(yaw_angle) + body_frame[1] * cos(yaw_angle);
+}
+
 #define NUM_MOTOR 4
 #define MOTOR_P1 -0.00069
 #define MOTOR_P2 0.01271

@@ -259,14 +259,47 @@ int main(int argc, char **argv)
 
             break;
 
-        case prometheus_msgs::SwarmCommand::Swarm_Planner:
+        // 单个飞机情况
+        case prometheus_msgs::SwarmCommand::Move:
 
-            //　此控制方式即为　集中式控制，　直接由地面站指定期望位置点
-            state_sp[0] = Command_Now.position_ref[0];
-            state_sp[1] = Command_Now.position_ref[1];
-            state_sp[2] = Command_Now.position_ref[2];
-            yaw_sp = Command_Now.yaw_ref;
-            send_pos_setpoint(state_sp, yaw_sp);
+            //　此控制方式即为　期望位置点控制, 仅针对单个飞机
+            if(Command_Now.Move_mode == prometheus_msgs::SwarmCommand::XYZ_POS)
+            {
+                state_sp[0] = Command_Now.position_ref[0];
+                state_sp[1] = Command_Now.position_ref[1];
+                state_sp[2] = Command_Now.position_ref[2];
+                yaw_sp = Command_Now.yaw_ref;
+                send_pos_setpoint(state_sp, yaw_sp);
+            }else if(Command_Now.Move_mode == prometheus_msgs::SwarmCommand::XY_VEL_Z_POS)
+            {
+                state_sp[0] = Command_Now.velocity_ref[0];
+                state_sp[1] = Command_Now.velocity_ref[1];
+                state_sp[2] = Command_Now.position_ref[2];
+                yaw_sp = Command_Now.yaw_ref;
+                send_vel_xy_pos_z_setpoint(state_sp, yaw_sp);
+
+                // 机体系控制,暂缺
+                if(false)
+                {
+                    //xy velocity mode
+                    float d_vel_body[2] = {Command_Now.velocity_ref[0], Command_Now.velocity_ref[1]};         //the desired xy velocity in Body Frame
+                    float d_vel_enu[2];                   //the desired xy velocity in NED Frame
+
+                    //根据无人机当前偏航角进行坐标系转换
+                    rotation_yaw(_DroneState.attitude[2], d_vel_body, d_vel_enu);
+                    Command_Now.position_ref[0] = 0;
+                    Command_Now.position_ref[1] = 0;
+                    Command_Now.position_ref[2] = Command_Now.position_ref[2];
+                    Command_Now.velocity_ref[0] = d_vel_enu[0];
+                    Command_Now.velocity_ref[1] = d_vel_enu[1];
+                    Command_Now.velocity_ref[2] = 0.0;
+                    state_sp = Eigen::Vector3d(Command_Now.velocity_ref[0],Command_Now.velocity_ref[1],Command_Now.position_ref[2]);
+                    yaw_sp = _DroneState.attitude[2] + Command_Now.yaw_ref;
+                }
+            }else
+            {
+                pub_message(message_pub, prometheus_msgs::Message::ERROR, NODE_NAME, "Wrong swarm command!");
+            }
 
             break;
 
