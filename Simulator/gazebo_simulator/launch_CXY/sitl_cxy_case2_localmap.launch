@@ -50,6 +50,7 @@
         <param name="map/map_size_x" value="30.0" type="double"/>
         <param name="map/map_size_y" value="30.0" type="double"/>
         <param name="map/map_size_z" value="3.0" type="double"/>
+        <param name="map/slide_window_size" value="20" type="int"/>
     </node>
 
     <!-- 启动二维码检测算法 -->

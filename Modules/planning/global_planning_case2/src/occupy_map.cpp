@@ -6,11 +6,11 @@ namespace Global_Planning
 void Occupy_map::init(ros::NodeHandle& nh)
 {
     // 初始化点云指针
-    gobalPointCloudMap.reset(new pcl::PointCloud<pcl::PointXYZ>);
-    inputPointCloud.reset(new pcl::PointCloud<pcl::PointXYZ>);
+    global_point_cloud_map.reset(new pcl::PointCloud<pcl::PointXYZ>);
+    input_point_cloud.reset(new pcl::PointCloud<pcl::PointXYZ>);
     transformed_cloud.reset(new pcl::PointCloud<pcl::PointXYZ>);
     pcl_ptr.reset(new pcl::PointCloud<pcl::PointXYZ>);
-    first_map = false;
+    st_it = 0;
     // TRUE代表2D平面规划及搜索,FALSE代表3D 
     nh.param("global_planner/is_2D", is_2D, true); 
     // 2D规划时,定高高度
@@ -27,6 +27,8 @@ void Occupy_map::init(ros::NodeHandle& nh)
     nh.param("map/resolution", resolution_,  0.2);
     // 地图膨胀距离，单位：米
     nh.param("map/inflate", inflate_,  0.3);
+    // 使用局部时滑动窗口
+    nh.param("map/slide_window_size", queue_size, 20);
 
     // 发布 地图rviz显示
     global_pcl_pub = nh.advertise<sensor_msgs::PointCloud2>("/prometheus/planning/global_pcl",  10); 
@@ -61,14 +63,14 @@ void Occupy_map::init(ros::NodeHandle& nh)
 // 地图更新函数 - 输入：全局点云
 void Occupy_map::map_update_gpcl(const sensor_msgs::PointCloud2ConstPtr & global_point)
 {
-    pcl::fromROSMsg(*global_point,*inputPointCloud);
-    gobalPointCloudMap = inputPointCloud;
+    pcl::fromROSMsg(*global_point,*input_point_cloud);
+    global_point_cloud_map = input_point_cloud;
     has_global_point = true;
 }
 
 void Occupy_map::local_map_merge_odom(const nav_msgs::Odometry & odom)
 {
-    //6DOF
+    // 6DOF
     double x, y, z, roll, pitch, yaw;
     x = odom.pose.pose.position.x;
     y = odom.pose.pose.position.y;
@@ -77,32 +79,35 @@ void Occupy_map::local_map_merge_odom(const nav_msgs::Odometry & odom)
     tf::quaternionMsgToTF(odom.pose.pose.orientation, orientation);    
     tf::Matrix3x3(orientation).getRPY(roll, pitch, yaw);
 
-    //merge localmap
-    printf("x_dif:%f,y_dif:%f,z_dif:%f\n",f_x-x,f_y-y,f_z-z);
-    if(gobalPointCloudMap==nullptr||abs(f_x-x)>0.1||abs(f_y-y)>0.1||abs(f_z-z)>0.05) { //todo:angle change?
-        pcl::transformPointCloud(*gobalPointCloudMap,*transformed_cloud,pcl::getTransformation(f_x-x, f_y-y, f_z-z, f_roll-roll, f_pitch-pitch, f_yaw-yaw));
-        
-        printf("localmap merging...\n");
-
+    // merge localmap, todo: incremental merge?
+    bool pos_change = abs(f_x-x)>0.1 || abs(f_y-y)>0.1 || abs(f_z-z)>0.05;
+    bool ang_change = 0; // todo:angle change?
+    if(global_point_cloud_map==nullptr || pos_change || ang_change) {
+        // printf("localmap merging...\n");
         // downsample
-        vg.setInputCloud(inputPointCloud);
-        vg.setLeafSize(0.0025f, 0.0025f, 0.0025f);//change leaf size into 0.5cm
+        vg.setInputCloud(input_point_cloud);
+        vg.setLeafSize(0.0025f, 0.0025f, 0.0025f); // change leaf size into 0.5cm
         vg.filter(*pcl_ptr);
         
-        pointCloudQueue.push(pcl_ptr);
-        *gobalPointCloudMap = *transformed_cloud + *pcl_ptr;
-        int queue_size = 10;
-        if(pointCloudQueue.size()>queue_size)
+        // window, size: $queue_size
+        map<int,pcl::PointCloud<pcl::PointXYZ>>::iterator iter;
+        for(iter = point_cloud_pair.begin(); iter != point_cloud_pair.end(); iter++) // mapping local map by odom
         {
-            *gobalPointCloudMap = *(pointCloudQueue.front());
-            pointCloudQueue.pop();
-            for(int i = 1; i < queue_size; i++) 
-            {
-                *gobalPointCloudMap += *(pointCloudQueue.front());
-                pointCloudQueue.pop();
-            }
+            pcl::transformPointCloud(iter->second,*transformed_cloud,pcl::getTransformation(f_x-x, f_y-y, f_z-z, f_roll-roll, f_pitch-pitch, f_yaw-yaw));
+            iter->second = *transformed_cloud;
         }
 
+        point_cloud_pair[st_it] = *pcl_ptr; // add new scan
+        st_it = (st_it + 1) % queue_size; // silde window
+
+        // accumulate local map
+        global_point_cloud_map.reset(new pcl::PointCloud<pcl::PointXYZ>);
+        for(iter = point_cloud_pair.begin(); iter != point_cloud_pair.end(); iter++)
+        {
+            *global_point_cloud_map += iter->second;
+        }
+
+        // store odom data
         f_x = x;
         f_y = y;
         f_z = z;
@@ -117,8 +122,8 @@ void Occupy_map::local_map_merge_odom(const nav_msgs::Odometry & odom)
 // 地图更新函数 - 输入：局部点云
 void Occupy_map::map_update_lpcl(const sensor_msgs::PointCloud2ConstPtr & local_point, const nav_msgs::Odometry & odom)
 {
-    printf("rec localmap...\n");
-    pcl::fromROSMsg(*local_point,*inputPointCloud);
+    // printf("rec localmap...\n");
+    pcl::fromROSMsg(*local_point,*input_point_cloud);
     local_map_merge_odom(odom);
 }
 
@@ -126,7 +131,7 @@ void Occupy_map::map_update_lpcl(const sensor_msgs::PointCloud2ConstPtr & local_
 void Occupy_map::map_update_laser(const sensor_msgs::LaserScanConstPtr & local_point, const nav_msgs::Odometry & odom)
 {
     projector_.projectLaser(*local_point, input_laser_scan);
-    pcl::fromROSMsg(input_laser_scan,*inputPointCloud);
+    pcl::fromROSMsg(input_laser_scan,*input_point_cloud);
     local_map_merge_odom(odom);
 }
 
@@ -142,7 +147,7 @@ void Occupy_map::inflate_point_cloud(void)
 
     // 发布未膨胀点云
     sensor_msgs::PointCloud2 global_env_;
-    pcl::toROSMsg(*gobalPointCloudMap,global_env_);
+    pcl::toROSMsg(*global_point_cloud_map,global_env_);
     global_env_.header.frame_id = "lidar_link";
     global_pcl_pub.publish(global_env_);
 
@@ -150,7 +155,7 @@ void Occupy_map::inflate_point_cloud(void)
     ros::Time time_start = ros::Time::now();
 
     // 转化为PCL的格式进行处理
-    pcl::PointCloud<pcl::PointXYZ> latest_global_cloud_ = *gobalPointCloudMap;
+    pcl::PointCloud<pcl::PointXYZ> latest_global_cloud_ = *global_point_cloud_map;
 
     //printf("time 1 take %f [s].\n",   (ros::Time::now()-time_start).toSec());
 
