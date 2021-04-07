@@ -86,6 +86,10 @@ add_executable(swarm_terminal_control src/swarm_terminal_control.cpp)
 add_dependencies(swarm_terminal_control prometheus_swarm_control_gencpp)
 target_link_libraries(swarm_terminal_control ${catkin_LIBRARIES})
 
+add_executable(cxy_ground_station src/cxy_ground_station.cpp)
+add_dependencies(cxy_ground_station prometheus_swarm_control_gencpp)
+target_link_libraries(cxy_ground_station ${catkin_LIBRARIES})
+
 #############
 ## Install ##
 #############
