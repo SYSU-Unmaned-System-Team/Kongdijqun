@@ -20,7 +20,6 @@
 #include <sensor_msgs/LaserScan.h>
 #include <laser_geometry/laser_geometry.h>
 #include <pcl/filters/voxel_grid.h>
-#include <queue>
 #include <map>
 
 #include "tools.h"
@@ -44,6 +43,7 @@ class Occupy_map
         pcl::PointCloud<pcl::PointXYZ>::Ptr input_point_cloud;
         pcl::PointCloud<pcl::PointXYZ>::Ptr pcl_ptr;
         pcl::PointCloud<pcl::PointXYZ>::Ptr transformed_cloud;
+        pcl::PointCloud<pcl::PointXYZ> border;
         pcl::VoxelGrid<pcl::PointXYZ> vg;
         sensor_msgs::PointCloud2 input_laser_scan;
         laser_geometry::LaserProjection projector_;

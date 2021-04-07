@@ -58,6 +58,28 @@ void Occupy_map::init(ros::NodeHandle& nh)
         min_range_(2) = fly_height_2D - resolution_;
         max_range_(2) = fly_height_2D + resolution_;
     }
+
+    border.width = 4000;
+    border.height = 1;
+    border.points.resize(4000);
+    for(int i=0 ; i<1000; i++)
+    {
+        border.points[i].x = min_range_(0)+i*(max_range_(0)-min_range_(0))/1000.0;
+        border.points[i].y = min_range_(1);
+        border.points[i].z = min_range_(2);
+    
+        border.points[i+1000].x = min_range_(0)+i*(max_range_(0)-min_range_(0))/1000.0;
+        border.points[i+1000].y = max_range_(1);
+        border.points[i+1000].z = min_range_(2);
+    
+        border.points[i+2000].x = min_range_(0);
+        border.points[i+2000].y = min_range_(1)+i*(max_range_(1)-min_range_(1))/1000.0;
+        border.points[i+2000].z = min_range_(2);
+    
+        border.points[i+3000].x = max_range_(0);
+        border.points[i+3000].y = min_range_(1)+i*(max_range_(1)-min_range_(1))/1000.0;
+        border.points[i+3000].z = min_range_(2);
+    }
 }
 
 // 地图更新函数 - 输入：全局点云
@@ -80,14 +102,12 @@ void Occupy_map::local_map_merge_odom(const nav_msgs::Odometry & odom)
     tf::Matrix3x3(orientation).getRPY(roll, pitch, yaw);
 
     // merge localmap, todo: incremental merge?
-    bool pos_change = abs(f_x-x)>0.1 || abs(f_y-y)>0.1 || abs(f_z-z)>0.05;
-    bool ang_change = 0; // todo:angle change?
-    if(global_point_cloud_map==nullptr || pos_change || ang_change) {
+    bool pos_change = (abs(f_x-x)>0.1 || abs(f_y-y)>0.1) && (fly_height_2D-0.1<z && z<fly_height_2D+1);
+    bool ang_change = abs(f_pitch-pitch)<0.03 && abs(f_roll-roll)<0.03 && abs(f_yaw-yaw)<0.03;
+    if(abs(f_roll-roll)>0.1 || abs(f_pitch-pitch)>0.1 || abs(f_yaw-yaw)>0.1)printf("h:%f  ang:%f,%f,%f\n",z,f_roll-roll, f_pitch-pitch, f_yaw-yaw);
+    if((global_point_cloud_map==nullptr || pos_change) && ang_change) {
         // printf("localmap merging...\n");
-        // downsample
-        vg.setInputCloud(input_point_cloud);
-        vg.setLeafSize(0.0025f, 0.0025f, 0.0025f); // change leaf size into 0.5cm
-        vg.filter(*pcl_ptr);
+        
         
         // window, size: $queue_size
         map<int,pcl::PointCloud<pcl::PointXYZ>>::iterator iter;
@@ -97,15 +117,25 @@ void Occupy_map::local_map_merge_odom(const nav_msgs::Odometry & odom)
             iter->second = *transformed_cloud;
         }
 
-        point_cloud_pair[st_it] = *pcl_ptr; // add new scan
+        point_cloud_pair[st_it] = *input_point_cloud; // add new scan
         st_it = (st_it + 1) % queue_size; // silde window
 
         // accumulate local map
-        global_point_cloud_map.reset(new pcl::PointCloud<pcl::PointXYZ>);
+        pcl_ptr.reset(new pcl::PointCloud<pcl::PointXYZ>);
         for(iter = point_cloud_pair.begin(); iter != point_cloud_pair.end(); iter++)
         {
-            *global_point_cloud_map += iter->second;
+            *pcl_ptr += iter->second;
         }
+
+        // downsample
+        vg.setInputCloud(pcl_ptr);
+        vg.setLeafSize(0.025f, 0.025f, 0.1f); // change leaf size
+        vg.filter(*global_point_cloud_map);
+
+        // border
+        pcl::transformPointCloud(border,*transformed_cloud,pcl::getTransformation(f_x-x, f_y-y, f_z-z, f_roll-roll, f_pitch-pitch, f_yaw-yaw));
+        border = *transformed_cloud;
+        *global_point_cloud_map += border;
 
         // store odom data
         f_x = x;
@@ -122,7 +152,6 @@ void Occupy_map::local_map_merge_odom(const nav_msgs::Odometry & odom)
 // 地图更新函数 - 输入：局部点云
 void Occupy_map::map_update_lpcl(const sensor_msgs::PointCloud2ConstPtr & local_point, const nav_msgs::Odometry & odom)
 {
-    // printf("rec localmap...\n");
     pcl::fromROSMsg(*local_point,*input_point_cloud);
     local_map_merge_odom(odom);
 }
