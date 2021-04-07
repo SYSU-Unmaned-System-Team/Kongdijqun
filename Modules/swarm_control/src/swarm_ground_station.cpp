@@ -18,7 +18,6 @@ prometheus_msgs::SwarmCommand Command_uav[max_swarm_num+1];
 geometry_msgs::PoseStamped ref_pose_uav[max_swarm_num+1];
 ros::Subscriber command_sub[max_swarm_num+1];
 ros::Subscriber drone_state_sub[max_swarm_num+1];
-ros::Subscriber message_sub[max_swarm_num+1];
 char *servInetAddr = "127.0.0.1"; //sever ip
 string data;
 char sendline[1024];
@@ -48,13 +47,6 @@ void drone_state_cb8(const prometheus_msgs::DroneState::ConstPtr& msg) { State_u
 void (*drone_state_cb[max_swarm_num+1])(const prometheus_msgs::DroneState::ConstPtr&)={NULL,drone_state_cb1,drone_state_cb2,
     drone_state_cb3,drone_state_cb4,drone_state_cb5,drone_state_cb6,drone_state_cb7,drone_state_cb8};
 
-void msg_cb(const prometheus_msgs::Message::ConstPtr& msg)
-{
-    prometheus_msgs::Message message = *msg;
-    printf_message(message);
-    sleep(0.2);
-}
-
 //主函数
 int main(int argc, char **argv)
 {
@@ -73,7 +65,6 @@ int main(int argc, char **argv)
         // 订阅
         command_sub[i] = nh.subscribe<prometheus_msgs::SwarmCommand>(uav_name[i] + "/prometheus/swarm_command", 10, swarm_command_cb[i]);
         drone_state_sub[i] = nh.subscribe<prometheus_msgs::DroneState>(uav_name[i] + "/prometheus/drone_state", 10, drone_state_cb[i]);
-        message_sub[i] = nh.subscribe<prometheus_msgs::Message>(uav_name[i] + "/prometheus/message/main", 100, msg_cb);
     }
     
     boost::format fmt3("uav%d,%f,%f,%f,%f,%f,%f,%f,%f,%f");
@@ -87,6 +78,7 @@ int main(int argc, char **argv)
             {
                 printf_swarm_state(swarm_num, uav_id[i], uav_name[i], State_uav[i], Command_uav[i]);
             }
+
             printf("send message to server: ");
             data = (fmt3%(i)%(State_uav[i].position[0])%(State_uav[i].position[1])%State_uav[i].position[2]%
                 (State_uav[i].velocity[0])%(State_uav[i].velocity[1])%(State_uav[i].velocity[2])%
@@ -109,6 +101,7 @@ int main(int argc, char **argv)
                 printf("client send failed!\n");
             }
             close(socketfd);
+
         }
         sleep(2.0); // frequence
     }

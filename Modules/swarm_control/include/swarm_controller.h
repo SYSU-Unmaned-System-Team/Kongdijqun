@@ -27,6 +27,7 @@ int uav_id;                                     // 无人机编号
 int num_neighbour = 2;                          // 邻居数量,目前默认为2
 int neighbour_id1,neighbour_id2;                // 邻居ID
 string neighbour_name1,neighbour_name2;         // 邻居名字
+string msg_name;
 Eigen::Vector2f geo_fence_x,geo_fence_y,geo_fence_z; //Geigraphical fence 地理围栏
 prometheus_msgs::SwarmCommand Command_Now;      // 无人机当前执行命令
 prometheus_msgs::SwarmCommand Command_Last;     // 无人机上一条执行命令
@@ -115,7 +116,7 @@ void swarm_command_cb(const prometheus_msgs::SwarmCommand::ConstPtr& msg)
             // 未指定阵型,如若想6机按照8机编队飞行,则设置swarm_num为8即可
             Command_Now.Mode = prometheus_msgs::SwarmCommand::Position_Control;
             formation_separation = Eigen::MatrixXf::Zero(swarm_num,4); 
-            pub_message(message_pub, prometheus_msgs::Message::ERROR, NODE_NAME, "Wrong swarm_num");
+            pub_message(message_pub, prometheus_msgs::Message::ERROR, msg_name, "Wrong swarm_num");
         }
     }
 }
@@ -183,7 +184,7 @@ int check_failsafe()
         _DroneState.position[1] < geo_fence_y[0] || _DroneState.position[1] > geo_fence_y[1] ||
         _DroneState.position[2] < geo_fence_z[0] || _DroneState.position[2] > geo_fence_z[1])
     {
-        pub_message(message_pub, prometheus_msgs::Message::ERROR, NODE_NAME, "Out of the geo fence, the drone is landing...");
+        pub_message(message_pub, prometheus_msgs::Message::ERROR, msg_name, "Out of the geo fence, the drone is landing...");
         return 1;
     }
     else{

@@ -11,8 +11,6 @@ int main(int argc, char **argv)
     // 读取参数
     // 无人机名字,即group前缀,但本node声明不放入group中
     nh.param<string>("uav_name", uav_name, "/uav0");
-    // 动作捕捉软件中设定的刚体名字
-    nh.param<string>("object_name", object_name, "UAV");
     // 定位数据输入源 0 for vicon, 2 for gazebo ground truth
     nh.param<int>("input_source", input_source, 0);
     //　定位设备偏移量
@@ -20,6 +18,8 @@ int main(int argc, char **argv)
     nh.param<float>("offset_y", pos_offset[1], 0);
     nh.param<float>("offset_z", pos_offset[2], 0);
     nh.param<float>("offset_yaw", yaw_offset, 0);
+
+    msg_name = uav_name + "/control";
 
     // 变量初始化
     init();
@@ -44,7 +44,7 @@ int main(int argc, char **argv)
     alt_sub = nh.subscribe<std_msgs::Float64>(uav_name + "/mavros/global_position/rel_alt", 10, alt_cb);
 
     // 【订阅】mocap估计位置
-    mocap_sub = nh.subscribe<geometry_msgs::PoseStamped>("/vrpn_client_node/"+ object_name + "/pose", 10, mocap_cb);
+    mocap_sub = nh.subscribe<geometry_msgs::PoseStamped>("/vrpn_client_node"+ uav_name + "/pose", 10, mocap_cb);
 
     // 【订阅】gazebo仿真真值
     gazebo_sub = nh.subscribe<nav_msgs::Odometry>(uav_name + "/prometheus/ground_truth", 10, gazebo_cb);

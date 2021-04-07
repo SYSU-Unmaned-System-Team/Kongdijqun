@@ -20,7 +20,7 @@ int main(int argc, char **argv)
 
     command_sub = nh.subscribe<prometheus_msgs::SwarmCommand>(uav_name + "/prometheus/swarm_command", 1, swarm_command_cb);
 
-    message_sub = nh.subscribe<prometheus_msgs::Message>(uav_name + "/prometheus/message/main", 10, msg_cb);
+    //message_sub = nh.subscribe<prometheus_msgs::Message>(uav_name + "/prometheus/message/main", 10, msg_cb);
 
     // 频率
     float hz = 1.0 / refresh_time;

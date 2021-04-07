@@ -30,6 +30,7 @@
 // 变量
 string uav_name;                            // 无人机名字(话题前缀)
 string object_name;                         // 动作捕捉软件中设定的刚体名字
+string msg_name;
 int input_source;                           // 0:使用mocap数据作为定位数据 1:使用laser数据作为定位数据
 Eigen::Vector3f pos_offset;                 // 定位设备偏移量
 float yaw_offset;                           // 定位设备偏移量
@@ -166,7 +167,7 @@ void gazebo_cb(const nav_msgs::Odometry::ConstPtr &msg)
     }
     else
     {
-        pub_message(message_pub, prometheus_msgs::Message::NORMAL, NODE_NAME, "wrong gazebo ground truth frame id.");
+        pub_message(message_pub, prometheus_msgs::Message::NORMAL, msg_name, "wrong gazebo ground truth frame id.");
     }
 }
 
@@ -188,7 +189,7 @@ void timercb_vision(const ros::TimerEvent &e)
         // 此处时间主要用于监测动捕，T265设备是否正常工作
         if( get_time_in_sec(mocap_timestamp) > TIMEOUT_MAX)
         {
-            pub_message(message_pub, prometheus_msgs::Message::ERROR, NODE_NAME, "Mocap Timeout.");
+            pub_message(message_pub, prometheus_msgs::Message::ERROR, msg_name, "Mocap Timeout.");
         }
 
     }
@@ -205,7 +206,7 @@ void timercb_vision(const ros::TimerEvent &e)
     }
     else
     {
-        pub_message(message_pub, prometheus_msgs::Message::NORMAL, NODE_NAME, "Wrong input_source.");
+        pub_message(message_pub, prometheus_msgs::Message::NORMAL, msg_name, "Wrong input_source.");
     }
 
     vision.header.stamp = ros::Time::now();

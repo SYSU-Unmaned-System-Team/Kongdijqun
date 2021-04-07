@@ -29,7 +29,7 @@ int main(int argc, char **argv)
     nh.param<float>("Disarm_height", Disarm_height, 0.15);
     nh.param<float>("Land_speed", Land_speed, 0.2);
     // 是否打印消息
-    nh.param<bool>("flag_printf", flag_printf, true);
+    nh.param<bool>("flag_printf", flag_printf, false);
     // 地理围栏
     nh.param<float>("geo_fence/x_min", geo_fence_x[0], -100.0);
     nh.param<float>("geo_fence/x_max", geo_fence_x[1], 100.0);
@@ -42,6 +42,8 @@ int main(int argc, char **argv)
     nh.param<float>("gazebo_offset_y", gazebo_offset[1], 0);
     nh.param<float>("gazebo_offset_z", gazebo_offset[2], 0);
 
+    msg_name = uav_name + "/control";
+
     //【订阅】集群控制指令
     command_sub = nh.subscribe<prometheus_msgs::SwarmCommand>(uav_name + "/prometheus/swarm_command", 10, swarm_command_cb);
 
@@ -49,8 +51,11 @@ int main(int argc, char **argv)
     drone_state_sub = nh.subscribe<prometheus_msgs::DroneState>(uav_name + "/prometheus/drone_state", 10, drone_state_cb);
 
     //【订阅】邻居飞机的状态信息
-    nei1_state_sub = nh.subscribe<prometheus_msgs::DroneState>(neighbour_name1 + "/prometheus/drone_state", 10, boost::bind(&nei_state_cb,_1, 0));
-    nei2_state_sub = nh.subscribe<prometheus_msgs::DroneState>(neighbour_name2 + "/prometheus/drone_state", 10, boost::bind(&nei_state_cb,_1, 1));
+    if(neighbour_name1 != "/uav0" || neighbour_name2 != "/uav0")
+    {
+        nei1_state_sub = nh.subscribe<prometheus_msgs::DroneState>(neighbour_name1 + "/prometheus/drone_state", 10, boost::bind(&nei_state_cb,_1, 0));
+        nei2_state_sub = nh.subscribe<prometheus_msgs::DroneState>(neighbour_name2 + "/prometheus/drone_state", 10, boost::bind(&nei_state_cb,_1, 1));
+    }
 
     // 【发布】位置/速度/加速度期望值 坐标系 ENU系
     //  本话题要发送至飞控(通过Mavros功能包 /plugins/setpoint_raw.cpp发送), 对应Mavlink消息为SET_POSITION_TARGET_LOCAL_NED (#84), 对应的飞控中的uORB消息为position_setpoint_triplet.msg
@@ -106,14 +111,14 @@ int main(int argc, char **argv)
                 {
                     mode_cmd.request.custom_mode = "OFFBOARD";
                     set_mode_client.call(mode_cmd);
-                    pub_message(message_pub, prometheus_msgs::Message::NORMAL, NODE_NAME, "Setting to OFFBOARD Mode...");
+                    pub_message(message_pub, prometheus_msgs::Message::NORMAL, msg_name, "Setting to OFFBOARD Mode...");
                 }
 
                 if(!_DroneState.armed)
                 {
                     arm_cmd.request.value = true;
                     arming_client.call(arm_cmd);
-                    pub_message(message_pub, prometheus_msgs::Message::NORMAL, NODE_NAME, "Arming...");
+                    pub_message(message_pub, prometheus_msgs::Message::NORMAL, msg_name, "Arming...");
                 }
             }
             break;
@@ -179,15 +184,15 @@ int main(int argc, char **argv)
 
                 arm_cmd.request.value = false;
                 arming_client.call(arm_cmd);
-                pub_message(message_pub, prometheus_msgs::Message::NORMAL, NODE_NAME, "Disarming...");
-                pub_message(message_pub, prometheus_msgs::Message::WARN, NODE_NAME, "LAND: switch to MANUAL filght mode");
+                pub_message(message_pub, prometheus_msgs::Message::NORMAL, msg_name, "Disarming...");
+                pub_message(message_pub, prometheus_msgs::Message::WARN, msg_name, "LAND: switch to MANUAL filght mode");
             }
 
             break;
 
         case prometheus_msgs::SwarmCommand::Disarm:
 
-            pub_message(message_pub, prometheus_msgs::Message::WARN, NODE_NAME, "Disarm: switch to MANUAL flight mode");
+            pub_message(message_pub, prometheus_msgs::Message::WARN, msg_name, "Disarm: switch to MANUAL flight mode");
             if(_DroneState.mode == "OFFBOARD")
             {
                 mode_cmd.request.custom_mode = "MANUAL";
@@ -298,7 +303,7 @@ int main(int argc, char **argv)
                 }
             }else
             {
-                pub_message(message_pub, prometheus_msgs::Message::ERROR, NODE_NAME, "Wrong swarm command!");
+                pub_message(message_pub, prometheus_msgs::Message::ERROR, msg_name, "Wrong swarm command!");
             }
 
             break;

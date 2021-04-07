@@ -14,7 +14,7 @@
 	<!-- 集群数目 -->
 	<arg name="swarm_num" default="1"/>
 	<!-- 无人机名字 -->
-	<arg name="uav_name" default="uav1"/>
+	<arg name="uav_name" default="/uav1"/>
 	<!-- 无人机ID号 -->
 	<arg name="uav_id" default="1"/>
 	<!-- 指定sdf文件及模型名字 -->
@@ -23,30 +23,24 @@
 	<!-- 初始位置，Yaw为偏航角 -->
 	<arg name="uav_init_x" default="0.0"/>
     <arg name="uav_init_y" default="0.0"/>
-	<arg name="uav_init_z" default="0.164"/>
+	<arg name="uav_init_z" default="0.15"/>
 	<arg name="uav_init_yaw" default="0.0"/>
-	<!-- swarm_estimator 参数 -->
-	<arg name="input_source" default="2"/>
-	<arg name="object_name" default="uav1"/>
-	<!-- swarm_controller 参数 -->
-	<arg name="k_p" default="1.0"/>
-	<arg name="k_aij" default="0.05"/>
-	<arg name="k_gamma" default="1.2"/>
-	<arg name="Takeoff_height" default="1.0"/>
-	<arg name="Disarm_height" default="0.1"/>
-	<arg name="Land_speed" default="0.2"/>
-	<arg name="x_min" default="-4.5"/>
-	<arg name="x_max" default="4.5"/>
-	<arg name="y_min" default="-2.5"/>
-	<arg name="y_max" default="2.5"/>
-	<arg name="z_min" default="-1.0"/>
-	<arg name="z_max" default="3.5"/>
-	<arg name="nei1_id" default="2"/>
-	<arg name="nei2_id" default="3"/>
-	<arg name="nei1_name" default="uav2"/>
-	<arg name="nei2_name" default="uav3"/>
 	
-    <!-- 1号飞机 -->
+	<!-- 使用group标签来对不同的无人机进行分组，因此，不同无人机的话题会带上前缀，如/uav0、/uav1等 -->
+	<!-- 理解仿真的四个模块, 其中1和2为必备模块，3和4可缺省 -->
+	<!-- 1、PX4_SITL PX4软件在环仿真模块，即代表飞控，这块代码在Firmware中，注意部分代码与实际飞行相同，部分则是独立的代码 -->
+	<!-- 2、simulator 仿真器模块，此处即Gazebo，代码为model文件中的plugin -->
+	<!-- 3、Offboard模块 即Mavros -->
+	<!-- 4、QGC模块 即地面站--> 
+
+	<!-- 可以参考rcS文件，其中有端口号定义 -->
+	<!-- 无人机编号（PX4内部参数） 	MAV_SYS_ID = ID + 1 ID从0开始--> 
+	<!-- 仿真器端口号（用于飞控与Gazebo进行通讯）	 mavlink_tcp_port（simulator_tcp_port） = 4560 + ID （需要再SDF文件中配置对应的参数 mavlink_tcp_port）-->
+	<!-- mavlink_tcp_port（该参数在飞机模型sdf文件中） 这个不能随意指定，必须从4560开始递增，因为这个是遵从gazebo的递增规律 -->
+	<!-- Offboard端口号（用于飞控与Mavros进行通讯） udp_offboard_port_local = 34580 + ID -->
+	<!-- Offboard端口号（用于飞控与Mavros进行通讯） udp_offboard_port_remote = 24540 + ID -->
+
+    <!-- n号飞机 -->
     <group ns="$(arg uav_name)">
         <!-- 参数配置-->
 		<!-- ID编号 -->
@@ -75,40 +69,9 @@
 			<param name="gcs_url" value="" />
 			<param name="target_system_id" value="$(eval 1 + arg('ID'))"/>
 			<param name="target_component_id" value="1" />
-			<rosparam command="load" file="$(find prometheus_gazebo)/config/mavros_config/px4_pluginlists.yaml" />
-			<rosparam command="load" file="$(find prometheus_gazebo)/config/mavros_config/px4_config.yaml" />
+			<rosparam command="load" file="$(find prometheus_gazebo)/config/cxy_config/px4_pluginlists.yaml" />
+			<rosparam command="load" file="$(find prometheus_gazebo)/config/cxy_config/px4_config.yaml" />
 		</node>
     </group>
-	
-	<!-- run the swarm_estimator.cpp -->
-	<node pkg="prometheus_swarm_control" type="swarm_estimator" name="swarm_estimator" output="screen">
-		<param name="uav_name" value="/$(arg uav_name)"/>
-		<param name="object_name" value="$(arg object_name)" />
-		<param name="input_source" value="$(arg input_source)" />
-	</node>
-
-	<!-- 控制程序 -->
-	<node pkg="prometheus_swarm_control" type="swarm_controller" name="swarm_controller" output="screen" launch-prefix="gnome-terminal --tab --">
-		<param name="swarm_num" value="$(arg swarm_num)"/>
-		<param name="uav_name" value="/$(arg uav_name)"/>
-		<param name="uav_id" value="$(arg uav_id)"/>
-		<param name="neighbour_name1" value="/$(arg nei1_name)" />
-		<param name="neighbour_name2" value="/$(arg nei2_name)"/>
-		<param name="neighbour_id1" value="$(arg nei1_id)" />
-		<param name="neighbour_id2" value="$(arg nei2_id)"/>
-		<param name="k_p" value="$(arg k_p)"/>
-		<param name="k_aij" value="$(arg k_aij)"/>
-		<param name="k_gamma" value="$(arg k_gamma)"/>
-		<param name="Takeoff_height" value="$(arg Takeoff_height)"/>
-		<param name="Disarm_height" value="$(arg Disarm_height)"/>
-		<param name="Land_speed" value="$(arg Land_speed)"/>
-		<param name="geo_fence/x_min" value="$(arg x_min)"/>
-		<param name="geo_fence/x_max" value="$(arg x_max)"/>
-		<param name="geo_fence/y_min" value="$(arg y_min)"/>
-		<param name="geo_fence/y_max" value="$(arg y_max)"/>
-		<param name="geo_fence/z_min" value="$(arg z_min)"/>
-		<param name="geo_fence/z_max" value="$(arg z_max)"/>
-		<param name="flag_printf" value="false"/>
-	</node>
 </launch>
 

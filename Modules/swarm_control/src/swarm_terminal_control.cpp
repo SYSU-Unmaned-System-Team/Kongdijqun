@@ -72,7 +72,7 @@ int main(int argc, char **argv)
     while (ros::ok()) 
     {
         cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>Terminal Control<<<<<<<<<<<<<<<<<<<<<<<<< "<< endl;
-        cout << "Please choose the action: 1 for Move(XYZ_POS), 2 for Move(XYZ_POS), 3 for Hold, 34 for Land, 5 for Disarm..."<<endl;
+        cout << "Please choose the action: 1 for Move(XYZ_POS), 2 for Move(XY_VEL_Z_POS), 3 for Hold, 4 for Land, 5 for Disarm..."<<endl;
         cin >> start_flag;
         if (start_flag == 1)
         {
