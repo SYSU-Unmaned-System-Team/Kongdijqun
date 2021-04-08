@@ -18,7 +18,7 @@
 #include "prometheus_msgs/PositionReference.h"
 #include "prometheus_msgs/Message.h"
 #include "prometheus_msgs/DroneState.h"
-#include "prometheus_msgs/SwarmCommand.h"
+#include "prometheus_msgs/ControlCommand.h"
 
 #include "A_star.h"
 #include "occupy_map.h"
@@ -85,7 +85,7 @@ private:
 
     nav_msgs::Path path_cmd;
     double distance_walked;
-    prometheus_msgs::SwarmCommand Command_Now; 
+    prometheus_msgs::ControlCommand Command_Now; 
 
     double distance_to_goal;
 
