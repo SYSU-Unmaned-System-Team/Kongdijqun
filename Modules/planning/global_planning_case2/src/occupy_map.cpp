@@ -5,6 +5,11 @@ namespace Global_Planning
 // 初始化函数
 void Occupy_map::init(ros::NodeHandle& nh)
 {
+    // 集群数量
+    nh.param<int>("swarm_num", swarm_num, 1);
+    // 无人机编号 1号无人机则为1
+    nh.param<int>("uav_id", uav_id, 0);
+    nh.param<string>("uav_name", uav_name, "/uav0");
     // 初始化点云指针
     global_point_cloud_map.reset(new pcl::PointCloud<pcl::PointXYZ>);
     input_point_cloud.reset(new pcl::PointCloud<pcl::PointXYZ>);
@@ -31,9 +36,9 @@ void Occupy_map::init(ros::NodeHandle& nh)
     nh.param("map/slide_window_size", queue_size, 20);
 
     // 发布 地图rviz显示
-    global_pcl_pub = nh.advertise<sensor_msgs::PointCloud2>("/prometheus/planning/global_pcl",  10); 
+    global_pcl_pub = nh.advertise<sensor_msgs::PointCloud2>(uav_name + "/prometheus/planning/global_pcl",  10); 
     // 发布膨胀后的点云
-    inflate_pcl_pub = nh.advertise<sensor_msgs::PointCloud2>("/prometheus/planning/global_inflate_pcl", 1);
+    inflate_pcl_pub = nh.advertise<sensor_msgs::PointCloud2>(uav_name + "/prometheus/planning/global_inflate_pcl", 1);
  
     // 发布二维占据图？
     // 发布膨胀后的二维占据图？
@@ -177,7 +182,8 @@ void Occupy_map::inflate_point_cloud(void)
     // 发布未膨胀点云
     sensor_msgs::PointCloud2 global_env_;
     pcl::toROSMsg(*global_point_cloud_map,global_env_);
-    global_env_.header.frame_id = "lidar_link";
+    //global_env_.header.frame_id = uav_name+"/lidar_link";
+    global_env_.header.frame_id = "world";
     global_pcl_pub.publish(global_env_);
 
     //记录开始时间

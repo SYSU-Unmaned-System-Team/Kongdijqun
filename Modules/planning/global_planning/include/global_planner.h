@@ -18,7 +18,7 @@
 #include "prometheus_msgs/PositionReference.h"
 #include "prometheus_msgs/Message.h"
 #include "prometheus_msgs/DroneState.h"
-#include "prometheus_msgs/ControlCommand.h"
+#include "prometheus_msgs/SwarmCommand.h"
 
 #include "A_star.h"
 #include "occupy_map.h"
@@ -41,6 +41,9 @@ class Global_Planner
 private:
 
     ros::NodeHandle global_planner_nh;
+    int swarm_num;                                  // 集群数量
+    string uav_name;                                // 无人机名字
+    int uav_id;                                     // 无人机编号
 
     // 参数
     int algorithm_mode;
@@ -82,7 +85,7 @@ private:
 
     nav_msgs::Path path_cmd;
     double distance_walked;
-    prometheus_msgs::ControlCommand Command_Now;   
+    prometheus_msgs::SwarmCommand Command_Now; 
 
     double distance_to_goal;
 
