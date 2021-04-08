@@ -33,9 +33,6 @@ class Occupy_map
 {
     public:
         Occupy_map(){}
-
-        // 全局点云指针
-        sensor_msgs::PointCloud2ConstPtr global_env_;
         // 地图是否占据容器， 从编程角度来讲，这就是地图变为单一序列化后的索引
         std::vector<int> occupancy_buffer_;  // 0 is free, 1 is occupied
         // 地图分辨率
@@ -50,7 +47,9 @@ class Occupy_map
         Eigen::Vector3d origin_, map_size_3d_, min_range_, max_range_;
         // 占据图尺寸 = 地图尺寸 / 分辨率
         Eigen::Vector3i grid_size_;
-
+        int swarm_num;                                  // 集群数量
+        string uav_name;                                // 无人机名字
+        int uav_id;                                     // 无人机编号
         bool has_global_point;
            
         // 显示相关

@@ -23,9 +23,9 @@ void Occupy_map::init(ros::NodeHandle& nh)
     nh.param("map/inflate", inflate_,  0.3);
 
     // 发布 地图rviz显示
-    global_pcl_pub = nh.advertise<sensor_msgs::PointCloud2>("/prometheus/planning/global_pcl",  10); 
+    global_pcl_pub = nh.advertise<sensor_msgs::PointCloud2>(uav_name + "/prometheus/planning/global_pcl",  10); 
     // 发布膨胀后的点云
-    inflate_pcl_pub = nh.advertise<sensor_msgs::PointCloud2>("/prometheus/planning/global_inflate_pcl", 1);
+    inflate_pcl_pub = nh.advertise<sensor_msgs::PointCloud2>(uav_name + "/prometheus/planning/global_inflate_pcl", 1);
  
     // 发布二维占据图？
     // 发布膨胀后的二维占据图？
@@ -36,7 +36,11 @@ void Occupy_map::init(ros::NodeHandle& nh)
         // 占据图尺寸 = 地图尺寸 / 分辨率
         grid_size_(i) = ceil(map_size_3d_(i) / resolution_);
     }
-        
+    // 初始化点云指针
+    gobalPointCloudMap.reset(new pcl::PointCloud<pcl::PointXYZ>);
+    inputPointCloud.reset(new pcl::PointCloud<pcl::PointXYZ>);
+    transformed_cloud.reset(new pcl::PointCloud<pcl::PointXYZ>);
+    
     // 占据容器的大小 = 占据图尺寸 x*y*z
     occupancy_buffer_.resize(grid_size_(0) * grid_size_(1) * grid_size_(2));
     fill(occupancy_buffer_.begin(), occupancy_buffer_.end(), 0.0);
@@ -52,27 +56,16 @@ void Occupy_map::init(ros::NodeHandle& nh)
     }
 }
 
-// 地图更新函数 - 输入：全局点云
-void Occupy_map::map_update_gpcl(const sensor_msgs::PointCloud2ConstPtr & global_point)
-{
-    has_global_point = true;
-    global_env_ = global_point;
-}
-
-// 地图更新函数 - 输入：局部点云
-void Occupy_map::map_update_lpcl(const sensor_msgs::PointCloud2ConstPtr & local_point, const nav_msgs::Odometry & odom)
-{
-    has_global_point = true;
-// 待江涛更新
-// 将传递过来的局部点云转为全局点云
+    // 由sensor_msgs::PointCloud2 转为 pcl::PointCloud<pcl::PointXYZ>
+    pcl::fromROSMsg(*local_point,*inputPointCloud);
+    // 将局部点云融合至全局点云
+    local_map_merge_odom(odom);
 }
 
 // 地图更新函数 - 输入：laser
 void Occupy_map::map_update_laser(const sensor_msgs::LaserScanConstPtr & local_point, const nav_msgs::Odometry & odom)
 {
-    has_global_point = true;
-// 待更新
-// 将传递过来的数据转为全局点云
+
 }
 
 // 当global_planning节点接收到点云消息更新时，进行设置点云指针并膨胀
@@ -86,7 +79,6 @@ void Occupy_map::inflate_point_cloud(void)
     }
 
     // 发布未膨胀点云
-    global_pcl_pub.publish(*global_env_);
 
     //记录开始时间
     ros::Time time_start = ros::Time::now();
