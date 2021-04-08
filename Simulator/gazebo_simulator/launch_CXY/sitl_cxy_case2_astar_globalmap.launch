@@ -129,8 +129,6 @@
         <param name="map/map_size_z" value="3.0" type="double"/>
     </node>
 
-	<!-- run the pub_goal.cpp -->
-
 	<!-- TF transform -->
 	<include file="$(find prometheus_gazebo)/launch_CXY/tf_transform_cxy.launch">
 		<arg name="x" value="$(arg uav1_init_x)"/>

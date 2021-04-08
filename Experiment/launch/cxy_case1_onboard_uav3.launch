@@ -1,6 +1,6 @@
 <launch>
 	<!-- 无人机集群数量，最大支持8架飞机 -->
-	<arg name="swarm_num" default="1"/>
+	<arg name="swarm_num" default="6"/>
 	<!-- 无人机名称 -->
 	<arg name="uav1_name" default="/uav1"/>
 	<arg name="uav2_name" default="/uav2"/>
@@ -19,9 +19,9 @@
 	<arg name="uav6_id" default="6"/>
 	<arg name="uav7_id" default="7"/>
 	<arg name="uav8_id" default="8"/>
-
+	
     <!-- n号飞机 -->
-    <group ns="$(arg uav1_name)">
+    <group ns="$(arg uav_name)">
 		<!-- 启动MAVROS -->
 		<node pkg="mavros" type="mavros_node" name="mavros" output="screen">
 			<param name="fcu_url" value="/dev/ttyUSB0:921600" />
@@ -35,8 +35,8 @@
 
 	<arg name="input_source" default="0"/>
 	<!-- run the swarm_estimator.cpp -->
-	<node pkg="prometheus_swarm_control" type="swarm_estimator" name="swarm_estimator_uav1" output="screen">
-		<param name="uav_name" value="$(arg uav1_name)"/>
+	<node pkg="prometheus_swarm_control" type="swarm_estimator" name="swarm_estimator_uav3" output="screen">
+		<param name="uav_name" value="$(arg uav3_name)"/>
 		<param name="input_source" value="$(arg input_source)" />
 	</node>
 
@@ -51,10 +51,10 @@
 	<arg name="y_max" default="2.5"/>
 	<arg name="z_min" default="-1.0"/>
 	<arg name="z_max" default="3.5"/>
-	<node pkg="prometheus_swarm_control" type="swarm_controller" name="swarm_controller_uav1" output="screen">
+	<node pkg="prometheus_swarm_control" type="swarm_controller" name="swarm_controller_uav3" output="screen">
 		<param name="swarm_num" value="$(arg swarm_num)"/>
-		<param name="uav_id" value="$(arg uav1_id)"/>
-		<param name="uav_name" value="$(arg uav1_name)"/>
+		<param name="uav_id" value="$(arg uav3_id)"/>
+		<param name="uav_name" value="$(arg uav3_name)"/>
 		<param name="Takeoff_height" value="$(arg Takeoff_height)"/>
 		<param name="Disarm_height" value="$(arg Disarm_height)"/>
 		<param name="Land_speed" value="$(arg Land_speed)"/>

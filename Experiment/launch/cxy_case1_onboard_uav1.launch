@@ -1,6 +1,6 @@
 <launch>
 	<!-- 无人机集群数量，最大支持8架飞机 -->
-	<arg name="swarm_num" default="1"/>
+	<arg name="swarm_num" default="6"/>
 	<!-- 无人机名称 -->
 	<arg name="uav1_name" default="/uav1"/>
 	<arg name="uav2_name" default="/uav2"/>
@@ -19,9 +19,9 @@
 	<arg name="uav6_id" default="6"/>
 	<arg name="uav7_id" default="7"/>
 	<arg name="uav8_id" default="8"/>
-
+	
     <!-- n号飞机 -->
-    <group ns="$(arg uav1_name)">
+    <group ns="$(arg uav_name)">
 		<!-- 启动MAVROS -->
 		<node pkg="mavros" type="mavros_node" name="mavros" output="screen">
 			<param name="fcu_url" value="/dev/ttyUSB0:921600" />
