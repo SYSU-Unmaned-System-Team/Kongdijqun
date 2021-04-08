@@ -8,8 +8,8 @@ from laser_geometry import LaserProjection
 class Laser2PC():
     def __init__(self):
         self.laserProj = LaserProjection()
-        self.pcPub = rospy.Publisher("/prometheus/sensors/pcl2", pc2, queue_size=1)
-        self.laserSub = rospy.Subscriber("/prometheus/sensors/2Dlidar_scan", LaserScan, self.laserCallback) 
+        self.pcPub = rospy.Publisher("/uav1/prometheus/sensors/pcl2", pc2, queue_size=1)
+        self.laserSub = rospy.Subscriber("/uav1/prometheus/sensors/2Dlidar_scan", LaserScan, self.laserCallback) 
 
     def laserCallback(self,data):
         

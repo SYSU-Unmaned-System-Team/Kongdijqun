@@ -61,7 +61,9 @@ class Occupy_map
         Eigen::Vector3d origin_, map_size_3d_, min_range_, max_range_;
         // 占据图尺寸 = 地图尺寸 / 分辨率
         Eigen::Vector3i grid_size_;
-
+        int swarm_num;                                  // 集群数量
+        string uav_name;                                // 无人机名字
+        int uav_id;                                     // 无人机编号
         bool has_global_point;
            
         // 显示相关

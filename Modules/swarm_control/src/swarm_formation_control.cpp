@@ -125,7 +125,7 @@ int main(int argc, char **argv)
     while (ros::ok()) // todo: only check start_flag=0, other function need tested
     {
         cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>Formation Flight Mission<<<<<<<<<<<<<<<<<<<<<<<<< 3 for Circle Trajectory Tracking,"<< endl;
-        cout << "Please choose the action: 0 for Formation Shape, 1 for Virtual Leader Pos, 2 for Hold, 3 for Land, 4 for Circle, 5 for Disarm..."<<endl;
+        cout << "Please choose the action: 0 for Formation Shape, 1 for Virtual Leader Pos, 2 for Hold, 3 for Land, 5 for Disarm..."<<endl;
         cin >> start_flag;
         if (start_flag == 0)
         {
@@ -156,7 +156,6 @@ int main(int argc, char **argv)
             for(int i = 1; i <= swarm_num; i++) 
             {
                 swarm_command[i].Mode = prometheus_msgs::SwarmCommand::Hold;
-                swarm_command[i].yaw_ref = 999;
                 //【发布】阵型
                 command_pub[i].publish(swarm_command[i]);
             }
@@ -166,34 +165,8 @@ int main(int argc, char **argv)
             for(int i = 1; i <= swarm_num; i++) 
             {
                 swarm_command[i].Mode = prometheus_msgs::SwarmCommand::Land;
-                swarm_command[i].yaw_ref = 999;
                 //【发布】阵型
                 command_pub[i].publish(swarm_command[i]);
-            }
-        }
-        else if (start_flag == 4)
-        {
-            cout << "Input the trajectory_total_time:"<<endl;
-            cin >> trajectory_total_time;
-
-            float time_trajectory = 0.0;
-
-            while(time_trajectory < trajectory_total_time)
-            {
-
-                const float omega = 0.15;
-                const float circle_radius = 1.5;
-
-                virtual_leader_pos[0] = circle_radius * cos(time_trajectory * omega);
-                virtual_leader_pos[1] = circle_radius * sin(time_trajectory * omega);
-                //virtual_leader_pos[2] = 1.0;
-                virtual_leader_vel[0] = - omega * circle_radius * sin(time_trajectory * omega);
-                virtual_leader_vel[1] = omega * circle_radius * cos(time_trajectory * omega);
-                virtual_leader_vel[2] = 0.0;
-
-                time_trajectory = time_trajectory + 0.01;
-
-                ros::Duration(0.01).sleep();
             }
         }
         else if (start_flag == 5)
@@ -201,7 +174,6 @@ int main(int argc, char **argv)
             for(int i = 1; i <= swarm_num; i++) 
             {
                 swarm_command[i].Mode = prometheus_msgs::SwarmCommand::Disarm;
-                swarm_command[i].yaw_ref = 999;
                 //【发布】阵型
                 command_pub[i].publish(swarm_command[i]);
             }

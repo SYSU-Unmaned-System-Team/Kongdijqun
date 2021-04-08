@@ -7,6 +7,11 @@ namespace Global_Planning
 void Global_Planner::init(ros::NodeHandle& nh)
 {
     // 读取参数
+    // 集群数量
+    nh.param<int>("swarm_num", swarm_num, 1);
+    // 无人机编号 1号无人机则为1
+    nh.param<int>("uav_id", uav_id, 0);
+    nh.param<string>("uav_name", uav_name, "/uav0");
     // TRUE代表2D平面规划及搜索,FALSE代表3D 
     nh.param("global_planner/is_2D", is_2D, true); 
     // 2D规划时,定高高度
@@ -43,34 +48,34 @@ void Global_Planner::init(ros::NodeHandle& nh)
     nh.param("waypoint5/z", waypoint5[2], 0.0); 
 
     // 订阅 目标点
-    goal_sub = nh.subscribe<geometry_msgs::PoseStamped>("/prometheus/planning/goal", 1, &Global_Planner::goal_cb, this);
+    goal_sub = nh.subscribe<geometry_msgs::PoseStamped>(uav_name + "/prometheus/planning/goal", 1, &Global_Planner::goal_cb, this);
 
     // 订阅 无人机状态
-    drone_state_sub = nh.subscribe<prometheus_msgs::DroneState>("/prometheus/drone_state", 10, &Global_Planner::drone_state_cb, this);
+    drone_state_sub = nh.subscribe<prometheus_msgs::DroneState>(uav_name + "/prometheus/drone_state", 10, &Global_Planner::drone_state_cb, this);
 
     // 订阅的话题待修改
-    detection_sub = nh.subscribe<prometheus_msgs::DetectionInfo>("/prometheus/object_detection/xxx", 10, &Global_Planner::detection_cb, this);
+    detection_sub = nh.subscribe<prometheus_msgs::DetectionInfo>(uav_name + "/prometheus/object_detection/xxx", 10, &Global_Planner::detection_cb, this);
 
     // 根据map_input选择地图更新方式
     if(map_input == 0)
     {
-        Gpointcloud_sub = nh.subscribe<sensor_msgs::PointCloud2>("/prometheus/global_planning/global_pcl", 1, &Global_Planner::Gpointcloud_cb, this);
+        Gpointcloud_sub = nh.subscribe<sensor_msgs::PointCloud2>(uav_name + "/prometheus/global_planning/global_pcl", 1, &Global_Planner::Gpointcloud_cb, this);
     }else if(map_input == 1)
     {
-        Lpointcloud_sub = nh.subscribe<sensor_msgs::PointCloud2>("/prometheus/global_planning/local_pcl", 1, &Global_Planner::Lpointcloud_cb, this);
+        Lpointcloud_sub = nh.subscribe<sensor_msgs::PointCloud2>(uav_name + "/prometheus/global_planning/local_pcl", 1, &Global_Planner::Lpointcloud_cb, this);
     }else if(map_input == 2)
     {
-        laserscan_sub = nh.subscribe<sensor_msgs::LaserScan>("/prometheus/global_planning/laser_scan", 1, &Global_Planner::laser_cb, this);
+        laserscan_sub = nh.subscribe<sensor_msgs::LaserScan>(uav_name + "/prometheus/global_planning/laser_scan", 1, &Global_Planner::laser_cb, this);
     }
 
     // 发布 路径指令
-    command_pub = nh.advertise<prometheus_msgs::ControlCommand>("/prometheus/control_command", 10);
+    command_pub = nh.advertise<prometheus_msgs::SwarmCommand>(uav_name + "/prometheus/swarm_command", 10);
     // 发布提示消息
-    message_pub = nh.advertise<prometheus_msgs::Message>("/prometheus/message/global_planner", 10);
+    message_pub = nh.advertise<prometheus_msgs::Message>(uav_name + "/prometheus/message/main", 10);
     // 发布路径用于显示
-    path_cmd_pub   = nh.advertise<nav_msgs::Path>("/prometheus/global_planning/path_cmd",  10); 
+    path_cmd_pub   = nh.advertise<nav_msgs::Path>(uav_name + "/prometheus/global_planning/path_cmd",  10); 
 
-    detection_result_pub = nh.advertise<prometheus_msgs::DetectionInfo>("/uav_x/prometheus/case2/xxx", 10);
+    detection_result_pub = nh.advertise<prometheus_msgs::DetectionInfo>(uav_name + "/prometheus/case2/detect", 10);
     // 定时器 安全检测
     // safety_timer = nh.createTimer(ros::Duration(2.0), &Global_Planner::safety_cb, this); 
     // 定时器 规划器算法执行周期
@@ -103,7 +108,7 @@ void Global_Planner::init(ros::NodeHandle& nh)
 
     // 初始化发布的指令
     Command_Now.header.stamp = ros::Time::now();
-    Command_Now.Mode  = prometheus_msgs::ControlCommand::Idle;
+    Command_Now.Mode  = prometheus_msgs::SwarmCommand::Idle;
     Command_Now.Command_ID = 0;
     Command_Now.source = NODE_NAME;
     desired_yaw = 0.0;
@@ -121,16 +126,16 @@ void Global_Planner::init(ros::NodeHandle& nh)
         }
         // 起飞
         Command_Now.header.stamp = ros::Time::now();
-        Command_Now.Mode  = prometheus_msgs::ControlCommand::Idle;
+        Command_Now.Mode  = prometheus_msgs::SwarmCommand::Idle;
         Command_Now.Command_ID = Command_Now.Command_ID + 1;
         Command_Now.source = NODE_NAME;
-        Command_Now.Reference_State.yaw_ref = 999;
+        Command_Now.yaw_ref = 999;
         command_pub.publish(Command_Now);   
         cout << "Switch to OFFBOARD and arm ..."<<endl;
         ros::Duration(3.0).sleep();
         
         Command_Now.header.stamp = ros::Time::now();
-        Command_Now.Mode = prometheus_msgs::ControlCommand::Takeoff;
+        Command_Now.Mode = prometheus_msgs::SwarmCommand::Takeoff;
         Command_Now.Command_ID = Command_Now.Command_ID + 1;
         Command_Now.source = NODE_NAME;
         command_pub.publish(Command_Now);
@@ -143,7 +148,7 @@ void Global_Planner::init(ros::NodeHandle& nh)
         while(_DroneState.mode != "OFFBOARD")
         {
             Command_Now.header.stamp = ros::Time::now();
-            Command_Now.Mode  = prometheus_msgs::ControlCommand::Idle;
+            Command_Now.Mode  = prometheus_msgs::SwarmCommand::Idle;
             Command_Now.Command_ID = 1 ;
             Command_Now.source = NODE_NAME;
             command_pub.publish(Command_Now);   
@@ -153,7 +158,7 @@ void Global_Planner::init(ros::NodeHandle& nh)
         }
         // 需要将起飞高度设置为2D飞行高度一致
         Command_Now.header.stamp = ros::Time::now();
-        Command_Now.Mode = prometheus_msgs::ControlCommand::Takeoff;
+        Command_Now.Mode = prometheus_msgs::SwarmCommand::Takeoff;
         Command_Now.Command_ID = Command_Now.Command_ID + 1;
         Command_Now.source = NODE_NAME;
         command_pub.publish(Command_Now);
@@ -340,7 +345,7 @@ void Global_Planner::track_path_cb(const ros::TimerEvent& e)
     //     pub_message(message_pub, prometheus_msgs::Message::WARN, NODE_NAME, "Drone Position Dangerous! STOP HERE and wait for new goal.");
         
     //     Command_Now.header.stamp = ros::Time::now();
-    //     Command_Now.Mode         = prometheus_msgs::ControlCommand::Hold;
+    //     Command_Now.Mode         = prometheus_msgs::SwarmCommand::Hold;
     //     Command_Now.Command_ID   = Command_Now.Command_ID + 1;
     //     Command_Now.source = NODE_NAME;
 
@@ -357,16 +362,15 @@ void Global_Planner::track_path_cb(const ros::TimerEvent& e)
     if(cur_id == Num_total_wp - 1)
     {
         Command_Now.header.stamp = ros::Time::now();
-        Command_Now.Mode                                = prometheus_msgs::ControlCommand::Move;
+        Command_Now.Mode                                = prometheus_msgs::SwarmCommand::Move;
         Command_Now.Command_ID                          = Command_Now.Command_ID + 1;
         Command_Now.source = NODE_NAME;
-        Command_Now.Reference_State.Move_mode           = prometheus_msgs::PositionReference::XYZ_POS;
-        Command_Now.Reference_State.Move_frame          = prometheus_msgs::PositionReference::ENU_FRAME;
-        Command_Now.Reference_State.position_ref[0]     = goal_pos[0];
-        Command_Now.Reference_State.position_ref[1]     = goal_pos[1];
-        Command_Now.Reference_State.position_ref[2]     = goal_pos[2];
+        Command_Now.Move_mode           = prometheus_msgs::SwarmCommand::XYZ_POS;
+        Command_Now.position_ref[0]     = goal_pos[0];
+        Command_Now.position_ref[1]     = goal_pos[1];
+        Command_Now.position_ref[2]     = goal_pos[2];
 
-        Command_Now.Reference_State.yaw_ref             = desired_yaw;
+        Command_Now.yaw_ref             = desired_yaw;
         command_pub.publish(Command_Now);
 
         pub_message(message_pub, prometheus_msgs::Message::NORMAL, NODE_NAME, "Reach the goal!");
@@ -391,18 +395,17 @@ void Global_Planner::track_path_cb(const ros::TimerEvent& e)
     // 采用轨迹控制的方式进行追踪，期望速度 = （期望位置 - 当前位置）/预计时间；
     
     Command_Now.header.stamp = ros::Time::now();
-    Command_Now.Mode                                = prometheus_msgs::ControlCommand::Move;
+    Command_Now.Mode                                = prometheus_msgs::SwarmCommand::Move;
     Command_Now.Command_ID                          = Command_Now.Command_ID + 1;
     Command_Now.source = NODE_NAME;
-    Command_Now.Reference_State.Move_mode           = prometheus_msgs::PositionReference::TRAJECTORY;
-    Command_Now.Reference_State.Move_frame          = prometheus_msgs::PositionReference::ENU_FRAME;
-    Command_Now.Reference_State.position_ref[0]     = path_cmd.poses[i].pose.position.x;
-    Command_Now.Reference_State.position_ref[1]     = path_cmd.poses[i].pose.position.y;
-    Command_Now.Reference_State.position_ref[2]     = path_cmd.poses[i].pose.position.z;
-    Command_Now.Reference_State.velocity_ref[0]     = (path_cmd.poses[i].pose.position.x - _DroneState.position[0])/time_per_path;
-    Command_Now.Reference_State.velocity_ref[1]     = (path_cmd.poses[i].pose.position.y - _DroneState.position[1])/time_per_path;
-    Command_Now.Reference_State.velocity_ref[2]     = (path_cmd.poses[i].pose.position.z - _DroneState.position[2])/time_per_path;
-    Command_Now.Reference_State.yaw_ref             = desired_yaw;
+    Command_Now.Move_mode           = prometheus_msgs::SwarmCommand::XYZ_POS;
+    Command_Now.position_ref[0]     = path_cmd.poses[i].pose.position.x;
+    Command_Now.position_ref[1]     = path_cmd.poses[i].pose.position.y;
+    Command_Now.position_ref[2]     = path_cmd.poses[i].pose.position.z;
+    Command_Now.velocity_ref[0]     = (path_cmd.poses[i].pose.position.x - _DroneState.position[0])/time_per_path;
+    Command_Now.velocity_ref[1]     = (path_cmd.poses[i].pose.position.y - _DroneState.position[1])/time_per_path;
+    Command_Now.velocity_ref[2]     = (path_cmd.poses[i].pose.position.z - _DroneState.position[2])/time_per_path;
+    Command_Now.yaw_ref             = desired_yaw;
     
     command_pub.publish(Command_Now);
 
@@ -517,7 +520,7 @@ void Global_Planner::mainloop_cb(const ros::TimerEvent& e)
         case  LANDING:
         {
             Command_Now.header.stamp = ros::Time::now();
-            Command_Now.Mode         = prometheus_msgs::ControlCommand::Land;
+            Command_Now.Mode         = prometheus_msgs::SwarmCommand::Land;
             Command_Now.Command_ID   = Command_Now.Command_ID + 1;
             Command_Now.source = NODE_NAME;
 

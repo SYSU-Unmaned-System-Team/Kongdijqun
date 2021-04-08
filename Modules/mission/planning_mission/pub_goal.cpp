@@ -13,10 +13,10 @@ using namespace std;
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "pub_goal");
-    ros::NodeHandle nh("~");
+    ros::NodeHandle nh;
 
     //【发布】目标点
-    ros::Publisher goal_pub = nh.advertise<geometry_msgs::PoseStamped>("/prometheus/planning/goal", 10);
+    ros::Publisher goal_pub = nh.advertise<geometry_msgs::PoseStamped>("prometheus/planning/goal", 10);
 
     float x,y,z;
 

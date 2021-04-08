@@ -71,7 +71,7 @@ int main(int argc, char **argv)
     while(ros::ok())
     {
         ros::spinOnce();
-        cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>> Formation Flight Station <<<<<<<<<<<<<<<<<<<<<<<<< "<< endl;
+        cout << ">>>>>>>>>>>>>>>>>>>> CXY Ground Station <<<<<<<<<<<<<<<<<<< "<< endl;
         for(int i = 1; i <= swarm_num; i++)
         {
             if(uav_id[i] != 0)
@@ -79,7 +79,7 @@ int main(int argc, char **argv)
                 printf_swarm_state(swarm_num, uav_id[i], uav_name[i], State_uav[i], Command_uav[i]);
             }
 
-            printf("send message to server: ");
+            //printf("send message to server: ");
             data = (fmt3%(i)%(State_uav[i].position[0])%(State_uav[i].position[1])%State_uav[i].position[2]%
                 (State_uav[i].velocity[0])%(State_uav[i].velocity[1])%(State_uav[i].velocity[2])%
                 (State_uav[i].attitude[0])%(State_uav[i].attitude[1])%(State_uav[i].attitude[2])).str();
@@ -92,13 +92,13 @@ int main(int argc, char **argv)
             sockaddr.sin_port = htons(10004);
             inet_pton(AF_INET,servInetAddr,&sockaddr.sin_addr);
             if((connect(socketfd,(struct sockaddr*)&sockaddr,sizeof(sockaddr))) < 0 ) {
-                printf("connect error %s errno: %d\n",strerror(errno),errno);
-                printf("client connect failed!\n");
+                // printf("connect error %s errno: %d\n",strerror(errno),errno);
+                // printf("client connect failed!\n");
             }
             if((send(socketfd,sendline,strlen(sendline),0)) < 0)
             {
-                printf("send mes error: %s errno : %d\n",strerror(errno),errno);
-                printf("client send failed!\n");
+                // printf("send mes error: %s errno : %d\n",strerror(errno),errno);
+                // printf("client send failed!\n");
             }
             close(socketfd);
 

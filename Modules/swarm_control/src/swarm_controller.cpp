@@ -158,7 +158,7 @@ int main(int argc, char **argv)
 
         // 【Land】 降落。当前位置原地降落，降落后会自动上锁，且切换为mannual模式
         case prometheus_msgs::SwarmCommand::Land:
-            if (Command_Last.Mode != prometheus_msgs::ControlCommand::Land)
+            if (Command_Last.Mode != prometheus_msgs::SwarmCommand::Land)
             {
                 Command_Now.position_ref[0] = _DroneState.position[0];
                 Command_Now.position_ref[1] = _DroneState.position[1];

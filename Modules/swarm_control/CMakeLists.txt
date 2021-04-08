@@ -90,14 +90,6 @@ add_executable(swarm_ground_station_msg src/swarm_ground_station_msg.cpp)
 add_dependencies(swarm_ground_station_msg prometheus_swarm_control_gencpp)
 target_link_libraries(swarm_ground_station_msg ${catkin_LIBRARIES})
 
-
-add_executable(cxy_ground_station src/cxy_ground_station.cpp)
-add_dependencies(cxy_ground_station prometheus_swarm_control_gencpp)
-target_link_libraries(cxy_ground_station ${catkin_LIBRARIES})
-
-add_executable(cxy_ground_station_msg src/cxy_ground_station_msg.cpp)
-add_dependencies(cxy_ground_station_msg prometheus_swarm_control_gencpp)
-target_link_libraries(cxy_ground_station_msg ${catkin_LIBRARIES})
 #############
 ## Install ##
 #############
