@@ -76,7 +76,13 @@
 		<param name="uav_name" value="$(arg uav1_name)" />
 		<param name="uav_id" value="$(arg uav1_id)" />
         <remap from="/uav1/prometheus/global_planning/laser_scan" to="$(arg topic_of_laser_scan)" />
-        <!-- 参数 -->
+        <!--  -->
+		<param name="global_planner/manual_mode" value="true" type="bool"/>
+		<param name="global_planner/goal_num" value="1" />
+		<param name="goal0/x" value="1.0" />
+		<param name="goal0/y" value="2.0" />
+		<param name="goal0/z" value="3.0" />
+		<!-- 参数 -->
         <!-- 二维平面规划 -->
         <param name="global_planner/is_2D" value="true" type="bool"/>
         <!-- ２维高度，建议与起飞高度一致 -->
@@ -104,7 +110,7 @@
         <param name="map/map_size_y" value="30.0" type="double"/>
         <param name="map/map_size_z" value="3.0" type="double"/>
 	<param name="map/queue_size" value="20" type="int"/>
-	<param name="map/border" value="true" type="bool"/>
+	<param name="map/border" value="false" type="bool"/>
     </node>
 
     <group ns="$(arg uav1_name)">
