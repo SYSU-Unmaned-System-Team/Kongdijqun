@@ -82,7 +82,8 @@ private:
 
     nav_msgs::Path path_cmd;
     double distance_walked;
-    prometheus_msgs::ControlCommand Command_Now;   
+
+    prometheus_msgs::ControlCommand Command_Now; 
 
     double distance_to_goal;
 

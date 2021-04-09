@@ -300,7 +300,6 @@ void Global_Planner::Gpointcloud_cb(const sensor_msgs::PointCloud2ConstPtr &msg)
             update_num = 0;
         } 
     }
-    
 }
 
 // 根据局部点云更新地图

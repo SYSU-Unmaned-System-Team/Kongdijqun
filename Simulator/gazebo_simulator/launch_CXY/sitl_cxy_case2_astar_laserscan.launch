@@ -103,6 +103,8 @@
         <param name="map/map_size_x" value="30.0" type="double"/>
         <param name="map/map_size_y" value="30.0" type="double"/>
         <param name="map/map_size_z" value="3.0" type="double"/>
+		<param name="map/queue_size" value="20" type="int"/>
+		<param name="map/border" value="true" type="bool"/>
     </node>
 
     <group ns="$(arg uav1_name)">

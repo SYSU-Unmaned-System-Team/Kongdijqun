@@ -10,18 +10,17 @@ void Occupy_map::init(ros::NodeHandle& nh)
     // 无人机编号 1号无人机则为1
     nh.param<int>("uav_id", uav_id, 0);
     nh.param<string>("uav_name", uav_name, "/uav0");
-    // TRUE代表2D平面规划及搜索,FALSE代表3D 
-    nh.param("global_planner/is_2D", is_2D, true); 
-    // 2D规划时,定高高度
-    nh.param("global_planner/fly_height_2D", fly_height_2D, 1.0);
-    // 地图原点
-    nh.param("map/origin_x", origin_(0), -5.0);
-    nh.param("map/origin_y", origin_(1), -5.0);
-    nh.param("map/origin_z", origin_(2), 0.0);
-    // 地图实际尺寸，单位：米
+
+    // 初始化点云指针
+    global_point_cloud_map.reset(new pcl::PointCloud<pcl::PointXYZ>);
+    input_point_cloud.reset(new pcl::PointCloud<pcl::PointXYZ>);
     nh.param("map/map_size_x", map_size_3d_(0), 10.0);
     nh.param("map/map_size_y", map_size_3d_(1), 10.0);
     nh.param("map/map_size_z", map_size_3d_(2), 5.0);
+    // localmap slide window
+    nh.param("map/queue_size", queue_size, 20);
+    // show border
+    nh.param("map/border", show_border, false);
     // 地图分辨率，单位：米
     nh.param("map/resolution", resolution_,  0.2);
     // 地图膨胀距离，单位：米
@@ -41,10 +40,6 @@ void Occupy_map::init(ros::NodeHandle& nh)
         // 占据图尺寸 = 地图尺寸 / 分辨率
         grid_size_(i) = ceil(map_size_3d_(i) / resolution_);
     }
-    // 初始化点云指针
-    gobalPointCloudMap.reset(new pcl::PointCloud<pcl::PointXYZ>);
-    inputPointCloud.reset(new pcl::PointCloud<pcl::PointXYZ>);
-    transformed_cloud.reset(new pcl::PointCloud<pcl::PointXYZ>);
     
     // 占据容器的大小 = 占据图尺寸 x*y*z
     occupancy_buffer_.resize(grid_size_(0) * grid_size_(1) * grid_size_(2));
@@ -59,42 +54,28 @@ void Occupy_map::init(ros::NodeHandle& nh)
         min_range_(2) = fly_height_2D - resolution_;
         max_range_(2) = fly_height_2D + resolution_;
     }
-}
 
-void Occupy_map::local_map_merge_odom(const nav_msgs::Odometry & odom)
-{
-    double x, y, z, roll, pitch, yaw;
-    x = odom.pose.pose.position.x;
-    y = odom.pose.pose.position.y;
-    z = odom.pose.pose.position.z;
-    tf::Quaternion orientation;
-    tf::quaternionMsgToTF(odom.pose.pose.orientation, orientation);    
-    tf::Matrix3x3(orientation).getRPY(roll, pitch, yaw);
-    pcl::transformPointCloud(*gobalPointCloudMap,*transformed_cloud,pcl::getTransformation(f_x-x, f_y-y, f_z-z, f_roll-roll, f_pitch-pitch, f_yaw-yaw));
-    *gobalPointCloudMap = *transformed_cloud + *inputPointCloud;
+    border.width = 4000;
+    border.height = 1;
+    border.points.resize(4000);
+    for(int i=0 ; i<1000; i++) //todo: auto border
+    {
+        border.points[i].x = min_range_(0)+i*(max_range_(0)-min_range_(0))/1000.0;
+        border.points[i].y = min_range_(1);
+        border.points[i].z = min_range_(2);
 
-    f_x = x;
-    f_y = y;
-    f_z = z;
-    f_roll = roll;
-    f_pitch = pitch;
-    f_yaw = yaw;
-    has_global_point = true;
-}
+        border.points[i+1000].x = min_range_(0)+i*(max_range_(0)-min_range_(0))/1000.0;
+        border.points[i+1000].y = max_range_(1);
+        border.points[i+1000].z = min_range_(2);
 
-// 地图更新函数 - 输入：全局点云
-void Occupy_map::map_update_gpcl(const sensor_msgs::PointCloud2ConstPtr & global_point)
-{
-    pcl::fromROSMsg(*global_point,*inputPointCloud);
-    gobalPointCloudMap = inputPointCloud;
-    has_global_point = true;
-}
+        border.pointsglobal_point_cloud_map);
+
 
 // 地图更新函数 - 输入：局部点云
 void Occupy_map::map_update_lpcl(const sensor_msgs::PointCloud2ConstPtr & local_point, const nav_msgs::Odometry & odom)
 {
     // 由sensor_msgs::PointCloud2 转为 pcl::PointCloud<pcl::PointXYZ>
-    pcl::fromROSMsg(*local_point,*inputPointCloud);
+    pcl::fromROSMsg(*local_point,*input_point_cloud);
     // 将局部点云融合至全局点云
     local_map_merge_odom(odom);
 }
@@ -106,7 +87,7 @@ void Occupy_map::map_update_laser(const sensor_msgs::LaserScanConstPtr & local_p
     // sensor_msgs::LaserScan 转为 sensor_msgs::PointCloud2 格式
     projector_.projectLaser(*local_point, input_laser_scan);
     // 再由sensor_msgs::PointCloud2 转为 pcl::PointCloud<pcl::PointXYZ>
-    pcl::fromROSMsg(input_laser_scan,*inputPointCloud);
+    pcl::fromROSMsg(input_laser_scan,*input_point_cloud);
     // 将局部点云融合至全局点云
     local_map_merge_odom(odom);
 }
@@ -116,24 +97,37 @@ void Occupy_map::map_update_laser(const sensor_msgs::LaserScanConstPtr & local_p
 void Occupy_map::inflate_point_cloud(void)
 {
     if(!has_global_point)
-    { 
+    {
         pub_message(message_pub, prometheus_msgs::Message::WARN, NODE_NAME, "Occupy_map [inflate point cloud]: don't have global point, can't inflate!\n");
         return;
     }
 
     // 发布未膨胀点云
     sensor_msgs::PointCloud2 global_env_;
-    pcl::toROSMsg(*gobalPointCloudMap,global_env_);
-    //global_env_.header.frame_id = uav_name+"/lidar_link";
-    global_env_.header.frame_id = "world";
-    
+    if(show_border)
+    {
+        pcl::toROSMsg(*transformed_cloud,global_env_);
+        if(queue_size==-1)
+        {
+            global_env_.header.frame_id = "world";
+        }
+        else
+        {
+            global_env_.header.frame_id = uav_name+"/lidar_link";
+        }
+    }
+    else
+    {
+        pcl::toROSMsg(*global_point_cloud_map,global_env_);
+        global_env_.header.frame_id = "world";
+    }
     global_pcl_pub.publish(global_env_);
 
     //记录开始时间
     ros::Time time_start = ros::Time::now();
 
     // 转化为PCL的格式进行处理
-    pcl::PointCloud<pcl::PointXYZ> latest_global_cloud_ = *gobalPointCloudMap;
+    pcl::PointCloud<pcl::PointXYZ> latest_global_cloud_ = *global_point_cloud_map;
 
     //printf("time 1 take %f [s].\n",   (ros::Time::now()-time_start).toSec());
 
@@ -157,13 +151,13 @@ void Occupy_map::inflate_point_cloud(void)
         p3d(0) = latest_global_cloud_.points[i].x;
         p3d(1) = latest_global_cloud_.points[i].y;
         p3d(2) = latest_global_cloud_.points[i].z;
-
+        
         // 若取出的点不在地图内（膨胀时只考虑地图范围内的点）
         if(!isInMap(p3d))
         {
             continue;
         }
-
+        
         // 根据膨胀距离，膨胀该点
         for (int x = -ifn; x <= ifn; ++x)
             for (int y = -ifn; y <= ifn; ++y)
@@ -187,11 +181,10 @@ void Occupy_map::inflate_point_cloud(void)
                 }
     }
 
-    cloud_inflate_vis_.header.frame_id = "world";
-
     // 转化为ros msg发布
     sensor_msgs::PointCloud2 map_inflate_vis;
     pcl::toROSMsg(cloud_inflate_vis_, map_inflate_vis);
+    map_inflate_vis.header.frame_id = "world";
 
     inflate_pcl_pub.publish(map_inflate_vis);
 
@@ -205,7 +198,6 @@ void Occupy_map::inflate_point_cloud(void)
         printf("inflate global point take %f [s].\n",   (ros::Time::now()-time_start).toSec());
         exec_num=0;
     }  
-
 }
 
 void Occupy_map::setOccupancy(Eigen::Vector3d pos, int occ) 

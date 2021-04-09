@@ -19,6 +19,9 @@
 #include <visualization_msgs/Marker.h>
 #include <sensor_msgs/LaserScan.h>
 #include <laser_geometry/laser_geometry.h>
+#include <pcl/filters/statistical_outlier_removal.h>
+#include <pcl/filters/voxel_grid.h>
+#include <map>
 
 #include "tools.h"
 #include "message_utils.h"
@@ -34,19 +37,20 @@ class Occupy_map
 {
     public:
         Occupy_map(){}
-
         // 点云指针
-        // 全局点云指针
-        pcl::PointCloud<pcl::PointXYZ>::Ptr gobalPointCloudMap;
-        // 输入的点云指针(辅助临时变量)
-        pcl::PointCloud<pcl::PointXYZ>::Ptr inputPointCloud;
-        // 这个似乎没用
+        map<int,pcl::PointCloud<pcl::PointXYZ>> point_cloud_pair;
+        pcl::PointCloud<pcl::PointXYZ>::Ptr global_point_cloud_map;
+        pcl::PointCloud<pcl::PointXYZ>::Ptr input_point_cloud;
         pcl::PointCloud<pcl::PointXYZ>::Ptr pcl_ptr;
-        // 坐标转换辅助变量
         pcl::PointCloud<pcl::PointXYZ>::Ptr transformed_cloud;
+        pcl::PointCloud<pcl::PointXYZ> border;
+        pcl::VoxelGrid<pcl::PointXYZ> vg;
+	    pcl::StatisticalOutlierRemoval<pcl::PointXYZ> sor;
         sensor_msgs::PointCloud2 input_laser_scan;
         laser_geometry::LaserProjection projector_;
         double f_x, f_y, f_z, f_roll, f_pitch, f_yaw;
+        int st_it, queue_size;
+        bool show_border;
         // 地图是否占据容器， 从编程角度来讲，这就是地图变为单一序列化后的索引
         std::vector<int> occupancy_buffer_;  // 0 is free, 1 is occupied
         // 地图分辨率
