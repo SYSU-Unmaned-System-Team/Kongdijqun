@@ -10,10 +10,22 @@ void Occupy_map::init(ros::NodeHandle& nh)
     // 无人机编号 1号无人机则为1
     nh.param<int>("uav_id", uav_id, 0);
     nh.param<string>("uav_name", uav_name, "/uav0");
-
     // 初始化点云指针
     global_point_cloud_map.reset(new pcl::PointCloud<pcl::PointXYZ>);
     input_point_cloud.reset(new pcl::PointCloud<pcl::PointXYZ>);
+    transformed_cloud.reset(new pcl::PointCloud<pcl::PointXYZ>);
+    pcl_ptr.reset(new pcl::PointCloud<pcl::PointXYZ>);
+    st_it = 0;
+    f_x = f_y = f_z = f_pitch = f_yaw = f_roll = 0.0;
+    // TRUE代表2D平面规划及搜索,FALSE代表3D 
+    nh.param("global_planner/is_2D", is_2D, true); 
+    // 2D规划时,定高高度
+    nh.param("global_planner/fly_height_2D", fly_height_2D, 1.0);
+    // 地图原点
+    nh.param("map/origin_x", origin_(0), -5.0);
+    nh.param("map/origin_y", origin_(1), -5.0);
+    nh.param("map/origin_z", origin_(2), 0.0);
+    // 地图实际尺寸，单位：米
     nh.param("map/map_size_x", map_size_3d_(0), 10.0);
     nh.param("map/map_size_y", map_size_3d_(1), 10.0);
     nh.param("map/map_size_z", map_size_3d_(2), 5.0);
@@ -68,8 +80,99 @@ void Occupy_map::init(ros::NodeHandle& nh)
         border.points[i+1000].y = max_range_(1);
         border.points[i+1000].z = min_range_(2);
 
-        border.pointsglobal_point_cloud_map);
+        border.points[i+2000].x = min_range_(0);
+        border.points[i+2000].y = min_range_(1)+i*(max_range_(1)-min_range_(1))/1000.0;
+        border.points[i+2000].z = min_range_(2);
 
+        border.points[i+3000].x = max_range_(0);
+        border.points[i+3000].y = min_range_(1)+i*(max_range_(1)-min_range_(1))/1000.0;
+        border.points[i+3000].z = min_range_(2);
+    }
+}
+
+// 地图更新函数 - 输入：全局点云
+void Occupy_map::map_update_gpcl(const sensor_msgs::PointCloud2ConstPtr & global_point)
+{
+    // rec global map
+    pcl::fromROSMsg(*global_point,*input_point_cloud);
+    global_point_cloud_map = input_point_cloud;
+    // map border
+    if(show_border)
+    {
+        *transformed_cloud = *global_point_cloud_map + border;
+    }
+    has_global_point = true;
+}
+
+void Occupy_map::local_map_merge_odom(const nav_msgs::Odometry & odom)
+{
+    // 6DOF
+    double x, y, z, roll, pitch, yaw;
+    x = odom.pose.pose.position.x;
+    y = odom.pose.pose.position.y;
+    z = odom.pose.pose.position.z;
+    tf::Quaternion orientation;
+    tf::quaternionMsgToTF(odom.pose.pose.orientation, orientation);    
+    tf::Matrix3x3(orientation).getRPY(roll, pitch, yaw);
+
+    // merge localmap, todo: incremental merge?
+    bool pos_change = (abs(f_x-x)>0.1 || abs(f_y-y)>0.1) && (fly_height_2D-0.15<z && z<fly_height_2D+1.0);
+    bool ang_change = abs(f_pitch-pitch)<0.03 && abs(f_roll-roll)<0.03 && abs(f_yaw-yaw)<0.03;
+    if((global_point_cloud_map==nullptr || pos_change) && ang_change) {
+        // window, size: $queue_size
+        map<int,pcl::PointCloud<pcl::PointXYZ>>::iterator iter;
+        for(iter = point_cloud_pair.begin(); iter != point_cloud_pair.end(); iter++) // mapping local map by odom
+        {
+            pcl::transformPointCloud(iter->second,*transformed_cloud,pcl::getTransformation(f_x-x, f_y-y, f_z-z, f_roll-roll, f_pitch-pitch, f_yaw-yaw));
+            iter->second = *transformed_cloud;
+        }
+
+        point_cloud_pair[st_it] = *input_point_cloud; // add new scan
+        st_it = (st_it + 1) % queue_size; // silde window
+
+        // accumulate local map
+        pcl_ptr.reset(new pcl::PointCloud<pcl::PointXYZ>);
+        for(iter = point_cloud_pair.begin(); iter != point_cloud_pair.end(); iter++)
+        {
+            *pcl_ptr += iter->second;
+        }
+
+        // remove outlier
+        sor.setInputCloud(pcl_ptr);
+        sor.setMeanK(20); //kNN
+        sor.setStddevMulThresh(1.0); //threshole
+        sor.setNegative(false);
+        sor.filter(*global_point_cloud_map);
+
+        // downsample
+        vg.setInputCloud(global_point_cloud_map);
+        vg.setLeafSize(0.05f, 0.05f, 0.5f); // change leaf size
+        vg.filter(*pcl_ptr);
+
+        // border
+        if(show_border)
+        {
+            pcl::transformPointCloud(border,*transformed_cloud,pcl::getTransformation(f_x-x, f_y-y, f_z-z, 0, 0, 0));
+            border = *transformed_cloud;
+            // tf global map
+            *transformed_cloud = *pcl_ptr + border;
+        }
+
+        // astar global map
+        pcl::transformPointCloud(*pcl_ptr,*global_point_cloud_map,pcl::getTransformation(x, y, z, 0, 0, 0));
+
+        // store odom data
+        f_x = x;
+        f_y = y;
+        f_z = z;
+        f_roll = roll;
+        f_pitch = pitch;
+        f_yaw = yaw;
+        // global map flag
+        has_global_point = true;
+    }
+    else has_global_point = false;
+}
 
 // 地图更新函数 - 输入：局部点云
 void Occupy_map::map_update_lpcl(const sensor_msgs::PointCloud2ConstPtr & local_point, const nav_msgs::Odometry & odom)

@@ -133,8 +133,8 @@
         <param name="map/map_size_x" value="30.0" type="double"/>
         <param name="map/map_size_y" value="30.0" type="double"/>
         <param name="map/map_size_z" value="3.0" type="double"/>
-		<param name="map/queue_size" value="-1" type="int"/>
-		<param name="map/border" value="false" type="bool"/>
+	<param name="map/queue_size" value="-1" type="int"/>
+	<param name="map/border" value="false" type="bool"/>
     </node>
 
 	<!-- TF transform -->
