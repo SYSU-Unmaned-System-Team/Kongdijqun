@@ -2,6 +2,7 @@
 #define GLOBAL_PLANNER
 
 #include <ros/ros.h>
+#include <boost/format.hpp>
 
 #include <Eigen/Eigen>
 #include <iostream>
@@ -19,7 +20,11 @@
 #include "prometheus_msgs/Message.h"
 #include "prometheus_msgs/DroneState.h"
 #include "prometheus_msgs/SwarmCommand.h"
-#include "prometheus_msgs/DetectionInfo.h"
+#include "prometheus_msgs/ArucoInfo.h"
+#include "prometheus_msgs/Case2Result.h"
+#include "prometheus_msgs/StationCommandCase2.h"
+
+
 
 #include "A_star.h"
 #include "occupy_map.h"
@@ -55,7 +60,7 @@ private:
     double replan_time;
     bool consider_neighbour;
     bool sim_mode;
-    bool waypoint_mode;
+    
     bool map_groundtruth;
 
     // 本机位置
@@ -64,6 +69,8 @@ private:
     // 调用路径规划算法 生成路径
     // 调用轨迹优化算法 规划轨迹
 
+     
+    ros::Subscriber station_cmd_sub;
     // 订阅无人机状态、目标点、传感器数据（生成地图）
     ros::Subscriber goal_sub;
     ros::Subscriber drone_state_sub;
@@ -78,13 +85,15 @@ private:
     // 发布控制指令
     ros::Publisher command_pub,path_cmd_pub;
     // 发布检测结果至其他无人机 无人车 地面站
-    ros::Publisher detection_result_pub;
+    ros::Publisher case2_result_pub;
     ros::Timer mainloop_timer, track_path_timer, safety_timer;
 
     // A星规划器
     Astar::Ptr Astar_ptr;
 
     prometheus_msgs::DroneState _DroneState;
+    prometheus_msgs::StationCommandCase2 station_cmd;
+    
     nav_msgs::Odometry Drone_odom;
 
     nav_msgs::Path path_cmd;
@@ -97,7 +106,7 @@ private:
     bool odom_ready;
     bool drone_ready;
     bool sensor_ready;
-    bool goal_ready; 
+    bool get_goal; 
     bool is_safety;
     bool is_new_path;
     bool path_ok;
@@ -105,13 +114,15 @@ private:
     int Num_total_wp;
     int cur_id;
 
-    int waypoint_num;
+    // 目标点相关
+    bool manual_mode;
+    int goal_num;
+    Eigen::MatrixXf goal_matrix;
+    int goal_id;
 
-    Eigen::Vector3d waypoint1;
-    Eigen::Vector3d waypoint2;
-    Eigen::Vector3d waypoint3;
-    Eigen::Vector3d waypoint4;
-    Eigen::Vector3d waypoint5;
+    // 返航相关
+    Eigen::Vector3d return_pos;
+
 
     // 规划初始状态及终端状态
     Eigen::Vector3d start_pos, start_vel, start_acc, goal_pos, goal_vel;
@@ -127,16 +138,23 @@ private:
     // 五种状态机
     enum EXEC_STATE
     {
+        INIT,
+        TAKEOFF,
         WAIT_GOAL,
         PLANNING,
-        TRACKING,
+        PATH_TRACKING,
+        OBEJECT_TRACKING,
+        RETURN_PLANNING,
+        RETURN,
         LANDING,
     };
     EXEC_STATE exec_state;
 
     // 检测相关
-    bool detected;
+    bool detected_by_myself;
     bool detected_by_others;
+    bool lost_object;
+    int num_count_vision_lost;
     Eigen::Vector3d object_pos;
 
 
@@ -146,7 +164,8 @@ private:
     void Gpointcloud_cb(const sensor_msgs::PointCloud2ConstPtr &msg);
     void Lpointcloud_cb(const sensor_msgs::PointCloud2ConstPtr &msg);
     void laser_cb(const sensor_msgs::LaserScanConstPtr &msg);
-    void detection_cb(const prometheus_msgs::DetectionInfoConstPtr &msg);
+    void detection_cb(const prometheus_msgs::ArucoInfoConstPtr &msg);
+    void cmd_cb(const prometheus_msgs::StationCommandCase2ConstPtr& msg);
 
     void safety_cb(const ros::TimerEvent& e);
     void mainloop_cb(const ros::TimerEvent& e);

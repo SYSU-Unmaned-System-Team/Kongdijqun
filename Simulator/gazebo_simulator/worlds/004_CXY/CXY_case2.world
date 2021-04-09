@@ -304,7 +304,7 @@
         </collision>
       </link>
       <link name='pillar_2'>
-        <pose frame=''>-2.0 0 1.0 0 -0 0</pose>
+        <pose frame=''>-2.0 1.0 1.0 0 -0 0</pose>
         <visual name='visual'>
           <geometry>
             <cylinder>
@@ -334,7 +334,7 @@
     <model name='aruco'>
       <static>true</static>
       <link name="aruco_1">
-        <pose frame=''> -2.0 1.0 0.01 0.0 0.0 0.0</pose>
+        <pose frame=''> -2.0 2.0 0.01 0.0 0.0 0.0</pose>
         <visual name="visual">
             <cast_shadows>false</cast_shadows>
             <geometry>

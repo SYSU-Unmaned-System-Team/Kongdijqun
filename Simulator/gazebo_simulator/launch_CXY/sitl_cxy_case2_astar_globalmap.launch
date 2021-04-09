@@ -6,8 +6,8 @@
 	<!-- 无人机ID -->
 	<arg name="uav1_id" default="1"/>
 	<!-- 无人机初始位置 -->
-	<arg name="uav1_init_x" default="0.0"/>
-    <arg name="uav1_init_y" default="0.0"/>
+	<arg name="uav1_init_x" default="-4.0"/>
+    <arg name="uav1_init_y" default="2.0"/>
 	<!-- swarm_estimator 参数 -->
 	<arg name="input_source" default="2"/>
 	<!-- swarm_controller 参数 -->
@@ -99,6 +99,13 @@
 		<param name="swarm_num" value="$(arg swarm_num)"/>
 		<param name="uav_name" value="$(arg uav1_name)" />
 		<param name="uav_id" value="$(arg uav1_id)" />
+		<param name="global_planner/sim_mode" value="true" type="bool"/>
+		<!--  -->
+		<param name="global_planner/manual_mode" value="true" type="bool"/>
+		<param name="global_planner/goal_num" value="1" />
+		<param name="goal0/x" value="1.0" />
+		<param name="goal0/y" value="2.0" />
+		<param name="goal0/z" value="3.0" />
         <remap from="/uav1/prometheus/global_planning/global_pcl" to="$(arg topic_of_global_pcl)" />
         <!-- 参数 -->
         <!-- 二维平面规划 -->
@@ -110,7 +117,6 @@
         <param name="global_planner/time_per_path" value="1.0" type="double"/>
         <param name="global_planner/replan_time" value="2.0" type="double"/>
         <param name="global_planner/map_input" value="0" type="int"/>
-        <param name="global_planner/sim_mode" value="true" type="bool"/>
         <!-- 最大搜索步数 -->
         <param name="astar/allocate_num" value="10000" type="int"/>
         <!-- 启发式函数系数 -->

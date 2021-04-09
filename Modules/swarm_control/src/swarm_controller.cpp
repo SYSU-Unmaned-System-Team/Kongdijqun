@@ -301,7 +301,15 @@ int main(int argc, char **argv)
                     state_sp = Eigen::Vector3d(Command_Now.velocity_ref[0],Command_Now.velocity_ref[1],Command_Now.position_ref[2]);
                     yaw_sp = _DroneState.attitude[2] + Command_Now.yaw_ref;
                 }
-            }else
+            }else if(Command_Now.Move_mode == prometheus_msgs::SwarmCommand::TRAJECTORY)
+            {
+                state_sp << Command_Now.position_ref[0],Command_Now.position_ref[1],Command_Now.position_ref[2];
+                // z轴定高飞行，速度为0
+                state_sp_extra << Command_Now.velocity_ref[0],Command_Now.velocity_ref[1], 0.0 ;
+                yaw_sp = Command_Now.yaw_ref;
+                send_pos_vel_xyz_setpoint(state_sp , state_sp_extra, yaw_sp);
+            }
+            else
             {
                 pub_message(message_pub, prometheus_msgs::Message::ERROR, msg_name, "Wrong swarm command!");
             }
