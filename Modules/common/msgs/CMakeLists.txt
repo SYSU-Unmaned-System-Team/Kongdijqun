@@ -39,6 +39,8 @@ add_message_files(
   ArucoInfo.msg
   MultiArucoInfo.msg
   IndoorSearch.msg
+  Case2Result.msg
+  StationCommandCase2.msg
 )
 
 add_action_files(

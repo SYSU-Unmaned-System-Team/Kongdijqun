@@ -41,9 +41,6 @@ class Global_Planner
 private:
 
     ros::NodeHandle global_planner_nh;
-    int swarm_num;                                  // 集群数量
-    string uav_name;                                // 无人机名字
-    int uav_id;                                     // 无人机编号
 
     // 参数
     int algorithm_mode;
@@ -85,6 +82,7 @@ private:
 
     nav_msgs::Path path_cmd;
     double distance_walked;
+
     prometheus_msgs::ControlCommand Command_Now; 
 
     double distance_to_goal;

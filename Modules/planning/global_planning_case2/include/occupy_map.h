@@ -108,6 +108,4 @@ class Occupy_map
 
 }
 
-
-
 #endif
