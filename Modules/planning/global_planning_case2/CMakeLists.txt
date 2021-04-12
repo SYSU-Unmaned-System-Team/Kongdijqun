@@ -51,3 +51,7 @@ target_link_libraries(case2_main
        ${catkin_LIBRARIES}
 	   ${PCL_LIBRARIES}
 	)
+
+add_executable(case2_station src/case2_station.cpp)
+add_dependencies(case2_station prometheus_case2_gencpp)
+target_link_libraries(case2_station ${catkin_LIBRARIES})

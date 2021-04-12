@@ -1,0 +1,132 @@
+<?xml version="1.0" ?>
+<sdf version="1.5">
+  <world name="default">
+   <light type="directional" name="sun">
+      <cast_shadows>false</cast_shadows>
+      <pose>0 0 100 0 0 0</pose>
+      <diffuse>0.8 0.8 0.8 1</diffuse>
+      <specular>0.9 0.9 0.9 1</specular>
+      <attenuation>
+        <range>1000</range>
+        <constant>0.9</constant>
+        <linear>0.01</linear>
+        <quadratic>0.001</quadratic>
+      </attenuation>
+      <direction>0.2 0.2 -0.9</direction>
+    </light>
+
+    <!-- A ground plane -->
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+    <!-- 初始视角 -->
+    <gui fullscreen='0'>
+      <camera name='user_camera'>
+        <pose>-11.0 0.0 7.0 0 0.57 0.0</pose>
+        <view_controller>orbit</view_controller>
+      </camera>
+    </gui>
+
+    <physics type='ode'>
+      <gravity>0 0 -9.8066</gravity>
+      <ode>
+        <solver>
+          <type>quick</type>
+          <iters>150</iters>
+          <sor>1.3</sor>
+          <use_dynamic_moi_rescaling>0</use_dynamic_moi_rescaling>
+        </solver>
+        <constraints>
+          <cfm>0.00001</cfm>
+          <erp>0.2</erp>
+          <contact_max_correcting_vel>1000</contact_max_correcting_vel>
+          <contact_surface_layer>0.01</contact_surface_layer>
+        </constraints>
+      </ode>
+      <max_step_size>0.004</max_step_size>
+      <real_time_factor>1000.0</real_time_factor>
+      <real_time_update_rate>250</real_time_update_rate>
+      <magnetic_field>6.0e-6 2.3e-5 -4.2e-5</magnetic_field>
+    </physics>
+
+    <!-- 装饰 -->
+    <model name='texture'>
+      <static>true</static>
+      <!-- 地板 -->
+      <!-- 后墙徽章 -->
+      <!-- <link name="sysu_logo">
+        <pose>4.0 4.0 0.01 0 0 0</pose>
+        <visual name="visual">
+          <cast_shadows>false</cast_shadows>
+          <geometry>
+            <box>
+              <size>1.0 1.0 0.01</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>model://texture_CXY/texture.material</uri>
+              <name>sysu_logo</name>
+            </script>
+          </material>
+        </visual>
+      </link> -->
+      <!-- 前墙海报 -->
+      <!-- <link name="jky_logo">
+        <pose>4.0 -4.0 0.05 0 0 0</pose>
+        <visual name="visual">
+          <cast_shadows>false</cast_shadows>
+          <geometry>
+            <box>
+              <size>1.0 1.0 0.01</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>model://texture_CXY/texture.material</uri>
+              <name>jky_logo</name>
+            </script>
+          </material>
+        </visual>
+      </link> -->
+      <!-- 左墙海报 -->
+      <link name="jky_word">
+        <pose>-0.0 -4.0 0.05 0 0 0</pose>
+        <visual name="visual">
+          <cast_shadows>false</cast_shadows>
+          <geometry>
+            <box>
+              <size>1.0 5.0 0.01</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>model://texture_CXY/texture.material</uri>
+              <name>cxy</name>
+            </script>
+          </material>
+        </visual>
+      </link>
+      <!--　右墙海报 -->
+      <link name="sysu_word">
+        <pose>-0.0 4.0 0.05 0 0 0</pose>
+        <visual name="visual">
+          <cast_shadows>false</cast_shadows>
+          <geometry>
+            <box>
+              <size>1.0 5.0 0.01</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>model://texture_CXY/texture.material</uri>
+              <name>xty</name>
+            </script>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    </world>
+</sdf>
