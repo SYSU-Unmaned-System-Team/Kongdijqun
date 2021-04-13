@@ -324,6 +324,4 @@ int main(int argc, char **argv)
         Command_Last = Command_Now;
         rate.sleep();
     }
-
 }
-

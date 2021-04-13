@@ -82,7 +82,6 @@ int main(int argc, char **argv)
     {
         //回调一次 更新传感器状态
         ros::spinOnce();
-
         rate.sleep();
     }
 

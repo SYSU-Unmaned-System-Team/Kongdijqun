@@ -61,7 +61,6 @@ ros::Publisher message_pub;
 ros::Publisher odom_pub;
 ros::Publisher trajectory_pub;
 
-// 回调函数
 void init()
 {
     _DroneState.connected = false;

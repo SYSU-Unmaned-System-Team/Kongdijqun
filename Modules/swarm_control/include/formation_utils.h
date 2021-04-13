@@ -15,219 +15,142 @@
 #include <nav_msgs/Odometry.h>
 #include <nav_msgs/Path.h>
 
+using namespace Eigen;
+
+float one_column_shape_for_8uav[32] = {
+    0.5,0.0,0.0,0.0,    -0.5,0.0,0.0,0.0,   1.5,0.0,0.0,0.0,    -1.5,0.0,0.0,0.0,
+    2.5,0.0,0.0,0.0,    -2.5,0.0,0.0,0.0,   3.5,0.0,0.0,0.0,    -3.5,0.0,0.0,0.0};
+
+float triangle_shape_for_8uav[32] = {
+    0.5,2.0,0.0,0.0,    -0.5,2.0,0.0,0.0,   1.5,1.0,0.0,0.0,    -1.5,1.0,0.0,0.0,
+    2.5,0.0,0.0,0.0,    -2.5,0.0,0.0,0.0,   3.5,-1.0,0.0,0.0,   -3.5,-1.0,0.0,0.0};
+
+float square_shape_for_8uav[32] = {
+    0.5,-2.0,0.0,0.0,   -0.5,2.0,0.0,0.0,   2.5,2.0,0.0,0.0,    -2.5,2.0,0.0,0.0,
+    2.5,0.0,0.0,0.0,    -2.5,0.0,0.0,0.0,   2.5,-2.0,0.0,0.0,   -2.5,-2.0,0.0,0.0};
+
+float circular_shape_for_8uav[32] = {
+    0.5,-1.0,0.0,0.0,   -0.5,1.0,0.0,0.0,   2.0,1.0,0.0,0.0,    -2.0,1.0,0.0,0.0,
+    2.0,-1.0,0.0,0.0,   -2.0,-1.0,0.0,0.0,  3.5,0.0,0.0,0.0,    -3.5,0.0,0.0,0.0};
+
+float one_column_shape_for_40uav[160] = {
+    0.5,0.0,0.0,0.0,    -0.5,0.0,0.0,0.0,   1.5,0.0,0.0,0.0,    -1.5,0.0,0.0,0.0,
+    2.5,0.0,0.0,0.0,    -2.5,0.0,0.0,0.0,   3.5,0.0,0.0,0.0,    -3.5,0.0,0.0,0.0,
+    4.5,0.0,0.0,0.0,    -4.5,0.0,0.0,0.0,   5.5,0.0,0.0,0.0,    -5.5,0.0,0.0,0.0,
+    6.5,0.0,0.0,0.0,    -6.5,0.0,0.0,0.0,   7.5,0.0,0.0,0.0,    -7.5,0.0,0.0,0.0,
+    8.5,0.0,0.0,0.0,    -8.5,0.0,0.0,0.0,   9.5,0.0,0.0,0.0,    -9.5,0.0,0.0,0.0,
+    10.5,0.0,0.0,0.0,   -10.5,0.0,0.0,0.0,  11.5,0.0,0.0,0.0,   -11.5,0.0,0.0,0.0,
+    12.5,0.0,0.0,0.0,   -12.5,0.0,0.0,0.0,  13.5,0.0,0.0,0.0,   -13.5,0.0,0.0,0.0,
+    14.5,0.0,0.0,0.0,   -14.5,0.0,0.0,0.0,  15.5,0.0,0.0,0.0,   -15.5,0.0,0.0,0.0,
+    16.5,0.0,0.0,0.0,   -16.5,0.0,0.0,0.0,  17.5,0.0,0.0,0.0,   -17.5,0.0,0.0,0.0,
+    18.5,0.0,0.0,0.0,   -18.5,0.0,0.0,0.0,  19.5,0.0,0.0,0.0,   -19.5,0.0,0.0,0.0};
+
+float triangle_shape_for_40uav[160] = {
+    0.5,10.0,0.0,0.0,   -0.5,10.0,0.0,0.0,  1.5,9.0,0.0,0.0,    -1.5,9.0,0.0,0.0,
+    2.5,8.0,0.0,0.0,    -2.5,8.0,0.0,0.0,   3.5,7.0,0.0,0.0,    -3.5,7.0,0.0,0.0,
+    4.5,6.0,0.0,0.0,    -4.5,6.0,0.0,0.0,   5.5,5.0,0.0,0.0,    -5.5,5.0,0.0,0.0,
+    6.5,4.0,0.0,0.0,    -6.5,4.0,0.0,0.0,   7.5,3.0,0.0,0.0,    -7.5,3.0,0.0,0.0,
+    8.5,2.0,0.0,0.0,    -8.5,2.0,0.0,0.0,   9.5,1.0,0.0,0.0,    -9.5,1.0,0.0,0.0,
+    10.5,0.0,0.0,0.0,   -10.5,0.0,0.0,0.0,  11.5,-1.0,0.0,0.0,  -11.5,-1.0,0.0,0.0,
+    12.5,-2.0,0.0,0.0,  -12.5,-2.0,0.0,0.0, 13.5,-3.0,0.0,0.0,  -13.5,-3.0,0.0,0.0,
+    14.5,-4.0,0.0,0.0,  -14.5,-4.0,0.0,0.0, 15.5,-5.0,0.0,0.0,  -15.5,-5.0,0.0,0.0,
+    16.5,-6.0,0.0,0.0,  -16.5,-6.0,0.0,0.0, 17.5,-7.0,0.0,0.0,  -17.5,-7.0,0.0,0.0,
+    18.5,-8.0,0.0,0.0,  -18.5,-8.0,0.0,0.0, 19.5,-9.0,0.0,0.0,  -19.5,-9.0,0.0,0.0};
+
+float square_shape_for_40uav[160] = {
+    0.5,0.0,0.0,0.0,    -0.5,0.0,0.0,0.0,   1.5,0.0,0.0,0.0,    -1.5,0.0,0.0,0.0,
+    2.5,0.0,0.0,0.0,    -2.5,0.0,0.0,0.0,   3.5,0.0,0.0,0.0,    -3.5,0.0,0.0,0.0,
+    4.5,0.0,0.0,0.0,    -4.5,0.0,0.0,0.0,   5.5,0.0,0.0,0.0,    -5.5,0.0,0.0,0.0,
+    6.5,0.0,0.0,0.0,    -6.5,0.0,0.0,0.0,   7.5,0.0,0.0,0.0,    -7.5,0.0,0.0,0.0,
+    8.5,0.0,0.0,0.0,    -8.5,0.0,0.0,0.0,   9.5,0.0,0.0,0.0,    -9.5,0.0,0.0,0.0,
+    10.5,0.0,0.0,0.0,   -10.5,0.0,0.0,0.0,  11.5,0.0,0.0,0.0,   -11.5,0.0,0.0,0.0,
+    12.5,0.0,0.0,0.0,   -12.5,0.0,0.0,0.0,  13.5,0.0,0.0,0.0,   -13.5,0.0,0.0,0.0,
+    14.5,0.0,0.0,0.0,   -14.5,0.0,0.0,0.0,  15.5,0.0,0.0,0.0,   -15.5,0.0,0.0,0.0,
+    16.5,0.0,0.0,0.0,   -16.5,0.0,0.0,0.0,  17.5,0.0,0.0,0.0,   -17.5,0.0,0.0,0.0,
+    18.5,0.0,0.0,0.0,   -18.5,0.0,0.0,0.0,  19.5,0.0,0.0,0.0,   -19.5,0.0,0.0,0.0};
+
+float circular_shape_for_40uav[160] = {
+    0.5,0.0,0.0,0.0,    -0.5,0.0,0.0,0.0,   1.5,0.0,0.0,0.0,    -1.5,0.0,0.0,0.0,
+    2.5,0.0,0.0,0.0,    -2.5,0.0,0.0,0.0,   3.5,0.0,0.0,0.0,    -3.5,0.0,0.0,0.0,
+    4.5,0.0,0.0,0.0,    -4.5,0.0,0.0,0.0,   5.5,0.0,0.0,0.0,    -5.5,0.0,0.0,0.0,
+    6.5,0.0,0.0,0.0,    -6.5,0.0,0.0,0.0,   7.5,0.0,0.0,0.0,    -7.5,0.0,0.0,0.0,
+    8.5,0.0,0.0,0.0,    -8.5,0.0,0.0,0.0,   9.5,0.0,0.0,0.0,    -9.5,0.0,0.0,0.0,
+    10.5,0.0,0.0,0.0,   -10.5,0.0,0.0,0.0,  11.5,0.0,0.0,0.0,   -11.5,0.0,0.0,0.0,
+    12.5,0.0,0.0,0.0,   -12.5,0.0,0.0,0.0,  13.5,0.0,0.0,0.0,   -13.5,0.0,0.0,0.0,
+    14.5,0.0,0.0,0.0,   -14.5,0.0,0.0,0.0,  15.5,0.0,0.0,0.0,   -15.5,0.0,0.0,0.0,
+    16.5,0.0,0.0,0.0,   -16.5,0.0,0.0,0.0,  17.5,0.0,0.0,0.0,   -17.5,0.0,0.0,0.0,
+    18.5,0.0,0.0,0.0,   -18.5,0.0,0.0,0.0,  19.5,0.0,0.0,0.0,   -19.5,0.0,0.0,0.0};
+
 namespace formation_utils 
 {
 // 输入参数：　阵型，阵型基本尺寸，集群数量
 // 所有的阵型和数量必须提前预设!!
 Eigen::MatrixXf get_formation_separation(int swarm_shape, float swarm_size, int swarm_num)
 {
-    //矩阵大小为　swarm_num＊4 , 对应　x,y,z,yaw四个自由度的分离量
+    //矩阵大小为　swarm_num＊4 , 对应x,y,z,yaw四个自由度的分离量
     Eigen::MatrixXf seperation(swarm_num,4); 
-
-
-    if(swarm_num == 1)
-    {
-        seperation(0,0) = 0.0;
-        seperation(0,1) = 0.0;  
-        seperation(0,2) = 0.0;
-        seperation(0,3) = 0.0;
-    }
- 
     // cxy 默认swarm_size为１米
-
-    // one_column shape
     // 横向一字型，虚拟领机位置为中心位置，其余飞机根据数量向左右增加
     if(swarm_shape == prometheus_msgs::SwarmCommand::One_column)
     {
         if(swarm_num == 8)
         {
-            seperation(0,0) = 0.5 * swarm_size;
-            seperation(0,1) = 0.0 * swarm_size;  
-            seperation(0,2) = 0.0;
-            seperation(0,3) = 0.0;
-
-            seperation(1,0) = -0.5 * swarm_size;
-            seperation(1,1) = 0.0 * swarm_size;  
-            seperation(1,2) = 0.0;
-            seperation(1,3) = 0.0;
-
-            seperation(2,0) = 1.5 * swarm_size;
-            seperation(2,1) = 0.0 * swarm_size;  
-            seperation(2,2) = 0.0;
-            seperation(2,3) = 0.0;
-
-            seperation(3,0) = -1.5 * swarm_size;
-            seperation(3,1) = 0.0 * swarm_size;  
-            seperation(3,2) = 0.0;
-            seperation(3,3) = 0.0;
-
-            seperation(4,0) = 2.5 * swarm_size;
-            seperation(4,1) = 0.0 * swarm_size;  
-            seperation(4,2) = 0.0;
-            seperation(4,3) = 0.0;
-
-            seperation(5,0) = -2.5 * swarm_size;
-            seperation(5,1) = 0.0 * swarm_size;  
-            seperation(5,2) = 0.0;
-            seperation(5,3) = 0.0;
-
-            seperation(6,0) = 3.5 * swarm_size;
-            seperation(6,1) = 0.0 * swarm_size;  
-            seperation(6,2) = 0.0;
-            seperation(6,3) = 0.0;
-
-            seperation(7,0) = -3.5 * swarm_size;
-            seperation(7,1) = 0.0 * swarm_size;  
-            seperation(7,2) = 0.0;
-            seperation(7,3) = 0.0;
+            seperation = Map<Matrix<float,8,4,RowMajor>>(one_column_shape_for_8uav); 
+        }
+        else if(swarm_num == 40)
+        {
+            seperation = Map<Matrix<float,40,4,RowMajor>>(one_column_shape_for_40uav); 
         }
     }
 
-    // triangle shape
     // 三角型，虚拟领机位置为中心位置
     if(swarm_shape == prometheus_msgs::SwarmCommand::Triangle)
     {
         if(swarm_num == 8)
         {
-            seperation(0,0) = 0.5 * swarm_size;
-            seperation(0,1) = 2.0 * swarm_size;  
-            seperation(0,2) = 00;
-            seperation(0,3) = 0.0;
-
-            seperation(1,0) = -0.5 * swarm_size;
-            seperation(1,1) = 2.0 * swarm_size;  
-            seperation(1,2) = 0.0;
-            seperation(1,3) = 0.0;
-
-            seperation(2,0) = 1.5 * swarm_size;
-            seperation(2,1) = 1.0 * swarm_size;  
-            seperation(2,2) = 0.0;
-            seperation(2,3) = 0.0;
-
-            seperation(3,0) = -1.5 * swarm_size;
-            seperation(3,1) = 1.0 * swarm_size;  
-            seperation(3,2) = 0.0;
-            seperation(3,3) = 0.0;
-
-            seperation(4,0) = 2.5 * swarm_size;
-            seperation(4,1) = -0.0 * swarm_size;  
-            seperation(4,2) = 0.0;
-            seperation(4,3) = 0.0;
-
-            seperation(5,0) = -2.5 * swarm_size;
-            seperation(5,1) = 0.0 * swarm_size;  
-            seperation(5,2) = 0.0;
-            seperation(5,3) = 0.0;
-
-            seperation(6,0) = 3.5 * swarm_size;
-            seperation(6,1) = -1.0 * swarm_size;  
-            seperation(6,2) = 0.0;
-            seperation(6,3) = 0.0;
-
-            seperation(7,0) = -3.5 * swarm_size;
-            seperation(7,1) = -1.0 * swarm_size;  
-            seperation(7,2) = 0.0;
-            seperation(7,3) = 0.0;
+            seperation = Map<Matrix<float,8,4,RowMajor>>(triangle_shape_for_8uav); 
+        }
+        else if(swarm_num == 40)
+        {
+            seperation = Map<Matrix<float,40,4,RowMajor>>(triangle_shape_for_40uav); 
         }
     }
 
-    // Square shape
     // 方型，虚拟领机位置为中心位置
     if(swarm_shape == prometheus_msgs::SwarmCommand::Square)
     {
         if(swarm_num == 8)
         {
-            seperation(0,0) = 0.5 * swarm_size;
-            seperation(0,1) = -2.0 * swarm_size;  
-            seperation(0,2) = 0.0;
-            seperation(0,3) = 0.0;
-
-            seperation(1,0) = -0.5 * swarm_size;
-            seperation(1,1) = 2.0 * swarm_size;  
-            seperation(1,2) = 0.0;
-            seperation(1,3) = 0.0;
-
-            seperation(2,0) = 2.5 * swarm_size;
-            seperation(2,1) = 2.0 * swarm_size;  
-            seperation(2,2) = 0.0;
-            seperation(2,3) = 0.0;
-
-            seperation(3,0) = -2.5 * swarm_size;
-            seperation(3,1) = 2.0 * swarm_size;  
-            seperation(3,2) = 0.0;
-            seperation(3,3) = 0.0;
-
-            seperation(4,0) = 2.5 * swarm_size;
-            seperation(4,1) = 0.0 * swarm_size;  
-            seperation(4,2) = 0.0;
-            seperation(4,3) = 0.0;
-
-            seperation(5,0) = -2.5 * swarm_size;
-            seperation(5,1) = 0.0 * swarm_size;  
-            seperation(5,2) = 0.0;
-            seperation(5,3) = 0.0;
-
-            seperation(6,0) = 2.5 * swarm_size;
-            seperation(6,1) = -2.0 * swarm_size;  
-            seperation(6,2) = 0.0;
-            seperation(6,3) = 0.0;
-
-            seperation(7,0) = -2.5 * swarm_size;
-            seperation(7,1) = -2.0 * swarm_size;  
-            seperation(7,2) = 0.0;
-            seperation(7,3) = 0.0;
+            seperation = Map<Matrix<float,8,4,RowMajor>>(square_shape_for_8uav); 
+        }
+        else if(swarm_num == 40)
+        {
+            seperation = Map<Matrix<float,40,4,RowMajor>>(square_shape_for_40uav); 
         }
     }
 
-    // Circular shape
     // 圆形，虚拟领机位置为中心位置
     if(swarm_shape == prometheus_msgs::SwarmCommand::Circular)
     {
         if(swarm_num == 8)
         {
-            seperation(0,0) = 0.5 * swarm_size;
-            seperation(0,1) = -1.0 * swarm_size;  
-            seperation(0,2) = 0.0;
-            seperation(0,3) = 0.0;
-
-            seperation(1,0) = -0.5 * swarm_size;
-            seperation(1,1) = 1.0 * swarm_size;  
-            seperation(1,2) = 0.0;
-            seperation(1,3) = 0.0;
-
-            seperation(2,0) = 2.0 * swarm_size;
-            seperation(2,1) = 1.0 * swarm_size;  
-            seperation(2,2) = 0.0;
-            seperation(2,3) = 0.0;
-
-            seperation(3,0) = -2.0 * swarm_size;
-            seperation(3,1) = 1.0 * swarm_size;  
-            seperation(3,2) = 0.0;
-            seperation(3,3) = 0.0;
-
-            seperation(4,0) = 2.0 * swarm_size;
-            seperation(4,1) = -1.0 * swarm_size;  
-            seperation(4,2) = 0.0;
-            seperation(4,3) = 0.0;
-
-            seperation(5,0) = -2.0 * swarm_size;
-            seperation(5,1) = -1.0 * swarm_size;  
-            seperation(5,2) = 0.0;
-            seperation(5,3) = 0.0;
-
-            seperation(6,0) = 3.5 * swarm_size;
-            seperation(6,1) = 0.0 * swarm_size;  
-            seperation(6,2) = 0.0;
-            seperation(6,3) = 0.0;
-
-            seperation(7,0) = -3.5 * swarm_size;
-            seperation(7,1) = 0.0 * swarm_size;  
-            seperation(7,2) = 0.0;
-            seperation(7,3) = 0.0;
+            seperation = Map<Matrix<float,8,4,RowMajor>>(circular_shape_for_8uav); 
+        }
+        else if(swarm_num == 40)
+        {
+            seperation = Map<Matrix<float,40,4,RowMajor>>(circular_shape_for_40uav); 
         }
     }
+
+    for(int i = 0 ; i < swarm_num ; i++)
+    {
+        for(int j = 0 ; j < 4; j++)
+        {
+            seperation(i,j) *= swarm_size;
+        }
+    }
+
     return seperation;
 }
-
 }
 #endif
