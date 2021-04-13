@@ -252,6 +252,7 @@
 	<!-- 启动地面站 -->
 	<node pkg="prometheus_swarm_control" type="swarm_ground_station" name="swarm_ground_station" output="screen" launch-prefix="gnome-terminal --tab --">	
 		<param name="swarm_num" value="$(arg swarm_num)"/>
+		<param name="flag_ros2groundstation" value="false"/>
 		<param name="uav1_name" value="$(arg uav1_name)" />
 		<param name="uav2_name" value="$(arg uav2_name)" />
 		<param name="uav3_name" value="$(arg uav3_name)" />
@@ -272,6 +273,7 @@
 
 	<node pkg="prometheus_swarm_control" type="swarm_ground_station_msg" name="swarm_ground_station_msg" output="screen" launch-prefix="gnome-terminal --tab --">	
 		<param name="swarm_num" value="$(arg swarm_num)"/>
+		<param name="flag_ros2groundstation" value="false"/>
 		<param name="uav1_name" value="$(arg uav1_name)" />
 		<param name="uav2_name" value="$(arg uav2_name)" />
 		<param name="uav3_name" value="$(arg uav3_name)" />

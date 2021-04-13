@@ -15,10 +15,10 @@ using namespace std;
 #define MAX_NUM 40
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>全 局 变 量<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 int swarm_num;
-string uav_name[MAX_NUM];
-int uav_id[MAX_NUM];
-prometheus_msgs::SwarmCommand swarm_command[MAX_NUM];
-ros::Publisher command_pub[MAX_NUM];
+string uav_name[MAX_NUM+1];
+int uav_id[MAX_NUM+1];
+prometheus_msgs::SwarmCommand swarm_command[MAX_NUM+1];
+ros::Publisher command_pub[MAX_NUM+1];
 
 int controller_num;
 float formation_size;
@@ -70,8 +70,7 @@ int main(int argc, char **argv)
             cout << "Wrong UAV Name or ID!"<< endl;
         }
 
-        //【发布】阵型
-        command_pub[i] = nh.advertise<prometheus_msgs::SwarmCommand>(uav_name[i] + "/prometheus/swarm_command", 10);
+        command_pub[i] = nh.advertise<prometheus_msgs::SwarmCommand>(uav_name[i] + "/prometheus/swarm_command", 10); //【发布】阵型
     }
 
     //固定的浮点显示
@@ -84,7 +83,6 @@ int main(int argc, char **argv)
     cout.setf(ios::showpoint);
     // 强制显示符号
     cout.setf(ios::showpos);
-
     // Waiting for input
     int start_flag = 0;
 
@@ -100,8 +98,7 @@ int main(int argc, char **argv)
         {
             swarm_command[i].Mode = prometheus_msgs::SwarmCommand::Idle;
             swarm_command[i].yaw_ref = 999;
-            //【发布】阵型
-            command_pub[i].publish(swarm_command[i]);
+            command_pub[i].publish(swarm_command[i]); //【发布】阵型
         }
     }
 
@@ -116,8 +113,7 @@ int main(int argc, char **argv)
         {
             swarm_command[i].Mode = prometheus_msgs::SwarmCommand::Takeoff;
             swarm_command[i].yaw_ref = 0.0;
-            //【发布】阵型
-            command_pub[i].publish(swarm_command[i]);
+            command_pub[i].publish(swarm_command[i]); //【发布】阵型
         }
     }
     
@@ -133,7 +129,6 @@ int main(int argc, char **argv)
             cin >> formation_num;
 
             pub_formation_command();
-            
         }
         else if (start_flag == 1)
         {
@@ -149,15 +144,13 @@ int main(int argc, char **argv)
             virtual_leader_yaw = virtual_leader_yaw/180.0*M_PI;
 
             pub_formation_command();
-            
         }
         else if (start_flag == 2)
         {
             for(int i = 1; i <= swarm_num; i++) 
             {
                 swarm_command[i].Mode = prometheus_msgs::SwarmCommand::Hold;
-                //【发布】阵型
-                command_pub[i].publish(swarm_command[i]);
+                command_pub[i].publish(swarm_command[i]); //【发布】阵型
             }
         }
         else if (start_flag == 3)
@@ -165,8 +158,7 @@ int main(int argc, char **argv)
             for(int i = 1; i <= swarm_num; i++) 
             {
                 swarm_command[i].Mode = prometheus_msgs::SwarmCommand::Land;
-                //【发布】阵型
-                command_pub[i].publish(swarm_command[i]);
+                command_pub[i].publish(swarm_command[i]); //【发布】阵型
             }
         }
         else if (start_flag == 5)
@@ -174,8 +166,7 @@ int main(int argc, char **argv)
             for(int i = 1; i <= swarm_num; i++) 
             {
                 swarm_command[i].Mode = prometheus_msgs::SwarmCommand::Disarm;
-                //【发布】阵型
-                command_pub[i].publish(swarm_command[i]);
+                command_pub[i].publish(swarm_command[i]); //【发布】阵型
             }
         }
         else
@@ -251,9 +242,7 @@ void pub_formation_command()
             swarm_command[i].Mode = prometheus_msgs::SwarmCommand::Accel_Control;
         }
     }
-
     // cout << "controller_num: " << controller_num << endl;
-
 
     for(int i = 1; i <= swarm_num; i++) 
     {
@@ -267,7 +256,6 @@ void pub_formation_command()
         swarm_command[i].yaw_ref = virtual_leader_yaw;
         command_pub[i].publish(swarm_command[i]);
     }
-    
     cout << "virtual_leader_pos: " << virtual_leader_pos[0] << "m "<<  virtual_leader_pos[1] << "m "<<  virtual_leader_pos[2] << "m "<< endl;
 }
 

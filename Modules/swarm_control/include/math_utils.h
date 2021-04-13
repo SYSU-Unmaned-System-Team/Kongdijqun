@@ -54,7 +54,6 @@ Eigen::Vector3d quaternion_to_euler(const Eigen::Quaterniond &q)
     return ans;
 }
 
-
 //旋转矩阵转欧拉角
 void rotation_to_euler(const Eigen::Matrix3d& dcm, Eigen::Vector3d& euler_angle)
 {
@@ -76,7 +75,6 @@ void rotation_to_euler(const Eigen::Matrix3d& dcm, Eigen::Vector3d& euler_angle)
     euler_angle(1) = theta_val;
     euler_angle(2) = psi_val;
 }
-
 
 //constrain_function
 float constrain_function(float data, float Max)
@@ -136,6 +134,5 @@ float min(float data1,float data2)
         return data1;
     }
 }
-
 
 #endif

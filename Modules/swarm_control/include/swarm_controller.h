@@ -14,11 +14,9 @@
 #include "message_utils.h"
 #include "math_utils.h"
 
-
 // 宏定义
 #define NODE_NAME "swarm_controller"            // 节点名字
 #define NUM_POINT 2                             // 打印小数点
-
 
 // 变量
 int swarm_num;                                  // 集群数量
@@ -108,7 +106,7 @@ void swarm_command_cb(const prometheus_msgs::SwarmCommand::ConstPtr& msg)
             // swarm_num 为1时,即无人机无法变换阵型,并只能接收位置控制指令
             Command_Now.Mode = prometheus_msgs::SwarmCommand::Position_Control;
             formation_separation << 0,0,0,0;
-        }else if(swarm_num == 8)
+        }else if(swarm_num == 8 || swarm_num == 40)
         {
             formation_separation = formation_utils::get_formation_separation(Command_Now.swarm_shape, Command_Now.swarm_size, swarm_num);
         }else
@@ -241,7 +239,6 @@ void send_vel_setpoint(const Eigen::Vector3d& vel_sp, float yaw_sp)
     setpoint_raw_local_pub.publish(pos_setpoint);
 }
 
-
 void send_vel_xy_pos_z_setpoint(const Eigen::Vector3d& state_sp, float yaw_sp)
 {
     mavros_msgs::PositionTarget pos_setpoint;
@@ -289,7 +286,6 @@ void send_pos_vel_xy_pos_z_setpoint(const Eigen::Vector3d& pos_sp, const Eigen::
     setpoint_raw_local_pub.publish(pos_setpoint);
 }
 
-
 void send_pos_vel_xyz_setpoint(const Eigen::Vector3d& pos_sp, const Eigen::Vector3d& vel_sp, float yaw_sp)
 {
     mavros_msgs::PositionTarget pos_setpoint;
@@ -334,7 +330,6 @@ void send_acc_xyz_setpoint(const Eigen::Vector3d& accel_sp, float yaw_sp)
     // cout <<">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>command_to_mavros<<<<<<<<<<<<<<<<<<<<<<<<<<<" <<endl;
     // cout << "Acc_target [X Y Z] : " << accel_drone_fcu_target[0] << " [m/s^2] "<< accel_drone_fcu_target[1]<<" [m/s^2] "<<accel_drone_fcu_target[2]<<" [m/s^2] "<<endl;
     // cout << "Yaw_target : " << euler_fcu_target[2] * 180/M_PI<<" [deg] "<<endl;
-
 }
 
 // 【坐标系旋转函数】- 机体系到enu系
@@ -385,7 +380,4 @@ Eigen::Vector3d accelToThrottle(const Eigen::Vector3d& accel_sp, float mass, flo
     return throttle_sp;   
 }
 
-
 #endif
-
-
