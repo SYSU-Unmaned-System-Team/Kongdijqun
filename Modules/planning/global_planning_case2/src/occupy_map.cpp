@@ -18,7 +18,7 @@ void Occupy_map::init(ros::NodeHandle& nh)
     st_it = 0;
     f_x = f_y = f_z = f_pitch = f_yaw = f_roll = 0.0;
     // TRUE代表2D平面规划及搜索,FALSE代表3D 
-    nh.param("global_planner/is_2D", is_2D, true); 
+    is_2D = true; 
     // 2D规划时,定高高度
     nh.param("global_planner/fly_height_2D", fly_height_2D, 1.0);
     // 地图原点
@@ -61,7 +61,7 @@ void Occupy_map::init(ros::NodeHandle& nh)
     max_range_ = origin_ + map_size_3d_;   
 
     // 对于二维情况，重新限制点云高度
-    if(is_2D == true)
+    if(is_2D)
     {
         min_range_(2) = fly_height_2D - resolution_;
         max_range_(2) = fly_height_2D + resolution_;
@@ -295,10 +295,14 @@ void Occupy_map::inflate_point_cloud(void)
     exec_num++;
 
     // 此处改为根据循环时间计算的数值
-    if(exec_num == 20)
+    if(exec_num == 50)
     {
         // 膨胀地图效率与地图大小有关（有点久，Astar更新频率是多久呢？ 怎么才能提高膨胀效率呢？）
-        printf("inflate global point take %f [s].\n",   (ros::Time::now()-time_start).toSec());
+        char message_chars[256];
+        sprintf(message_chars, "inflate global point take %f [s].", (ros::Time::now()-time_start).toSec());
+        message = message_chars;
+        pub_message(message_pub, prometheus_msgs::Message::NORMAL, NODE_NAME, message);
+
         exec_num=0;
     }  
 }

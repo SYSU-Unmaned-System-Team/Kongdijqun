@@ -271,8 +271,7 @@ void Global_Planner::drone_state_cb(const prometheus_msgs::DroneStateConstPtr& m
 
     Drone_odom.pose.pose.position.x = _DroneState.position[0];
     Drone_odom.pose.pose.position.y = _DroneState.position[1];
-    // 此处使用无人机真实高度 或者 使用定高高度？
-    Drone_odom.pose.pose.position.z = _DroneState.position[2];
+    Drone_odom.pose.pose.position.z = fly_height_2D;
 
     Drone_odom.pose.pose.orientation = _DroneState.attitude_q;
     Drone_odom.twist.twist.linear.x = _DroneState.velocity[0];

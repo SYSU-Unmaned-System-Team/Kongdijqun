@@ -69,9 +69,8 @@ class Occupy_map
         string uav_name;                                // 无人机名字
         int uav_id;                                     // 无人机编号
         bool has_global_point;
-           
-        // 显示相关
-        void show_gpcl_marker(visualization_msgs::Marker &m, int id, Eigen::Vector4d color);
+
+        string message;
 
         // 发布点云用于rviz显示
         ros::Publisher global_pcl_pub, inflate_pcl_pub;
