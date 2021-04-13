@@ -37,19 +37,29 @@ class Occupy_map
 {
     public:
         Occupy_map(){}
-        // 点云指针
+        // 局部地图 滑窗 存储器
         map<int,pcl::PointCloud<pcl::PointXYZ>> point_cloud_pair;
+        // 全局地图点云指针
         pcl::PointCloud<pcl::PointXYZ>::Ptr global_point_cloud_map;
+        // 临时指针
         pcl::PointCloud<pcl::PointXYZ>::Ptr input_point_cloud;
         pcl::PointCloud<pcl::PointXYZ>::Ptr pcl_ptr;
         pcl::PointCloud<pcl::PointXYZ>::Ptr transformed_cloud;
+        // 地图边界点云
         pcl::PointCloud<pcl::PointXYZ> border;
+        // VoxelGrid过滤器用于下采样
         pcl::VoxelGrid<pcl::PointXYZ> vg;
+        // OutlierRemoval用于去除离群值
 	    pcl::StatisticalOutlierRemoval<pcl::PointXYZ> sor;
+        // laserscan2pointcloud2 中间变量
         sensor_msgs::PointCloud2 input_laser_scan;
+        // laserscan2pointcloud2 投影器
         laser_geometry::LaserProjection projector_;
+        // 上一帧odom
         double f_x, f_y, f_z, f_roll, f_pitch, f_yaw;
+        // 局部地图滑窗，指示器以及大小
         int st_it, queue_size;
+        // flag：展示地图边界
         bool show_border;
         // 地图是否占据容器， 从编程角度来讲，这就是地图变为单一序列化后的索引
         std::vector<int> occupancy_buffer_;  // 0 is free, 1 is occupied
@@ -90,17 +100,17 @@ class Occupy_map
         // 判断当前点是否在地图内
         bool isInMap(Eigen::Vector3d pos);
         // 设置占据
-        void setOccupancy(Eigen::Vector3d pos, int occ);
+        void setOccupancy(Eigen::Vector3d &pos, int occ);
         // 由位置计算索引
-        void posToIndex(Eigen::Vector3d pos, Eigen::Vector3i &id);
+        void posToIndex(Eigen::Vector3d &pos, Eigen::Vector3i &id);
         // 由索引计算位置
-        void indexToPos(Eigen::Vector3i id, Eigen::Vector3d &pos);
+        void indexToPos(Eigen::Vector3i &id, Eigen::Vector3d &pos);
         // 根据位置返回占据状态
-        int getOccupancy(Eigen::Vector3d pos);
+        int getOccupancy(Eigen::Vector3d &pos);
         // 根据索引返回占据状态
-        int getOccupancy(Eigen::Vector3i id);
+        int getOccupancy(Eigen::Vector3i &id);
         // 检查安全
-        bool check_safety(Eigen::Vector3d& pos, double check_distance/*, Eigen::Vector3d& map_point*/);
+        bool check_safety(Eigen::Vector3d &pos, double check_distance/*, Eigen::Vector3d& map_point*/);
         // 定义该类的指针
         typedef std::shared_ptr<Occupy_map> Ptr;
 };
