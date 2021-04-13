@@ -1,6 +1,6 @@
 <?xml version='1.0'?>
 <sdf version='1.5'>
-  <model name='uav20'>
+  <model name='uav35'>
     <!-- Solo body -->
     <link name='base_link'>
       <pose>0 0 0 0 0 0</pose>
@@ -457,13 +457,13 @@
       <baroSubTopic>/baro</baroSubTopic>
       <mavlink_addr>INADDR_ANY</mavlink_addr>
       <!-- mavlink_tcp_port: 4560 + ID -->
-      <mavlink_tcp_port>4579</mavlink_tcp_port>
+      <mavlink_tcp_port>4594</mavlink_tcp_port>
       <serialEnabled>false</serialEnabled>
       <serialDevice>/dev/ttyACM0</serialDevice>
       <baudRate>921600</baudRate>
       <qgc_addr>INADDR_ANY</qgc_addr>
       <!-- qgc_udp_port: 14550 不更改 -->
-      <qgc_udp_port>18570</qgc_udp_port>
+      <qgc_udp_port>18584</qgc_udp_port>
       <hil_mode>false</hil_mode>
       <hil_state_level>false</hil_state_level>
       <enable_lockstep>true</enable_lockstep>
@@ -525,7 +525,7 @@
       <updateRate>50.0</updateRate>
       <bodyName>base_link</bodyName>
       <!-- 改为对应无人机前缀 -->
-      <topicName>/uav20/prometheus/ground_truth</topicName>
+      <topicName>/uav35/prometheus/ground_truth</topicName>
       <gaussianNoise>0.00</gaussianNoise>
       <frameName>world</frameName>
       <xyzOffsets>0 0 0</xyzOffsets>

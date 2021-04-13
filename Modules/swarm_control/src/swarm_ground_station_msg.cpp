@@ -8,12 +8,6 @@
 #include "swarm_ground_station.h"
 
 using namespace std;
-//参数声明
-int swarm_num;
-const int max_swarm_num = 8; // indicate max num
-string uav_name[max_swarm_num+1];
-int uav_id[max_swarm_num+1];
-ros::Subscriber message_sub[max_swarm_num+1];
 
 void msg_cb(const prometheus_msgs::Message::ConstPtr& msg)
 {
@@ -52,11 +46,9 @@ int main(int argc, char **argv)
         message_sub[i] = nh.subscribe<prometheus_msgs::Message>(uav_name[i] + "/prometheus/message/main", 100, msg_cb);
     }
     
-    
     while(ros::ok())
     {
         ros::spinOnce();
-
         sleep(2.0); // frequence
     }
     return 0;

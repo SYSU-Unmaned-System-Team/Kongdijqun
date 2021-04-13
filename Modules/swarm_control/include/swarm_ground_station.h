@@ -22,6 +22,125 @@
 using namespace std;
 #define NUM_POINT 2
 
+//参数声明
+int swarm_num;
+const int max_swarm_num = 40; // indicate max num
+string uav_name[max_swarm_num+1];
+int uav_id[max_swarm_num+1];
+bool flag_ros2groundstation;
+prometheus_msgs::DroneState State_uav[max_swarm_num+1];
+prometheus_msgs::SwarmCommand Command_uav[max_swarm_num+1];
+geometry_msgs::PoseStamped ref_pose_uav[max_swarm_num+1];
+ros::Subscriber command_sub[max_swarm_num+1];
+ros::Subscriber drone_state_sub[max_swarm_num+1];
+ros::Subscriber message_sub[max_swarm_num+1];
+char *servInetAddr = "127.0.0.1"; //sever ip
+string data;
+char sendline[1024];
+int socketfd;
+struct sockaddr_in sockaddr;
+
+//函数声明
+void swarm_command_cb_1(const prometheus_msgs::SwarmCommand::ConstPtr& msg) { Command_uav[1] = *msg; }
+void swarm_command_cb_2(const prometheus_msgs::SwarmCommand::ConstPtr& msg) { Command_uav[2] = *msg; }
+void swarm_command_cb_3(const prometheus_msgs::SwarmCommand::ConstPtr& msg) { Command_uav[3] = *msg; }
+void swarm_command_cb_4(const prometheus_msgs::SwarmCommand::ConstPtr& msg) { Command_uav[4] = *msg; }
+void swarm_command_cb_5(const prometheus_msgs::SwarmCommand::ConstPtr& msg) { Command_uav[5] = *msg; }
+void swarm_command_cb_6(const prometheus_msgs::SwarmCommand::ConstPtr& msg) { Command_uav[6] = *msg; }
+void swarm_command_cb_7(const prometheus_msgs::SwarmCommand::ConstPtr& msg) { Command_uav[7] = *msg; }
+void swarm_command_cb_8(const prometheus_msgs::SwarmCommand::ConstPtr& msg) { Command_uav[8] = *msg; }
+void swarm_command_cb_9(const prometheus_msgs::SwarmCommand::ConstPtr& msg) { Command_uav[9] = *msg; }
+void swarm_command_cb_10(const prometheus_msgs::SwarmCommand::ConstPtr& msg) { Command_uav[10] = *msg; }
+void swarm_command_cb_11(const prometheus_msgs::SwarmCommand::ConstPtr& msg) { Command_uav[11] = *msg; }
+void swarm_command_cb_12(const prometheus_msgs::SwarmCommand::ConstPtr& msg) { Command_uav[12] = *msg; }
+void swarm_command_cb_13(const prometheus_msgs::SwarmCommand::ConstPtr& msg) { Command_uav[13] = *msg; }
+void swarm_command_cb_14(const prometheus_msgs::SwarmCommand::ConstPtr& msg) { Command_uav[14] = *msg; }
+void swarm_command_cb_15(const prometheus_msgs::SwarmCommand::ConstPtr& msg) { Command_uav[15] = *msg; }
+void swarm_command_cb_16(const prometheus_msgs::SwarmCommand::ConstPtr& msg) { Command_uav[16] = *msg; }
+void swarm_command_cb_17(const prometheus_msgs::SwarmCommand::ConstPtr& msg) { Command_uav[17] = *msg; }
+void swarm_command_cb_18(const prometheus_msgs::SwarmCommand::ConstPtr& msg) { Command_uav[18] = *msg; }
+void swarm_command_cb_19(const prometheus_msgs::SwarmCommand::ConstPtr& msg) { Command_uav[19] = *msg; }
+void swarm_command_cb_20(const prometheus_msgs::SwarmCommand::ConstPtr& msg) { Command_uav[20] = *msg; }
+void swarm_command_cb_21(const prometheus_msgs::SwarmCommand::ConstPtr& msg) { Command_uav[21] = *msg; }
+void swarm_command_cb_22(const prometheus_msgs::SwarmCommand::ConstPtr& msg) { Command_uav[22] = *msg; }
+void swarm_command_cb_23(const prometheus_msgs::SwarmCommand::ConstPtr& msg) { Command_uav[23] = *msg; }
+void swarm_command_cb_24(const prometheus_msgs::SwarmCommand::ConstPtr& msg) { Command_uav[24] = *msg; }
+void swarm_command_cb_25(const prometheus_msgs::SwarmCommand::ConstPtr& msg) { Command_uav[25] = *msg; }
+void swarm_command_cb_26(const prometheus_msgs::SwarmCommand::ConstPtr& msg) { Command_uav[26] = *msg; }
+void swarm_command_cb_27(const prometheus_msgs::SwarmCommand::ConstPtr& msg) { Command_uav[27] = *msg; }
+void swarm_command_cb_28(const prometheus_msgs::SwarmCommand::ConstPtr& msg) { Command_uav[28] = *msg; }
+void swarm_command_cb_29(const prometheus_msgs::SwarmCommand::ConstPtr& msg) { Command_uav[29] = *msg; }
+void swarm_command_cb_30(const prometheus_msgs::SwarmCommand::ConstPtr& msg) { Command_uav[30] = *msg; }
+void swarm_command_cb_31(const prometheus_msgs::SwarmCommand::ConstPtr& msg) { Command_uav[31] = *msg; }
+void swarm_command_cb_32(const prometheus_msgs::SwarmCommand::ConstPtr& msg) { Command_uav[32] = *msg; }
+void swarm_command_cb_33(const prometheus_msgs::SwarmCommand::ConstPtr& msg) { Command_uav[33] = *msg; }
+void swarm_command_cb_34(const prometheus_msgs::SwarmCommand::ConstPtr& msg) { Command_uav[34] = *msg; }
+void swarm_command_cb_35(const prometheus_msgs::SwarmCommand::ConstPtr& msg) { Command_uav[35] = *msg; }
+void swarm_command_cb_36(const prometheus_msgs::SwarmCommand::ConstPtr& msg) { Command_uav[36] = *msg; }
+void swarm_command_cb_37(const prometheus_msgs::SwarmCommand::ConstPtr& msg) { Command_uav[37] = *msg; }
+void swarm_command_cb_38(const prometheus_msgs::SwarmCommand::ConstPtr& msg) { Command_uav[38] = *msg; }
+void swarm_command_cb_39(const prometheus_msgs::SwarmCommand::ConstPtr& msg) { Command_uav[39] = *msg; }
+void swarm_command_cb_40(const prometheus_msgs::SwarmCommand::ConstPtr& msg) { Command_uav[40] = *msg; }
+void (*swarm_command_cb[max_swarm_num+1])(const prometheus_msgs::SwarmCommand::ConstPtr&)={NULL,
+    swarm_command_cb_1,swarm_command_cb_2,swarm_command_cb_3,swarm_command_cb_4,swarm_command_cb_5,
+    swarm_command_cb_6,swarm_command_cb_7,swarm_command_cb_8,swarm_command_cb_9,swarm_command_cb_10,
+    swarm_command_cb_11,swarm_command_cb_12,swarm_command_cb_13,swarm_command_cb_14,swarm_command_cb_15,
+    swarm_command_cb_16,swarm_command_cb_17,swarm_command_cb_18,swarm_command_cb_19,swarm_command_cb_20,
+    swarm_command_cb_21,swarm_command_cb_22,swarm_command_cb_23,swarm_command_cb_24,swarm_command_cb_25,
+    swarm_command_cb_26,swarm_command_cb_27,swarm_command_cb_28,swarm_command_cb_29,swarm_command_cb_30,
+    swarm_command_cb_31,swarm_command_cb_32,swarm_command_cb_33,swarm_command_cb_34,swarm_command_cb_35,
+    swarm_command_cb_36,swarm_command_cb_37,swarm_command_cb_38,swarm_command_cb_39,swarm_command_cb_40};
+
+void drone_state_cb1(const prometheus_msgs::DroneState::ConstPtr& msg) { State_uav[1] = *msg; }
+void drone_state_cb2(const prometheus_msgs::DroneState::ConstPtr& msg) { State_uav[2] = *msg; }
+void drone_state_cb3(const prometheus_msgs::DroneState::ConstPtr& msg) { State_uav[3] = *msg; }
+void drone_state_cb4(const prometheus_msgs::DroneState::ConstPtr& msg) { State_uav[4] = *msg; }
+void drone_state_cb5(const prometheus_msgs::DroneState::ConstPtr& msg) { State_uav[5] = *msg; }
+void drone_state_cb6(const prometheus_msgs::DroneState::ConstPtr& msg) { State_uav[6] = *msg; }
+void drone_state_cb7(const prometheus_msgs::DroneState::ConstPtr& msg) { State_uav[7] = *msg; }
+void drone_state_cb8(const prometheus_msgs::DroneState::ConstPtr& msg) { State_uav[8] = *msg; }
+void drone_state_cb9(const prometheus_msgs::DroneState::ConstPtr& msg) { State_uav[9] = *msg; }
+void drone_state_cb10(const prometheus_msgs::DroneState::ConstPtr& msg) { State_uav[10] = *msg; }
+void drone_state_cb11(const prometheus_msgs::DroneState::ConstPtr& msg) { State_uav[11] = *msg; }
+void drone_state_cb12(const prometheus_msgs::DroneState::ConstPtr& msg) { State_uav[12] = *msg; }
+void drone_state_cb13(const prometheus_msgs::DroneState::ConstPtr& msg) { State_uav[13] = *msg; }
+void drone_state_cb14(const prometheus_msgs::DroneState::ConstPtr& msg) { State_uav[14] = *msg; }
+void drone_state_cb15(const prometheus_msgs::DroneState::ConstPtr& msg) { State_uav[15] = *msg; }
+void drone_state_cb16(const prometheus_msgs::DroneState::ConstPtr& msg) { State_uav[16] = *msg; }
+void drone_state_cb17(const prometheus_msgs::DroneState::ConstPtr& msg) { State_uav[17] = *msg; }
+void drone_state_cb18(const prometheus_msgs::DroneState::ConstPtr& msg) { State_uav[18] = *msg; }
+void drone_state_cb19(const prometheus_msgs::DroneState::ConstPtr& msg) { State_uav[19] = *msg; }
+void drone_state_cb20(const prometheus_msgs::DroneState::ConstPtr& msg) { State_uav[20] = *msg; }
+void drone_state_cb21(const prometheus_msgs::DroneState::ConstPtr& msg) { State_uav[21] = *msg; }
+void drone_state_cb22(const prometheus_msgs::DroneState::ConstPtr& msg) { State_uav[22] = *msg; }
+void drone_state_cb23(const prometheus_msgs::DroneState::ConstPtr& msg) { State_uav[23] = *msg; }
+void drone_state_cb24(const prometheus_msgs::DroneState::ConstPtr& msg) { State_uav[24] = *msg; }
+void drone_state_cb25(const prometheus_msgs::DroneState::ConstPtr& msg) { State_uav[25] = *msg; }
+void drone_state_cb26(const prometheus_msgs::DroneState::ConstPtr& msg) { State_uav[26] = *msg; }
+void drone_state_cb27(const prometheus_msgs::DroneState::ConstPtr& msg) { State_uav[27] = *msg; }
+void drone_state_cb28(const prometheus_msgs::DroneState::ConstPtr& msg) { State_uav[28] = *msg; }
+void drone_state_cb29(const prometheus_msgs::DroneState::ConstPtr& msg) { State_uav[29] = *msg; }
+void drone_state_cb30(const prometheus_msgs::DroneState::ConstPtr& msg) { State_uav[30] = *msg; }
+void drone_state_cb31(const prometheus_msgs::DroneState::ConstPtr& msg) { State_uav[31] = *msg; }
+void drone_state_cb32(const prometheus_msgs::DroneState::ConstPtr& msg) { State_uav[32] = *msg; }
+void drone_state_cb33(const prometheus_msgs::DroneState::ConstPtr& msg) { State_uav[33] = *msg; }
+void drone_state_cb34(const prometheus_msgs::DroneState::ConstPtr& msg) { State_uav[34] = *msg; }
+void drone_state_cb35(const prometheus_msgs::DroneState::ConstPtr& msg) { State_uav[35] = *msg; }
+void drone_state_cb36(const prometheus_msgs::DroneState::ConstPtr& msg) { State_uav[36] = *msg; }
+void drone_state_cb37(const prometheus_msgs::DroneState::ConstPtr& msg) { State_uav[37] = *msg; }
+void drone_state_cb38(const prometheus_msgs::DroneState::ConstPtr& msg) { State_uav[38] = *msg; }
+void drone_state_cb39(const prometheus_msgs::DroneState::ConstPtr& msg) { State_uav[39] = *msg; }
+void drone_state_cb40(const prometheus_msgs::DroneState::ConstPtr& msg) { State_uav[40] = *msg; }
+void (*drone_state_cb[max_swarm_num+1])(const prometheus_msgs::DroneState::ConstPtr&)={NULL,
+    drone_state_cb1,drone_state_cb2,drone_state_cb3,drone_state_cb4,drone_state_cb5,
+    drone_state_cb6,drone_state_cb7,drone_state_cb8,drone_state_cb9,drone_state_cb10,
+    drone_state_cb11,drone_state_cb12,drone_state_cb13,drone_state_cb14,drone_state_cb15,
+    drone_state_cb16,drone_state_cb17,drone_state_cb18,drone_state_cb19,drone_state_cb20,
+    drone_state_cb21,drone_state_cb22,drone_state_cb23,drone_state_cb24,drone_state_cb25,
+    drone_state_cb26,drone_state_cb27,drone_state_cb28,drone_state_cb29,drone_state_cb30,
+    drone_state_cb31,drone_state_cb32,drone_state_cb33,drone_state_cb34,drone_state_cb35,
+    drone_state_cb36,drone_state_cb37,drone_state_cb38,drone_state_cb39,drone_state_cb40};
+
 void printf_swarm_state(int swarm_num, int uav_id, string uav_name, const prometheus_msgs::DroneState& _Drone_state, const prometheus_msgs::SwarmCommand& SwarmCommand)
 {
     Eigen::MatrixXf formation;
@@ -167,7 +286,5 @@ void printf_swarm_state(int swarm_num, int uav_id, string uav_name, const promet
             break;
     }
 }
-
-
 
 #endif
