@@ -18,14 +18,14 @@ Astar::~Astar()
 void Astar::init(ros::NodeHandle& nh)
 {
   // 2d参数
-  nh.param("global_planner/is_2D", is_2D, 0);  // 1代表2D平面规划及搜索,0代表3D
-  nh.param("global_planner/2D_fly_height", fly_height, 1.5);  // 2D规划时,定高高度
+  nh.param("global_planner/2D_fly_height", fly_height, 1.0);  // 2D规划时,定高高度
   // 规划搜索相关参数
   nh.param("astar/lambda_heu", lambda_heu_, 2.0);  // 加速引导参数
   nh.param("astar/allocate_num", max_search_num, 100000); //最大搜索节点数
   // 地图参数
   nh.param("map/resolution", resolution_, 0.2);  // 地图分辨率
 
+  is_2D = true;
   tie_breaker_ = 1.0 + 1.0 / max_search_num;
 
   this->inv_resolution_ = 1.0 / resolution_;
@@ -124,7 +124,10 @@ int Astar::search(Eigen::Vector3d start_pt, Eigen::Vector3d end_pt)
       retrievePath(terminate_node);
 
       // 时间一般很短，远远小于膨胀点云的时间
-      printf("Astar take time %f s. \n", (ros::Time::now()-time_astar_start).toSec());
+      char message_chars[256];
+      sprintf(message_chars, "Astar take time %f [s].", (ros::Time::now()-time_astar_start).toSec());
+      message = message_chars;
+      pub_message(message_pub, prometheus_msgs::Message::NORMAL, NODE_NAME, message);
 
       return REACH_END;
     }
@@ -153,7 +156,7 @@ int Astar::search(Eigen::Vector3d start_pt, Eigen::Vector3d end_pt)
             
           d_pos << dx, dy, dz;
           // 对于2d情况，不扩展z轴
-          if (is_2D == 1)
+          if (is_2D)
           {
             d_pos(2) = 0.0;
           }

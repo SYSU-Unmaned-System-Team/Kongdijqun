@@ -55,6 +55,26 @@
 		<param name="geo_fence/z_min" value="$(arg z_min)"/>
 		<param name="geo_fence/z_max" value="$(arg z_max)"/>
 	</node>
+	
+    <!-- 启动二维码检测算法 -->
+    <node pkg="prometheus_detection" type="aruco_det" name="aruco_det_uav1" output="screen">
+		<!-- 相机话题 -->
+        <param name="camera_topic" type="string" value="/uav1/prometheus/sensor/monocular_down/image_raw" />
+		<!-- 相机参数 -->
+        <param name="camera_parameters" type="string" value="$(find prometheus_gazebo)/config/cxy_config/camera.yaml" />
+		<!-- 输出话题1 -->
+        <param name="output_pose_topic" type="string" value="/uav1/prometheus/object_detection/aruco_det" />
+		<!-- 输出话题2 -->
+        <param name="output_multi_pose_topic" type="string" value="/uav1/prometheus/object_detection/multi_aruco_det" />
+		<!-- 输出图像话题 -->
+        <param name="output_image_topic" type="string" value="/uav1/prometheus/camera/rgb/image_aruco_det" />
+		<!-- 10号字典 -->
+        <param name="dictionary_type" type="int" value="10" />
+		<!-- 指定识别1号marker -->
+        <param name="binding_id" type="int" value="1" />
+		<!-- marker边长 10:8 (0.3*0.8 = 0.24m)-->
+        <param name="target_marker_length" type="double" value="0.24" />
+    </node>
 
 	<!-- 启动地面站 -->
 	<node pkg="prometheus_swarm_control" type="swarm_ground_station" name="swarm_ground_station" output="screen" launch-prefix="gnome-terminal --tab --">	
@@ -109,9 +129,11 @@
 		<param name="global_planner/detection_range_x_max" value="0" type="double"/>
 		<param name="global_planner/detection_range_y_min" value="1.2" type="double"/>
 		<param name="global_planner/detection_range_y_max" value="2.4" type="double"/>
-		<param name="global_planner/goal_num" value="1" />
-		<param name="goal0/x" value="-0.5" />
-		<param name="goal0/y" value="2.0" />
+		<param name="global_planner/goal_num" value="2" />
+		<param name="goal0/x" value="-1.5" />
+		<param name="goal0/y" value="2.2" />
+		<param name="goal1/x" value="-0.5" />
+		<param name="goal1/y" value="2.0" />
         <!-- 参数 -->
         <param name="global_planner/map_input" value="0" type="int"/>
         <!-- 最大搜索步数 -->

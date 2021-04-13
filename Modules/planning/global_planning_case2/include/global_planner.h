@@ -52,16 +52,13 @@ private:
     int uav_id;                                     // 无人机编号
     // 参数
     int algorithm_mode;
-    bool is_2D;
     double fly_height_2D;
-    double safe_distance;
     double time_per_path;
     int map_input;
     double replan_time;
     bool consider_neighbour;
     bool sim_mode;
     
-    bool map_groundtruth;
 
     // 本机位置
     // 邻机位置
@@ -86,10 +83,11 @@ private:
     ros::Publisher command_pub,path_cmd_pub;
     // 发布检测结果至其他无人机 无人车 地面站
     ros::Publisher case2_result_pub;
-    ros::Timer mainloop_timer, track_path_timer, safety_timer;
+    ros::Timer mainloop_timer, track_path_timer, object_tracking_timer;
 
     // A星规划器
     Astar::Ptr Astar_ptr;
+    int astar_state;
 
     prometheus_msgs::DroneState _DroneState;
     prometheus_msgs::StationCommandCase2 station_cmd;
@@ -97,9 +95,12 @@ private:
     nav_msgs::Odometry Drone_odom;
 
     nav_msgs::Path path_cmd;
-    double distance_walked;
+
+
+    float distance_walked;
     prometheus_msgs::SwarmCommand Command_Now;   
 
+    Eigen::Vector3d uav_pos_last;
     double distance_to_goal;
 
     // 规划器状态
@@ -107,7 +108,6 @@ private:
     bool drone_ready;
     bool sensor_ready;
     bool get_goal; 
-    bool is_safety;
     bool is_new_path;
     bool path_ok;
     int start_point_index;
@@ -146,7 +146,7 @@ private:
         OBEJECT_TRACKING,
         RETURN_PLANNING,
         RETURN,
-        LANDING,
+        LAND,
     };
     EXEC_STATE exec_state;
 
@@ -155,7 +155,9 @@ private:
     bool detected_by_others;
     bool lost_object;
     int num_count_vision_lost;
-    Eigen::Vector3d object_pos;
+    int num_count_vision_get;
+    Eigen::Vector3d object_pos_body,object_pos_enu;
+    Eigen::Vector2d detection_range_x,detection_range_y;
 
 
     // 回调函数
@@ -167,9 +169,9 @@ private:
     void detection_cb(const prometheus_msgs::ArucoInfoConstPtr &msg);
     void cmd_cb(const prometheus_msgs::StationCommandCase2ConstPtr& msg);
 
-    void safety_cb(const ros::TimerEvent& e);
     void mainloop_cb(const ros::TimerEvent& e);
     void track_path_cb(const ros::TimerEvent& e);
+    void object_tracking_cb(const ros::TimerEvent& e);
    
 
     // 【获取当前时间函数】 单位：秒

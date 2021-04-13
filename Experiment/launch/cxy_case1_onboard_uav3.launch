@@ -1,6 +1,6 @@
 <launch>
 	<!-- 无人机集群数量，最大支持8架飞机 -->
-	<arg name="swarm_num" default="6"/>
+	<arg name="swarm_num" default="8"/>
 	<!-- 无人机名称 -->
 	<arg name="uav1_name" default="/uav1"/>
 	<arg name="uav2_name" default="/uav2"/>
