@@ -71,6 +71,7 @@
 
 	<node pkg="prometheus_swarm_control" type="swarm_terminal_control" name="swarm_terminal_control" output="screen" launch-prefix="gnome-terminal --">
 		<param name="uav_name" value="$(arg uav1_name)"/>
+		<param name="sim_mode" value="false"/>
 	</node>
 </launch>
 

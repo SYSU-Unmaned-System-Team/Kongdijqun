@@ -18,6 +18,7 @@ int uav_id;
 prometheus_msgs::SwarmCommand swarm_command;
 ros::Publisher command_pub;
 float state_desired[4];
+bool sim_mode;
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>主 函 数<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 int main(int argc, char **argv)
 {
@@ -27,6 +28,7 @@ int main(int argc, char **argv)
     // 无人机编号 1号无人机则为1
     nh.param<int>("uav_id", uav_id, 0);
     nh.param<string>("uav_name", uav_name, "/uav0");
+    nh.param<bool>("sim_mode", sim_mode, true);
 
     command_pub = nh.advertise<prometheus_msgs::SwarmCommand>(uav_name + "/prometheus/swarm_command", 10);
 
@@ -43,17 +45,20 @@ int main(int argc, char **argv)
 
     // Waiting for input
     int start_flag = 0;
-
-    while(start_flag == 0)
+    
+    if(sim_mode)
     {
-        cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>Terminal Control<<<<<<<<<<<<<<<<<<<<<<<<< "<< endl;
-        cout << "Please enter 1 to disarm the UAV."<<endl;
-        cin >> start_flag;
+        while(start_flag == 0)
+        {
+            cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>Terminal Control<<<<<<<<<<<<<<<<<<<<<<<<< "<< endl;
+            cout << "Please enter 1 to disarm the UAV and switch to OFFBOARD mode."<<endl;
+            cin >> start_flag;
 
-        swarm_command.Mode = prometheus_msgs::SwarmCommand::Idle;
-        swarm_command.yaw_ref = 999;
-        //【发布】阵型
-        command_pub.publish(swarm_command);
+            swarm_command.Mode = prometheus_msgs::SwarmCommand::Idle;
+            swarm_command.yaw_ref = 999;
+            //【发布】阵型
+            command_pub.publish(swarm_command);
+        }
     }
 
     start_flag = 0;
