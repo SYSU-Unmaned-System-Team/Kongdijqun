@@ -21,7 +21,7 @@
 	<arg name="uav8_id" default="8"/>
 	
     <!-- n号飞机 -->
-    <group ns="$(arg uav_name)">
+    <group ns="$(arg uav3_name)">
 		<!-- 启动MAVROS -->
 		<node pkg="mavros" type="mavros_node" name="mavros" output="screen">
 			<param name="fcu_url" value="/dev/ttyUSB0:921600" />

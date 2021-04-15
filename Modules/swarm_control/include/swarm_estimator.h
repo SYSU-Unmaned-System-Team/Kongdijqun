@@ -153,9 +153,9 @@ void mocap_cb(const geometry_msgs::PoseStamped::ConstPtr &msg)
     pos_drone_mocap = Eigen::Vector3d(msg->pose.position.x, msg->pose.position.y, msg->pose.position.z);
     q_mocap = Eigen::Quaterniond(msg->pose.orientation.w, msg->pose.orientation.x, msg->pose.orientation.y, msg->pose.orientation.z);
     Euler_mocap = quaternion_to_euler(q_mocap);
-    mocap_timestamp = msg->header.stamp;
+    // 记录收到mocap的时间戳
+    mocap_timestamp = ros::Time::now();
 }
-
 void gazebo_cb(const nav_msgs::Odometry::ConstPtr &msg)
 {
     if (msg->header.frame_id == "world")
@@ -185,7 +185,7 @@ void timercb_vision(const ros::TimerEvent &e)
         vision.pose.orientation.y = q_mocap.y();
         vision.pose.orientation.z = q_mocap.z();
         vision.pose.orientation.w = q_mocap.w();
-        // 此处时间主要用于监测动捕，T265设备是否正常工作
+        // 如果长时间未收到mocap数据，则一直给飞控发送旧数据，此处显示timeout
         if( get_time_in_sec(mocap_timestamp) > TIMEOUT_MAX)
         {
             pub_message(message_pub, prometheus_msgs::Message::ERROR, msg_name, "Mocap Timeout.");
