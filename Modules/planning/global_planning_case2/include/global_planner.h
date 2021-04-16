@@ -114,7 +114,7 @@ private:
     int Num_total_wp;
     int cur_id;
 
-    // 目标点相关
+    // 自动目标点相关
     bool manual_mode;
     int goal_num;
     Eigen::MatrixXf goal_matrix;

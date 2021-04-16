@@ -27,12 +27,12 @@ void Global_Planner::init(ros::NodeHandle& nh)
     nh.param("global_planner/detection_range_x_max", detection_range_x(1), 0.0);
     nh.param("global_planner/detection_range_y_min", detection_range_y(0), 0.0);
     nh.param("global_planner/detection_range_y_max", detection_range_y(1), 0.0);
-    
+            
     if(!manual_mode)
     {
         // 自动目标点模式，读取目标点
         nh.param("global_planner/goal_num", goal_num, 1); 
-        Eigen::MatrixXf goal_matrix(goal_num,3); 
+        goal_matrix.resize(goal_num,3);
         for(int i = 0; i < goal_num; i++) 
         {
             // 设置无人机名字，none代表无
