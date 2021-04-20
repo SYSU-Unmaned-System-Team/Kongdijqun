@@ -88,6 +88,31 @@ Prometheus项目中的Gazebo仿真模块依赖PX4固件及sitl_gazebo包，因�
 
 - 缺少gstreamer：`sudo apt-get install libgstreamer1.0-0 gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav gstreamer1.0-doc gstreamer1.0-tools gstreamer1.0-x gstreamer1.0-alsa gstreamer1.0-gl gstreamer1.0-gtk3 gstreamer1.0-qt5 gstreamer1.0-pulseaudio`
 
+## 环境变量配置
+
+- 打开终端，并输入如下指令打开`bashrc`文件
+
+  ```
+  sudo gedit ~/.bashrc 
+  ```
+
+- 在打开的文件中手动添加如下指令（以下若存在已添加过的命令，请勿重复添加），其中`${your kongdijiqun path}`为kongdijiqun项目路径，`${your px4 path}`为安装PX4固件的路径。
+
+  ```c
+  source ${your kongdijiqun path}/Kongdijiqun/devel/setup.bash
+  export GAZEBO_PLUGIN_PATH=$GAZEBO_PLUGIN_PATH:${your kongdijiqun path}/Kongdijiqun/devel/lib
+  export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:${your kongdijiqun path}/Kongdijiqun/Simulator/gazebo_simulator/models
+  export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:${your kongdijiqun path}/Kongdijiqun/Simulator/gazebo_simulator/amov_models
+  source ${your px4 path}/prometheus_px4/Tools/setup_gazebo.bash ${your px4 path}/prometheus_px4 ${your px4 path}/prometheus_px4/build/amovlab_sitl_default
+  export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:${your px4 path}/prometheus_px4
+  export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:${your px4 path}/prometheus_px4/Tools/sitl_gazebo
+  ```
+
+**备注**：
+
+- 添加以上环境变量后，每次打开终端会出现配置好的路径，忽略即可。
+- 此步骤经常容易出错，请再三检查。（每一个路径都是有实际含义，请确保电脑中有该路径存在）
+
 ### 安装仿真代码
 
 - **下载项目代码**，使用`crtl+alt+T`打开一个新的终端
@@ -106,6 +131,8 @@ Prometheus项目中的Gazebo仿真模块依赖PX4固件及sitl_gazebo包，因�
   echo "source (Path To Kongdijiqun)/devel/setup.bash" >> ~/.bashrc
   source ~/.bashrc
   ```
+
+
 
 ### 仿真测试
 
