@@ -54,6 +54,7 @@ private:
     int algorithm_mode;
     double fly_height_2D;
     double time_per_path;
+    double velocity_path_tracking;
     int map_input;
     double replan_time;
     bool consider_neighbour;
@@ -107,6 +108,7 @@ private:
     bool odom_ready;
     bool drone_ready;
     bool sensor_ready;
+    bool station_ready;
     bool get_goal; 
     bool is_new_path;
     bool path_ok;
@@ -117,7 +119,8 @@ private:
     // 自动目标点相关
     bool manual_mode;
     int goal_num;
-    Eigen::MatrixXf goal_matrix;
+    // 最大支持50个目标点
+    double waypoints_[50][3];
     int goal_id;
 
     // 返航相关
@@ -168,6 +171,7 @@ private:
     void laser_cb(const sensor_msgs::LaserScanConstPtr &msg);
     void detection_cb(const prometheus_msgs::ArucoInfoConstPtr &msg);
     void cmd_cb(const prometheus_msgs::StationCommandCase2ConstPtr& msg);
+    void printf_exec_state();
 
     void mainloop_cb(const ros::TimerEvent& e);
     void track_path_cb(const ros::TimerEvent& e);

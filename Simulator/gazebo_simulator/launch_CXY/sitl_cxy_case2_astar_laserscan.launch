@@ -11,13 +11,13 @@
 	<!-- swarm_estimator 参数 -->
 	<arg name="input_source" default="2"/>
 	<!-- swarm_controller 参数 -->
-	<arg name="Takeoff_height" default="1.0"/>
+	<arg name="Takeoff_height" default="0.87"/>
 	<arg name="Disarm_height" default="0.2"/>
 	<arg name="Land_speed" default="0.2"/>
-	<arg name="x_min" default="-4.5"/>
-	<arg name="x_max" default="4.5"/>
-	<arg name="y_min" default="-2.5"/>
-	<arg name="y_max" default="2.5"/>
+	<arg name="x_min" default="-14.5"/>
+	<arg name="x_max" default="14.5"/>
+	<arg name="y_min" default="-12.5"/>
+	<arg name="y_max" default="12.5"/>
 	<arg name="z_min" default="-1.0"/>
 	<arg name="z_max" default="3.5"/>
 
@@ -71,34 +71,37 @@
 
     <!-- 启动全局规划算法 -->
     <arg name="topic_of_laser_scan" default="/uav1/prometheus/sensors/2Dlidar_scan"/>
-    <node pkg="prometheus_case2" type="case2_main" name="case2_main_uav1" output="screen" launch-prefix="gnome-terminal --">
+    <node pkg="prometheus_case2" type="case2_main" name="case2_main_uav1" output="screen" launch-prefix="gnome-terminal --tab --">
 		<param name="swarm_num" value="$(arg swarm_num)"/>
 		<param name="uav_name" value="$(arg uav1_name)" />
 		<param name="uav_id" value="$(arg uav1_id)" />
         <remap from="/uav1/prometheus/global_planning/laser_scan" to="$(arg topic_of_laser_scan)" />
-        <!--  -->
-		<param name="global_planner/manual_mode" value="true" type="bool"/>
-		<param name="global_planner/goal_num" value="1" />
-		<param name="goal0/x" value="1.0" />
-		<param name="goal0/y" value="2.0" />
-		<param name="goal0/z" value="3.0" />
-		<!-- 参数 -->
-        <!-- 二维平面规划 -->
-        <param name="global_planner/is_2D" value="true" type="bool"/>
-        <!-- ２维高度，建议与起飞高度一致 -->
-        <param name="global_planner/fly_height_2D" value="1.0" type="double"/>
-        <!-- 停止距离 -->
-        <param name="global_planner/safe_distance" value="0.01" type="double"/>
-        <param name="global_planner/time_per_path" value="1.0" type="double"/>
-        <param name="global_planner/replan_time" value="2.0" type="double"/>
+		<param name="global_planner/sim_mode" value="true" type="bool"/>
+		<param name="global_planner/replan_time" value="2.0" type="double"/>
+		<!-- ２维高度，建议与起飞高度一致 -->
+		<param name="global_planner/fly_height_2D" value="1.0" type="double"/>
+		<param name="global_planner/velocity" value="0.6" type="double"/>
+        <!-- 目标点模式 -->
+		<param name="global_planner/manual_mode" value="false" type="bool"/>
+		<param name="global_planner/goal_num" value="3" />
+		<param name="global_planner/waypoint0_x" value="6.0" />
+		<param name="global_planner/waypoint0_y" value="6.0" />
+		<param name="global_planner/waypoint1_x" value="-6.0" />
+		<param name="global_planner/waypoint1_y" value="-6.0" />
+		<param name="global_planner/waypoint2_x" value="6.0" />
+		<param name="global_planner/waypoint2_y" value="-6.0" />
         <param name="global_planner/map_input" value="2" type="int"/>
-        <param name="global_planner/sim_mode" value="true" type="bool"/>
         <!-- 最大搜索步数 -->
-        <param name="astar/allocate_num" value="10000" type="int"/>
+        <param name="astar/allocate_num" value="50000" type="int"/>
         <!-- 启发式函数系数 -->
         <param name="astar/lambda_heu" value="2.0" type="double"/>
         <!-- 分辨率 -->
-        <param name="map/resolution" value="0.1" type="double"/>
+        <param name="map/resolution" value="0.2" type="double"/>
+		<!-- 注意不同控制方式选择不一样 -->
+		<!-- 位置控制: time_per_path = resolution/期望速度 -->
+		<!-- 速度控制: time_per_path = 0.1 -->
+		<param name="global_planner/time_per_path" value="0.1" type="double"/>
+		<param name="global_planner/velocity_path_tracking" value="0.5" type="double"/>
         <!-- 障碍物膨胀距离 -->
         <!-- 为飞机的轴距即可 -->
         <param name="map/inflate" value="0.4" type="double"/>
@@ -109,8 +112,8 @@
         <param name="map/map_size_x" value="30.0" type="double"/>
         <param name="map/map_size_y" value="30.0" type="double"/>
         <param name="map/map_size_z" value="3.0" type="double"/>
-	<param name="map/queue_size" value="20" type="int"/>
-	<param name="map/border" value="false" type="bool"/>
+		<param name="map/queue_size" value="20" type="int"/>
+		<param name="map/border" value="false" type="bool"/>
     </node>
 
     <group ns="$(arg uav1_name)">
@@ -118,6 +121,9 @@
         <node pkg="prometheus_mission" type="pub_goal" name="pub_goal" output="screen" launch-prefix="gnome-terminal --">	
         </node>
     </group>
+
+	<node pkg="prometheus_case2" type="case2_from_groundstation" name="case2_from_groundstation" output="screen" launch-prefix="gnome-terminal --">	
+	</node>
 
 	<!-- TF transform -->
 	<include file="$(find prometheus_gazebo)/launch_CXY/tf_transform_cxy.launch">
@@ -139,7 +145,7 @@
     <arg name="verbose" default="false"/>
     <arg name="paused" default="false"/>
     <arg name="respawn_gazebo" default="false"/>
-	<arg name="world" default="$(find prometheus_gazebo)/worlds/004_CXY/CXY_case2.world"/>
+	<arg name="world" default="$(find prometheus_gazebo)/worlds/obstacle.world"/>
     <!-- Gazebo sim -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
         <arg name="gui" value="$(arg gui)"/>

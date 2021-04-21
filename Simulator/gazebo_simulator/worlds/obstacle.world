@@ -98,12 +98,12 @@
       </link>
     </model>
 
-    <model name='pillar_l_1'>
+    <!-- <model name='pillar_l_1'>
       <include>
         <uri>model://pillar_l</uri>
 	      <pose> 0 0 1.75 0 0 0 </pose>
       </include>
-    </model>
+    </model> -->
     <model name='pillar_m_1'>
       <include>
         <uri>model://pillar_m</uri>

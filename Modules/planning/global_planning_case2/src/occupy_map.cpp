@@ -124,12 +124,24 @@ void Occupy_map::local_map_merge_odom(const nav_msgs::Odometry & odom)
     tf::quaternionMsgToTF(odom.pose.pose.orientation, orientation);    
     tf::Matrix3x3(orientation).getRPY(roll, pitch, yaw);
 
+    // 即使不移动,时间达到阈值,也会更新地图
+    static int update_num = 0;
+    update_num++;
+    if (update_num > 40)
+    {
+        update_num = 0;
+    }
+
     // 只有移动了一定距离，才接收局部点云（过滤过多的点云）；达成指定高度才建图
-    bool pos_change = (abs(f_x-x)>0.1 || abs(f_y-y)>0.1) && (fly_height_2D-0.15<z && z<fly_height_2D+1.0);
-    // 无人机平稳（角度足够小）
-    bool ang_change = abs(f_pitch-pitch)<0.03 && abs(f_roll-roll)<0.03 && abs(f_yaw-yaw)<0.03;
+    bool pos_change = (abs(f_x-x)>0.1 || abs(f_y-y)>0.1) && (fly_height_2D-0.1<z && z<fly_height_2D+0.1);
+    // 只有在无人机平稳（角度足够小）时更新点云 （此条件必须满足）
+    // 0.09 约等于5度
+    // 将无人机飞行时 角度限制在5度以内
+    // 偏航角???
+    bool ang_change = abs(f_pitch-pitch)<0.08 && abs(f_roll-roll)<0.08 && abs(f_yaw-yaw)<0.08;
     // 合并局部点云，形成局部地图, todo: incremental merge?
-    if((global_point_cloud_map==nullptr || pos_change) && ang_change) {
+    if((global_point_cloud_map == nullptr || pos_change || update_num == 40) && ang_change) 
+    {
         // 为滑窗的点云累计odom
         map<int,pcl::PointCloud<pcl::PointXYZ>>::iterator iter;
         for(iter = point_cloud_pair.begin(); iter != point_cloud_pair.end(); iter++)
@@ -184,7 +196,11 @@ void Occupy_map::local_map_merge_odom(const nav_msgs::Odometry & odom)
         // global map flag
         has_global_point = true;
     }
-    else has_global_point = false;
+    else
+    {
+        has_global_point = false;
+        //cout << "map update failed."<< endl;
+    } 
 }
 
 // 地图更新函数 - 输入：局部点云
@@ -214,7 +230,7 @@ void Occupy_map::inflate_point_cloud(void)
 {
     if(!has_global_point)
     {
-        pub_message(message_pub, prometheus_msgs::Message::WARN, NODE_NAME, "Occupy_map [inflate point cloud]: don't have global point, can't inflate!\n");
+        // pub_message(message_pub, prometheus_msgs::Message::WARN, NODE_NAME, "Occupy_map [inflate point cloud]: don't have global point, can't inflate!\n");
         return;
     }
 
@@ -310,7 +326,7 @@ void Occupy_map::inflate_point_cloud(void)
     // 此处改为根据循环时间计算的数值
     if(exec_num == 50)
     {
-        // 膨胀地图效率与地图大小有关（有点久，Astar更新频率是多久呢？ 怎么才能提高膨胀效率呢？）
+        // 膨胀地图效率与地图大小有关
         char message_chars[256];
         sprintf(message_chars, "inflate global point take %f [s].", (ros::Time::now()-time_start).toSec());
         message = message_chars;

@@ -3,10 +3,11 @@ std_msgs/Header header
 ## 控制命令的模式 
 uint8 Command_uav
 # enum Command_uav 控制模式枚举
-uint8 Idle=0
-uint8 Takeoff=1
-uint8 Return=2
-uint8 Land=3
+uint8 Start=0
+uint8 Return=1
+uint8 Land=2
+uint8 Normal=3
+
 
 uint8 Command_ugv
 
