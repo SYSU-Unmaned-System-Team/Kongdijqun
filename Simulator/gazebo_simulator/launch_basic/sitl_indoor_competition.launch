@@ -24,7 +24,7 @@
     </node>
 
 	<!-- 设定局部点云话题-->
-	<arg name="topic_of_local_pcl" default="/prometheus/sensors/3Dlidar_scan"/>
+	<arg name="topic_of_local_pcl" default="/prometheus/sensor/3Dlidar_scan"/>
 	<!-- 启动局部规划算法 -->
 	<node pkg="prometheus_local_planning" name="local_planner_main" type="local_planner_main" output="screen">
 		<remap from="/prometheus/planning/local_pcl" to="$(arg topic_of_local_pcl)" />
@@ -58,7 +58,7 @@
         <!-- 传感器最大感知范围 (speedup!) -->
         <param name="sensor_model/max_range" value="5.0" />
         <!-- 局部点云输入,该话题定义在3Dlidar.sdf中 (PointCloud2) -->
-        <remap from="cloud_in" to="/prometheus/sensors/3Dlidar_scan" />
+        <remap from="cloud_in" to="/prometheus/sensor/3Dlidar_scan" />
     </node>
 
     <!-- 启动全局规划算法 -->

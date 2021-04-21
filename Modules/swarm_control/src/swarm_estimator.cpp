@@ -72,7 +72,7 @@ int main(int argc, char **argv)
     ros::Timer timer_drone_state_pub = nh.createTimer(ros::Duration(0.05), timercb_drone_state);
 
     // 定时器,发布 rviz显示,保证1Hz以上
-    ros::Timer timer_rviz_pub = nh.createTimer(ros::Duration(1.0), timercb_rviz);
+    ros::Timer timer_rviz_pub = nh.createTimer(ros::Duration(0.5), timercb_rviz);
 
     // 频率
     ros::Rate rate(100.0);

@@ -300,7 +300,7 @@ Visualization Manager:
           Size (Pixels): 3
           Size (m): 0.009999999776482582
           Style: Flat Squares
-          Topic: /prometheus/sensors/3Dlidar_scan
+          Topic: /prometheus/sensor/3Dlidar_scan
           Unreliable: false
           Use Fixed Frame: true
           Use rainbow: true
@@ -360,7 +360,7 @@ Visualization Manager:
           Size (Pixels): 5
           Size (m): 0.009999999776482582
           Style: Points
-          Topic: /prometheus/sensors/2Dlidar_scan
+          Topic: /prometheus/sensor/2Dlidar_scan
           Unreliable: false
           Use Fixed Frame: true
           Use rainbow: true
@@ -493,7 +493,7 @@ Visualization Manager:
           Size (Pixels): 3
           Size (m): 0.05000000074505806
           Style: Flat Squares
-          Topic: /prometheus/sensors/2Dlidar_scan
+          Topic: /prometheus/sensor/2Dlidar_scan
           Unreliable: false
           Use Fixed Frame: true
           Use rainbow: true

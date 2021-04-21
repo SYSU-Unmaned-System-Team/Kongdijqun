@@ -10,6 +10,7 @@ void Occupy_map::init(ros::NodeHandle& nh)
     // 无人机编号 1号无人机则为1
     nh.param<int>("uav_id", uav_id, 0);
     nh.param<string>("uav_name", uav_name, "/uav0");
+    node_name =  uav_name + "/case2_map";
     // 全局地图点云指针
     global_point_cloud_map.reset(new pcl::PointCloud<pcl::PointXYZ>);
     // 传入点云指针（临时指针）
@@ -23,7 +24,7 @@ void Occupy_map::init(ros::NodeHandle& nh)
     // 存储的上一帧odom
     f_x = f_y = f_z = f_pitch = f_yaw = f_roll = 0.0;
     // TRUE代表2D平面规划及搜索,FALSE代表3D 
-    is_2D = true; 
+    is_2D = true;     
     // 2D规划时,定高高度
     nh.param("global_planner/fly_height_2D", fly_height_2D, 1.0);
     // 地图原点
@@ -230,7 +231,7 @@ void Occupy_map::inflate_point_cloud(void)
 {
     if(!has_global_point)
     {
-        // pub_message(message_pub, prometheus_msgs::Message::WARN, NODE_NAME, "Occupy_map [inflate point cloud]: don't have global point, can't inflate!\n");
+        // pub_message(message_pub, prometheus_msgs::Message::WARN, node_name, "Occupy_map [inflate point cloud]: don't have global point, can't inflate!\n");
         return;
     }
 
@@ -327,10 +328,10 @@ void Occupy_map::inflate_point_cloud(void)
     if(exec_num == 50)
     {
         // 膨胀地图效率与地图大小有关
-        char message_chars[256];
-        sprintf(message_chars, "inflate global point take %f [s].", (ros::Time::now()-time_start).toSec());
-        message = message_chars;
-        pub_message(message_pub, prometheus_msgs::Message::NORMAL, NODE_NAME, message);
+        // char message_chars[256];
+        // sprintf(message_chars, "inflate global point take %f [s].", (ros::Time::now()-time_start).toSec());
+        // message = message_chars;
+        // pub_message(message_pub, prometheus_msgs::Message::NORMAL, node_name, message);
 
         exec_num=0;
     }  
@@ -340,7 +341,7 @@ void Occupy_map::setOccupancy(Eigen::Vector3d &pos, int occ)
 {
     if (occ != 1 && occ != 0) 
     {
-        pub_message(message_pub, prometheus_msgs::Message::WARN, NODE_NAME, "occ value error!\n");
+        pub_message(message_pub, prometheus_msgs::Message::WARN, node_name, "occ value error!\n");
         return;
     }
 
@@ -382,7 +383,7 @@ bool Occupy_map::check_safety(Eigen::Vector3d& pos, double check_distance)
     if(!isInMap(pos))
     {
         // 当前位置点不在地图内
-        pub_message(message_pub, prometheus_msgs::Message::WARN, NODE_NAME, "[check_safety]: the odom point is not in map\n");
+        pub_message(message_pub, prometheus_msgs::Message::WARN, node_name, "[check_safety]: the odom point is not in map\n");
         return 0;
     }
     Eigen::Vector3i id;
@@ -402,7 +403,7 @@ bool Occupy_map::check_safety(Eigen::Vector3d& pos, double check_distance)
                 indexToPos(id_occ, pos_occ);
                 if(!isInMap(pos_occ)){
                     // printf("[check_safety]: current odom is near the boundary of the map\n");
-                    // pub_message(message_pub, prometheus_msgs::Message::WARN, NODE_NAME, "[check_safety]: current odom is near the boundary of the map\n");
+                    // pub_message(message_pub, prometheus_msgs::Message::WARN, node_name, "[check_safety]: current odom is near the boundary of the map\n");
                     return 0;
                 }
                 if(getOccupancy(id_occ)){

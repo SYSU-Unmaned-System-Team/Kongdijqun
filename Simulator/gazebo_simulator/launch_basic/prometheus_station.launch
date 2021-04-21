@@ -30,6 +30,6 @@
     <node name="drone_state_throttler" pkg="topic_tools" type="throttle" args="messages /prometheus/drone_state $(arg frame_rate)" output="$(arg output)">
     </node>
 
-    <node name="lidar_scan_throttler" pkg="topic_tools" type="throttle" args="messages /prometheus/sensors/3Dlidar_scan $(arg frame_rate)" output="$(arg output)">
+    <node name="lidar_scan_throttler" pkg="topic_tools" type="throttle" args="messages /prometheus/sensor/3Dlidar_scan $(arg frame_rate)" output="$(arg output)">
     </node>
 </launch>

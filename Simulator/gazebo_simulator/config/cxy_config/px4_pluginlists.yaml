@@ -21,6 +21,7 @@ plugin_blacklist:
 - companion_process_status
 - debug_value
 - wheel_odometry
+- odometry
 - vibration
 - odom
 - setpoint_attitude

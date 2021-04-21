@@ -25,7 +25,7 @@
 
 // 宏定义
 #define NODE_NAME "swarm_estimator"         // 节点名称
-#define TRA_WINDOW 1000                     // 发布轨迹长度
+#define TRA_WINDOW 10                     // 发布轨迹长度
 #define TIMEOUT_MAX 0.1                     // MOCAP超时阈值
 // 变量
 string uav_name;                            // 无人机名字(话题前缀)

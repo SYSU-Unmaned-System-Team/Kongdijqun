@@ -100,7 +100,7 @@ int main(int argc, char **argv)
             close(socketfd);
         }
         
-        sleep(0.1); // frequence
+        sleep(0.5); // frequence
     }
 
     return 0;

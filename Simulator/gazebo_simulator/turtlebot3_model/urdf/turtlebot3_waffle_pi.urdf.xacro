@@ -164,7 +164,7 @@
     <visual>
       <origin xyz="0 0 0.0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://prometheus_gazebo/turtlebot3_model/meshes/sensors/lds.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://prometheus_gazebo/turtlebot3_model/meshes/sensor/lds.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="dark"/>
     </visual>

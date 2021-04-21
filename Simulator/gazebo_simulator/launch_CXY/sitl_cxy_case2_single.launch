@@ -11,13 +11,13 @@
 	<!-- swarm_estimator 参数 -->
 	<arg name="input_source" default="2"/>
 	<!-- swarm_controller 参数 -->
-	<arg name="Takeoff_height" default="1.0"/>
+	<arg name="Takeoff_height" default="0.87"/>
 	<arg name="Disarm_height" default="0.2"/>
 	<arg name="Land_speed" default="0.2"/>
-	<arg name="x_min" default="-4.5"/>
-	<arg name="x_max" default="4.5"/>
-	<arg name="y_min" default="-2.5"/>
-	<arg name="y_max" default="2.5"/>
+	<arg name="x_min" default="-14.5"/>
+	<arg name="x_max" default="14.5"/>
+	<arg name="y_min" default="-12.5"/>
+	<arg name="y_max" default="12.5"/>
 	<arg name="z_min" default="-1.0"/>
 	<arg name="z_max" default="3.5"/>
 
@@ -55,7 +55,20 @@
 		<param name="geo_fence/z_min" value="$(arg z_min)"/>
 		<param name="geo_fence/z_max" value="$(arg z_max)"/>
 	</node>
-	
+
+	<!-- 启动地面站 -->
+	<node pkg="prometheus_swarm_control" type="swarm_ground_station" name="swarm_ground_station" output="screen" launch-prefix="gnome-terminal --tab --">	
+		<param name="swarm_num" value="$(arg swarm_num)"/>
+		<param name="uav1_name" value="$(arg uav1_name)" />
+		<param name="uav1_id" value="$(arg uav1_id)" />
+	</node>
+
+	<node pkg="prometheus_swarm_control" type="swarm_ground_station_msg" name="swarm_ground_station_msg" output="screen"  launch-prefix="gnome-terminal --tab --">
+		<param name="swarm_num" value="$(arg swarm_num)"/>
+		<param name="uav1_name" value="$(arg uav1_name)" />
+		<param name="uav1_id" value="$(arg uav1_id)" />
+	</node>
+
     <!-- 启动二维码检测算法 -->
     <node pkg="prometheus_detection" type="aruco_det" name="aruco_det_uav1" output="screen">
 		<!-- 相机话题 -->
@@ -76,72 +89,46 @@
         <param name="target_marker_length" type="double" value="0.24" />
     </node>
 
-	<!-- 启动地面站 -->
-	<node pkg="prometheus_swarm_control" type="swarm_ground_station" name="swarm_ground_station" output="screen" launch-prefix="gnome-terminal --tab --">	
-		<param name="swarm_num" value="$(arg swarm_num)"/>
-		<param name="uav1_name" value="$(arg uav1_name)" />
-		<param name="uav1_id" value="$(arg uav1_id)" />
-	</node>
-
-	<node pkg="prometheus_swarm_control" type="swarm_ground_station_msg" name="swarm_ground_station_msg" output="screen"  launch-prefix="gnome-terminal --tab --">
-		<param name="swarm_num" value="$(arg swarm_num)"/>
-		<param name="uav1_name" value="$(arg uav1_name)" />
-		<param name="uav1_id" value="$(arg uav1_id)" />
-	</node>
-
-    <group ns="$(arg uav1_name)">
-        <!-- run the laser_to_pointcloud -->
-        <!-- 这个程序目前只针对/uav1 需要增加参数适应所有uav -->
-        <node pkg="prometheus_gazebo" type="laser_to_pointcloud.py" name="laser_to_pointclou_uav1" >
-        </node>
-
-        <!-- 启动octomap建图 -->
-        <node pkg="octomap_server" type="octomap_server_node" name="octomap_server">
-            <param name="resolution" value="0.1" />
-            <!-- 发布地图的坐标系 -->
-            <param name="frame_id" type="string" value="world" />
-            <!-- 传感器最大感知范围 (speedup!) -->
-            <param name="sensor_model/max_range" value="5.0" />
-            <!-- 局部点云输入 -->
-            <remap from="cloud_in" to="/uav1/prometheus/sensors/pcl2" />
-            <!-- 定义输出 -->
-            <remap from="/octomap_point_cloud_centers" to="/uav1/prometheus/sensors/test" />
-        </node>
-
-        <!-- run the pub_goal.cpp -->
-        <node pkg="prometheus_mission" type="pub_goal" name="pub_goal" output="screen" launch-prefix="gnome-terminal --">	
-        </node>
-    </group>
-
     <!-- 启动全局规划算法 -->
-    <arg name="topic_of_global_pcl" default="/uav1/octomap_point_cloud_centers"/>
-    <node pkg="prometheus_case2" type="case2_main" name="case2_main_uav1" output="screen" launch-prefix="gnome-terminal --">
-		<remap from="/uav1/prometheus/global_planning/global_pcl" to="$(arg topic_of_global_pcl)" />
+    <arg name="topic_of_laser_scan" default="/uav1/prometheus/sensor/2Dlidar_scan"/>
+    <node pkg="prometheus_case2" type="case2_main" name="case2_main_uav1" output="screen" launch-prefix="gnome-terminal --tab --">
 		<param name="swarm_num" value="$(arg swarm_num)"/>
 		<param name="uav_name" value="$(arg uav1_name)" />
 		<param name="uav_id" value="$(arg uav1_id)" />
+        <remap from="/uav1/prometheus/global_planning/laser_scan" to="$(arg topic_of_laser_scan)" />
 		<param name="global_planner/sim_mode" value="true" type="bool"/>
 		<param name="global_planner/replan_time" value="2.0" type="double"/>
-        <param name="global_planner/fly_height_2D" value="1.0" type="double"/>
-        <param name="global_planner/time_per_path" value="1.0" type="double"/>
-		<param name="global_planner/manual_mode" value="true" type="bool"/>
-		<param name="global_planner/detection_range_x_min" value="-4.5" type="double"/>
-		<param name="global_planner/detection_range_x_max" value="0" type="double"/>
-		<param name="global_planner/detection_range_y_min" value="1.2" type="double"/>
-		<param name="global_planner/detection_range_y_max" value="2.4" type="double"/>
-		<param name="global_planner/goal_num" value="2" />
-		<param name="goal0/x" value="-1.5" />
-		<param name="goal0/y" value="2.2" />
-		<param name="goal1/x" value="-0.5" />
-		<param name="goal1/y" value="2.0" />
-        <!-- 参数 -->
-        <param name="global_planner/map_input" value="0" type="int"/>
+		<!-- ２维高度，建议与起飞高度一致 -->
+		<param name="global_planner/fly_height_2D" value="1.0" type="double"/>
+		<param name="global_planner/velocity" value="0.6" type="double"/>
+        <!-- 目标点模式 -->
+		<param name="global_planner/manual_mode" value="false" type="bool"/>
+		<param name="global_planner/goal_num" value="4" />
+		<param name="global_planner/waypoint0_x" value="-3.0" />
+		<param name="global_planner/waypoint0_y" value="1.8" />
+		<param name="global_planner/waypoint1_x" value="-2.0" />
+		<param name="global_planner/waypoint1_y" value="1.8" />
+		<param name="global_planner/waypoint2_x" value="-1.0" />
+		<param name="global_planner/waypoint2_y" value="1.8" />
+		<param name="global_planner/waypoint3_x" value="-0.2" />
+		<param name="global_planner/waypoint3_y" value="1.8" />
+        <param name="global_planner/map_input" value="2" type="int"/>
         <!-- 最大搜索步数 -->
-        <param name="astar/allocate_num" value="10000" type="int"/>
+        <param name="astar/allocate_num" value="50000" type="int"/>
         <!-- 启发式函数系数 -->
         <param name="astar/lambda_heu" value="2.0" type="double"/>
         <!-- 分辨率 -->
-        <param name="map/resolution" value="0.1" type="double"/>
+        <param name="map/resolution" value="0.2" type="double"/>
+		<!-- 注意不同控制方式选择不一样 -->
+		<!-- 位置控制: time_per_path = resolution/期望速度 -->
+		<!-- 速度控制: time_per_path = 0.1 -->
+		<param name="global_planner/time_per_path" value="0.1" type="double"/>
+		<param name="global_planner/velocity_path_tracking" value="0.5" type="double"/>
+		<!-- 检测范围 -->
+		<param name="global_planner/detection_range_x_min" value="-4.5" type="double"/>
+		<param name="global_planner/detection_range_x_max" value="0.0" type="double"/>
+		<param name="global_planner/detection_range_y_min" value="1.2" type="double"/>
+		<param name="global_planner/detection_range_y_max" value="2.4" type="double"/>
         <!-- 障碍物膨胀距离 -->
         <!-- 为飞机的轴距即可 -->
         <param name="map/inflate" value="0.4" type="double"/>
@@ -152,9 +139,15 @@
         <param name="map/map_size_x" value="30.0" type="double"/>
         <param name="map/map_size_y" value="30.0" type="double"/>
         <param name="map/map_size_z" value="3.0" type="double"/>
-		<param name="map/queue_size" value="-1" type="int"/>
+		<param name="map/queue_size" value="20" type="int"/>
 		<param name="map/border" value="false" type="bool"/>
     </node>
+
+	<node pkg="prometheus_case2" type="case2_from_groundstation" name="case2_from_groundstation" output="screen" launch-prefix="gnome-terminal --">	
+	</node>
+
+	<node pkg="prometheus_case2" type="case2_to_groundstation" name="case2_to_groundstation" output="screen" launch-prefix="gnome-terminal --">	
+	</node>
 
 	<!-- TF transform -->
 	<include file="$(find prometheus_gazebo)/launch_CXY/tf_transform_cxy.launch">
@@ -187,3 +180,4 @@
         <arg name="world_name" value="$(arg world)"/>
     </include>
 </launch>
+

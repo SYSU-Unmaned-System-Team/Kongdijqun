@@ -31,7 +31,7 @@
             <param name="pointcloud_min_z" value="0.1" />
             <param name="pointcloud_min_x" value="-4" />
             <!-- 局部点云输入,该话题定义在3Dlidar.sdf中 (PointCloud2) -->
-            <remap from="cloud_in" to="/prometheus/sensors/3Dlidar_scan" />
+            <remap from="cloud_in" to="/prometheus/sensor/3Dlidar_scan" />
 
         </node>
     </group> 

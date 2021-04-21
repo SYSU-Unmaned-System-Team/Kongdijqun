@@ -15,13 +15,13 @@ void msg_cb(const prometheus_msgs::Message::ConstPtr& msg)
 
     if(message.message_type == prometheus_msgs::Message::NORMAL)
     {
-        cout << "[NORMAL]" << "["<< message.source_node << "]:" << message.content <<endl;
+        cout << "[NORMAL] - " << "[ "<< message.source_node << " ]: " << message.content <<endl;
     }else if(message.message_type == prometheus_msgs::Message::WARN)
     {
-        cout << "[WARN]" << "["<< message.source_node << "]:" <<message.content <<endl;
+        cout << "[ WARN ] - " << "[ "<< message.source_node << " ]: " <<message.content <<endl;
     }else if(message.message_type == prometheus_msgs::Message::ERROR)
     {
-        cout << "[ERROR]" << "["<< message.source_node << "]:" << message.content <<endl;
+        cout << "[ERROR ] - " << "[ "<< message.source_node << " ]: " << message.content <<endl;
     }
 
     sleep(0.2);

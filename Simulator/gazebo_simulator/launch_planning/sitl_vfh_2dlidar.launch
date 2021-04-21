@@ -15,7 +15,7 @@
       <arg name="z" value="$(arg z)"/>
     </include>
 
-	<arg name="topic_of_local_pcl" default="/prometheus/sensors/2Dlidar_scan"/>
+	<arg name="topic_of_local_pcl" default="/prometheus/sensor/2Dlidar_scan"/>
 	<!-- 启动局部规划算法 -->
 	<node pkg="prometheus_local_planning" name="local_planner_main" type="local_planner_main" output="screen" launch-prefix="gnome-terminal --">	
 		<remap from="/prometheus/planning/local_pcl" to="$(arg topic_of_local_pcl)" />

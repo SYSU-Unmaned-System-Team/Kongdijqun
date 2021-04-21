@@ -34,7 +34,7 @@
             -configuration_directory $(find prometheus_gazebo)/config/config_cartographer
             -configuration_basename rplidar_s1.lua"
         output="screen">
-        <remap from="scan" to="/prometheus/sensors/2Dlidar_scan" />
+        <remap from="scan" to="/prometheus/sensor/2Dlidar_scan" />
         <remap from="imu" to="/mavros/imu/data_raw" />
     </node>
     

@@ -23,7 +23,7 @@
         <!-- 传感器最大感知范围 (speedup!) -->
         <param name="sensor_model/max_range" value="5.0" />
         <!-- 局部点云输入,该话题定义在3Dlidar.sdf中 (PointCloud2) -->
-        <remap from="cloud_in" to="/prometheus/sensors/3Dlidar_scan" />
+        <remap from="cloud_in" to="/prometheus/sensor/3Dlidar_scan" />
     </node>
 
     <!-- 启动全局规划算法 -->

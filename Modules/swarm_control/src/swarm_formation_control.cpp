@@ -32,13 +32,6 @@ int formation_num = 1;
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>声 明 函 数<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 void printf_param();
 void pub_formation_command();
-//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>回 调 函 数<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-void goal_cb(const geometry_msgs::PoseStamped::ConstPtr& msg)
-{
-    cout << "Get a new goal from rviz!"<<endl;
-    virtual_leader_pos[0] = msg->pose.position.x;
-    virtual_leader_pos[1] = msg->pose.position.y;
-}
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>主 函 数<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 int main(int argc, char **argv)
 {
@@ -52,9 +45,6 @@ int main(int argc, char **argv)
 
     virtual_leader_pos << 0.0,0.0,1.0;
     virtual_leader_yaw = 0.0;
-
-    //【订阅】目标点
-    ros::Subscriber goal_sub = nh.subscribe<geometry_msgs::PoseStamped>("/prometheus/formation/virtual_leader", 10, goal_cb);
 
     for(int i = 1; i <= swarm_num; i++) 
     {

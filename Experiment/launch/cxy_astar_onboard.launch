@@ -41,7 +41,7 @@
         <param name="publish_multiecho" value="false"/>
         <param name="angle_min" value="-1.5707963"/>
         <param name="angle_max" value="1.5707963"/>
-        <remap from="/scan" to="/prometheus/sensors/2Dlidar_scan" />
+        <remap from="/scan" to="/prometheus/sensor/2Dlidar_scan" />
     </node>
 
 	<!-- TF transform -->
@@ -60,7 +60,7 @@
         <!-- 传感器最大感知范围 (speedup!) -->
         <param name="sensor_model/max_range" value="5.0" />
         <!-- 局部点云输入,该话题定义在3Dlidar.sdf中 (PointCloud2) -->
-        <remap from="cloud_in" to="/prometheus/sensors/pcl2" />
+        <remap from="cloud_in" to="/prometheus/sensor/pcl2" />
     </node>
 
 

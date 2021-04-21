@@ -12,6 +12,7 @@ void Global_Planner::init(ros::NodeHandle& nh)
     // 无人机编号 1号无人机则为1
     nh.param<int>("uav_id", uav_id, 0);
     nh.param<string>("uav_name", uav_name, "/uav0");
+    node_name =  uav_name + "/case2_fsm";
     // 是否为仿真模式
     nh.param("global_planner/sim_mode", sim_mode, false); 
     // A星算法 重规划频率 
@@ -86,12 +87,12 @@ void Global_Planner::init(ros::NodeHandle& nh)
     // 路径追踪定时器
     track_path_timer = nh.createTimer(ros::Duration(time_per_path), &Global_Planner::track_path_cb, this);        
     // 物体追踪定时器
-    object_tracking_timer = nh.createTimer(ros::Duration(0.1), &Global_Planner::object_tracking_cb, this);  
+    object_tracking_timer = nh.createTimer(ros::Duration(0.5), &Global_Planner::object_tracking_cb, this);  
 
     // Astar algorithm
     Astar_ptr.reset(new Astar);
     Astar_ptr->init(nh);
-    pub_message(message_pub, prometheus_msgs::Message::NORMAL, NODE_NAME, "A_star init.");
+    pub_message(message_pub, prometheus_msgs::Message::NORMAL, node_name, "A_star init.");
 
     // 规划器状态参数初始化
     exec_state = EXEC_STATE::INIT;
@@ -115,7 +116,7 @@ void Global_Planner::init(ros::NodeHandle& nh)
     Command_Now.header.stamp = ros::Time::now();
     Command_Now.Mode  = prometheus_msgs::SwarmCommand::Idle;
     Command_Now.Command_ID = 0;
-    Command_Now.source = NODE_NAME;
+    Command_Now.source = node_name;
     desired_yaw = 0.0;
     command_pub.publish(Command_Now);
 }
@@ -133,7 +134,7 @@ void Global_Planner::goal_cb(const geometry_msgs::PoseStampedConstPtr& msg)
     char message_chars[256];
     sprintf(message_chars, "Get a new goal point: [%f, %f, %f].", goal_pos(0),goal_pos(1),goal_pos(2));
     message = message_chars;
-    pub_message(message_pub, prometheus_msgs::Message::NORMAL, NODE_NAME, message);
+    pub_message(message_pub, prometheus_msgs::Message::NORMAL, node_name, message);
 
     // 当目标点为[99,99]时,无人机原地降落
     if(goal_pos(0) == 99 && goal_pos(1) == 99 )
@@ -141,7 +142,7 @@ void Global_Planner::goal_cb(const geometry_msgs::PoseStampedConstPtr& msg)
         path_ok = false;
         get_goal = false;
         exec_state = EXEC_STATE::LAND;
-        pub_message(message_pub, prometheus_msgs::Message::NORMAL, NODE_NAME,"Get Land CMD.");
+        pub_message(message_pub, prometheus_msgs::Message::NORMAL, node_name,"Get Land CMD.");
     }
 
 }
@@ -158,13 +159,13 @@ void Global_Planner::cmd_cb(const prometheus_msgs::StationCommandCase2ConstPtr& 
     {
         exec_state = EXEC_STATE::RETURN;
         message = "Get command from ground station: [ RETURN ]";
-        pub_message(message_pub, prometheus_msgs::Message::NORMAL, NODE_NAME, message);
+        pub_message(message_pub, prometheus_msgs::Message::NORMAL, node_name, message);
         return;
     }else if(station_cmd.Command_uav == prometheus_msgs::StationCommandCase2::Land)
     {
         exec_state = EXEC_STATE::LAND;
         message = "Get command from ground station: [ LAND ]";
-        pub_message(message_pub, prometheus_msgs::Message::NORMAL, NODE_NAME, message);
+        pub_message(message_pub, prometheus_msgs::Message::NORMAL, node_name, message);
         return;
     }
 
@@ -173,16 +174,19 @@ void Global_Planner::cmd_cb(const prometheus_msgs::StationCommandCase2ConstPtr& 
         // 如果地面站说已检测到，但并不是自己检测到的，则就是别人检测到了
         // 本消息只会收到一次
         detected_by_others = true;
+        // 防止继续追踪轨迹
+        path_ok = false;
         exec_state = EXEC_STATE::RETURN;
         message = "Detected by others，return.";
-        pub_message(message_pub, prometheus_msgs::Message::NORMAL, NODE_NAME, message);
+        pub_message(message_pub, prometheus_msgs::Message::NORMAL, node_name, message);
     }
 }
 
 void Global_Planner::detection_cb(const prometheus_msgs::ArucoInfoConstPtr &msg)
 {
     // 如果其他无人机检测到,则不再处理接收本机的检测结果
-    if(detected_by_others)
+    // return过程中不检测
+    if(detected_by_others || exec_state == EXEC_STATE::RETURN || exec_state == EXEC_STATE::RETURN_PLANNING)
     {
         return;
     }
@@ -201,7 +205,7 @@ void Global_Planner::detection_cb(const prometheus_msgs::ArucoInfoConstPtr &msg)
     {
         if(num_count_vision_lost > 10)
         {
-            pub_message(message_pub, prometheus_msgs::Message::WARN, NODE_NAME,"can't see target.");
+            pub_message(message_pub, prometheus_msgs::Message::WARN, node_name,"lost target.");
         }
         //  方向定义： 识别算法发布的目标位置位于相机坐标系（从相机往前看，物体在相机右方x为正，下方y为正，前方z为正）
         // 注意，此处与无人机姿态相关！！
@@ -213,6 +217,7 @@ void Global_Planner::detection_cb(const prometheus_msgs::ArucoInfoConstPtr &msg)
         enu_frame[2] = -fly_height_2D;
 
         object_pos_enu = enu_frame + start_pos;
+        // 是否需要持续更新发布这个位置?
 
     }else
     {
@@ -251,7 +256,7 @@ void Global_Planner::detection_cb(const prometheus_msgs::ArucoInfoConstPtr &msg)
                 case2_result_pub.publish(result);
             }else
             {
-                pub_message(message_pub, prometheus_msgs::Message::WARN, NODE_NAME,"target not in our zone.");
+                pub_message(message_pub, prometheus_msgs::Message::WARN, node_name,"target not in our zone.");
             }
             
         }
@@ -338,7 +343,7 @@ void Global_Planner::Lpointcloud_cb(const sensor_msgs::PointCloud2ConstPtr &msg)
         // 若无人机实际高度与定点高度差值超过0.2米，则发出警告，且不更新地图
         if (abs( Drone_odom.pose.pose.position.z - fly_height_2D) > 0.2)
         {
-            pub_message(message_pub, prometheus_msgs::Message::NORMAL, NODE_NAME,"UAV is not in desired height.");
+            pub_message(message_pub, prometheus_msgs::Message::NORMAL, node_name,"UAV is not in desired height.");
         }else
         {
             // 对Astar中的地图进行更新（局部地图+odom）
@@ -367,7 +372,7 @@ void Global_Planner::laser_cb(const sensor_msgs::LaserScanConstPtr &msg)
         // 若无人机实际高度与定点高度差值超过0.2米，则发出警告，且不更新地图
         if (abs( Drone_odom.pose.pose.position.z - fly_height_2D) > 0.2)
         {
-            pub_message(message_pub, prometheus_msgs::Message::NORMAL, NODE_NAME,"UAV is not in desired height.");
+            pub_message(message_pub, prometheus_msgs::Message::NORMAL, node_name,"UAV is not in desired height.");
         }else
         {
             // 对Astar中的地图进行更新（laser+odom）
@@ -395,7 +400,7 @@ void Global_Planner::track_path_cb(const ros::TimerEvent& e)
         Command_Now.header.stamp = ros::Time::now();
         Command_Now.Mode                                = prometheus_msgs::SwarmCommand::Move;
         Command_Now.Command_ID                          = Command_Now.Command_ID + 1;
-        Command_Now.source = NODE_NAME;
+        Command_Now.source = node_name;
         Command_Now.Move_mode           = prometheus_msgs::SwarmCommand::XYZ_POS;
         Command_Now.position_ref[0]     = path_cmd.poses[Num_total_wp-1].pose.position.x;
         Command_Now.position_ref[1]     = path_cmd.poses[Num_total_wp-1].pose.position.y;
@@ -406,12 +411,12 @@ void Global_Planner::track_path_cb(const ros::TimerEvent& e)
         char message_chars[256];
         sprintf(message_chars, "Reach the goal.");
         message = message_chars;
-        pub_message(message_pub, prometheus_msgs::Message::NORMAL, NODE_NAME, message);
+        pub_message(message_pub, prometheus_msgs::Message::NORMAL, node_name, message);
         
         // 停止执行
         path_ok = false;
 
-        if(exec_state == EXEC_STATE::RETURN)
+        if(exec_state == EXEC_STATE::RETURN_PLANNING || exec_state == EXEC_STATE::RETURN || detected_by_others)
         {
             exec_state = EXEC_STATE::LAND;
         }else 
@@ -435,7 +440,7 @@ void Global_Planner::track_path_cb(const ros::TimerEvent& e)
     Command_Now.header.stamp = ros::Time::now();
     Command_Now.Mode                                = prometheus_msgs::SwarmCommand::Move;
     Command_Now.Command_ID                          = Command_Now.Command_ID + 1;
-    Command_Now.source = NODE_NAME;
+    Command_Now.source = node_name;
 
     if(false)
     {
@@ -488,7 +493,7 @@ void Global_Planner::object_tracking_cb(const ros::TimerEvent& e)
     Command_Now.header.stamp = ros::Time::now();
     Command_Now.Mode                                = prometheus_msgs::SwarmCommand::Move;
     Command_Now.Command_ID                          = Command_Now.Command_ID + 1;
-    Command_Now.source = NODE_NAME;
+    Command_Now.source = node_name;
     Command_Now.Move_mode           = prometheus_msgs::SwarmCommand::XYZ_POS;
     Command_Now.position_ref[0]     = object_pos_enu[0];
     Command_Now.position_ref[1]     = object_pos_enu[1];
@@ -525,7 +530,7 @@ void Global_Planner::mainloop_cb(const ros::TimerEvent& e)
                 message = "Need station start cmd.";
             }
 
-            pub_message(message_pub, prometheus_msgs::Message::WARN, NODE_NAME, message);
+            pub_message(message_pub, prometheus_msgs::Message::WARN, node_name, message);
             exec_num=0;
         }  
 
@@ -556,7 +561,7 @@ void Global_Planner::mainloop_cb(const ros::TimerEvent& e)
                 Command_Now.header.stamp = ros::Time::now();
                 Command_Now.Mode  = prometheus_msgs::SwarmCommand::Idle;
                 Command_Now.Command_ID = Command_Now.Command_ID + 1;
-                Command_Now.source = NODE_NAME;
+                Command_Now.source = node_name;
                 Command_Now.yaw_ref = 999;
                 command_pub.publish(Command_Now);   
                 ros::Duration(3.0).sleep();
@@ -569,13 +574,13 @@ void Global_Planner::mainloop_cb(const ros::TimerEvent& e)
                 if(_DroneState.mode != "OFFBOARD")
                 {
                     message = "Waiting for the offboard mode";
-                    pub_message(message_pub, prometheus_msgs::Message::NORMAL, NODE_NAME, message);
+                    pub_message(message_pub, prometheus_msgs::Message::NORMAL, node_name, message);
                     
                     ros::Duration(1.0).sleep();
                 }else
                 {
                     exec_state = EXEC_STATE::TAKEOFF;
-                    pub_message(message_pub, prometheus_msgs::Message::NORMAL, NODE_NAME, message);
+                    pub_message(message_pub, prometheus_msgs::Message::NORMAL, node_name, message);
                 }
 
             }
@@ -588,7 +593,7 @@ void Global_Planner::mainloop_cb(const ros::TimerEvent& e)
             Command_Now.Mode = prometheus_msgs::SwarmCommand::Takeoff;
             Command_Now.Command_ID = Command_Now.Command_ID + 1;
             Command_Now.yaw_ref = 0.0;
-            Command_Now.source = NODE_NAME;
+            Command_Now.source = node_name;
             command_pub.publish(Command_Now);
             
             // 起飞的位置设置为返航点
@@ -596,7 +601,7 @@ void Global_Planner::mainloop_cb(const ros::TimerEvent& e)
             char message_chars[256];
             sprintf(message_chars, "Takeoff and return point is set as [%f, %f, %f].", return_pos(0),return_pos(1),return_pos(2));
             message = message_chars;
-            pub_message(message_pub, prometheus_msgs::Message::NORMAL, NODE_NAME, message);
+            pub_message(message_pub, prometheus_msgs::Message::NORMAL, node_name, message);
 
             ros::Duration(5.0).sleep();
 
@@ -640,7 +645,7 @@ void Global_Planner::mainloop_cb(const ros::TimerEvent& e)
                     if(exec_num == 10)
                     {
                         message = "Waiting for a new goal.";
-                        pub_message(message_pub, prometheus_msgs::Message::WARN, NODE_NAME,message);
+                        pub_message(message_pub, prometheus_msgs::Message::WARN, node_name,message);
                         exec_num=0;
                     }
                 }else
@@ -667,7 +672,7 @@ void Global_Planner::mainloop_cb(const ros::TimerEvent& e)
                 path_ok = false;
                 // 找不到路径：返回等待目标点，若在自动目标点模式，则会前往下一个目标点
                 exec_state = EXEC_STATE::WAIT_GOAL;
-                pub_message(message_pub, prometheus_msgs::Message::WARN, NODE_NAME, "Planner can't find path!");
+                pub_message(message_pub, prometheus_msgs::Message::WARN, node_name, "Planner can't find path!");
             }
             else
             {
@@ -684,7 +689,7 @@ void Global_Planner::mainloop_cb(const ros::TimerEvent& e)
                 exec_state = EXEC_STATE::PATH_TRACKING;
                 // 发布路劲用于rviz显示
                 path_cmd_pub.publish(path_cmd);
-                pub_message(message_pub, prometheus_msgs::Message::NORMAL, NODE_NAME, "Get a new path!");       
+                pub_message(message_pub, prometheus_msgs::Message::NORMAL, node_name, "Get a new path!");       
             }
 
             break;
@@ -721,7 +726,7 @@ void Global_Planner::mainloop_cb(const ros::TimerEvent& e)
                 path_ok = false;
                 // 找不到路径：直接原地降落
                 exec_state = EXEC_STATE::LAND;
-                pub_message(message_pub, prometheus_msgs::Message::WARN, NODE_NAME, "Planner can't find path, LAND!");
+                pub_message(message_pub, prometheus_msgs::Message::WARN, node_name, "Planner can't find path, LAND!");
             }
             else
             {
@@ -733,7 +738,7 @@ void Global_Planner::mainloop_cb(const ros::TimerEvent& e)
                 cur_id = start_point_index;
                 tra_start_time = ros::Time::now();
                 path_cmd_pub.publish(path_cmd);
-                pub_message(message_pub, prometheus_msgs::Message::NORMAL, NODE_NAME, "Return: Get a new path!");       
+                pub_message(message_pub, prometheus_msgs::Message::NORMAL, node_name, "Return: Get a new path!");       
             }
             break;
 
@@ -757,7 +762,7 @@ void Global_Planner::mainloop_cb(const ros::TimerEvent& e)
             Command_Now.header.stamp = ros::Time::now();
             Command_Now.Mode         = prometheus_msgs::SwarmCommand::Land;
             Command_Now.Command_ID   = Command_Now.Command_ID + 1;
-            Command_Now.source = NODE_NAME;
+            Command_Now.source = node_name;
             command_pub.publish(Command_Now);
             break;
         
@@ -808,7 +813,7 @@ void Global_Planner::printf_exec_state()
             break;  
     }    
     message = message_chars;
-    pub_message(message_pub, prometheus_msgs::Message::NORMAL, NODE_NAME, message); 
+    pub_message(message_pub, prometheus_msgs::Message::NORMAL, node_name, message); 
 
 
     if(detected_by_myself)
@@ -822,7 +827,7 @@ void Global_Planner::printf_exec_state()
         sprintf(message_chars, "no one find the target, keep searching.");
     }
     message = message_chars;
-    pub_message(message_pub, prometheus_msgs::Message::NORMAL, NODE_NAME, message);
+    pub_message(message_pub, prometheus_msgs::Message::NORMAL, node_name, message);
 }
 
 

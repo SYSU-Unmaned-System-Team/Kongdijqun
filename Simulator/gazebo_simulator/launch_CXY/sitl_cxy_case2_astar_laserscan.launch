@@ -70,7 +70,7 @@
 	</node>
 
     <!-- 启动全局规划算法 -->
-    <arg name="topic_of_laser_scan" default="/uav1/prometheus/sensors/2Dlidar_scan"/>
+    <arg name="topic_of_laser_scan" default="/uav1/prometheus/sensor/2Dlidar_scan"/>
     <node pkg="prometheus_case2" type="case2_main" name="case2_main_uav1" output="screen" launch-prefix="gnome-terminal --tab --">
 		<param name="swarm_num" value="$(arg swarm_num)"/>
 		<param name="uav_name" value="$(arg uav1_name)" />
@@ -102,6 +102,11 @@
 		<!-- 速度控制: time_per_path = 0.1 -->
 		<param name="global_planner/time_per_path" value="0.1" type="double"/>
 		<param name="global_planner/velocity_path_tracking" value="0.5" type="double"/>
+		<!-- 检测范围 -->
+		<param name="global_planner/detection_range_x_min" value="-4.5" type="double"/>
+		<param name="global_planner/detection_range_x_max" value="0.0" type="double"/>
+		<param name="global_planner/detection_range_y_min" value="1.2" type="double"/>
+		<param name="global_planner/detection_range_y_max" value="2.4" type="double"/>
         <!-- 障碍物膨胀距离 -->
         <!-- 为飞机的轴距即可 -->
         <param name="map/inflate" value="0.4" type="double"/>

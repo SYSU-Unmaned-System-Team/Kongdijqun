@@ -24,6 +24,8 @@ void Astar::init(ros::NodeHandle& nh)
   nh.param("astar/allocate_num", max_search_num, 100000); //最大搜索节点数
   // 地图参数
   nh.param("map/resolution", resolution_, 0.2);  // 地图分辨率
+  nh.param<string>("uav_name", uav_name, "/uav0");
+  node_name =  uav_name + "/case2_astar";
 
   is_2D = true;
   tie_breaker_ = 1.0 + 1.0 / max_search_num;
@@ -78,7 +80,7 @@ int Astar::search(Eigen::Vector3d start_pt, Eigen::Vector3d end_pt)
   // 首先检查目标点是否可到达
   if(Occupy_map_ptr->getOccupancy(end_pt))
   {
-    pub_message(message_pub, prometheus_msgs::Message::WARN, NODE_NAME, "Astar can't find path: goal point is occupied.");
+    pub_message(message_pub, prometheus_msgs::Message::WARN, node_name, "Astar can't find path: goal point is occupied.");
     return NO_PATH;
   }
 
@@ -124,10 +126,10 @@ int Astar::search(Eigen::Vector3d start_pt, Eigen::Vector3d end_pt)
       retrievePath(terminate_node);
 
       // 时间一般很短，远远小于膨胀点云的时间
-      char message_chars[256];
-      sprintf(message_chars, "Astar take time %f [s].", (ros::Time::now()-time_astar_start).toSec());
-      message = message_chars;
-      pub_message(message_pub, prometheus_msgs::Message::NORMAL, NODE_NAME, message);
+      // char message_chars[256];
+      // sprintf(message_chars, "Astar take time %f [s].", (ros::Time::now()-time_astar_start).toSec());
+      // message = message_chars;
+      // pub_message(message_pub, prometheus_msgs::Message::NORMAL, node_name, message);
 
       return REACH_END;
     }
@@ -218,7 +220,7 @@ int Astar::search(Eigen::Vector3d start_pt, Eigen::Vector3d end_pt)
             // 超过最大搜索次数
             if (use_node_num_ == max_search_num)
             {
-                pub_message(message_pub, prometheus_msgs::Message::WARN, NODE_NAME, "Astar can't find path: reach the max_search_num.\n");
+                pub_message(message_pub, prometheus_msgs::Message::WARN, node_name, "Astar can't find path: reach the max_search_num.\n");
                 return NO_PATH;
             }
           }
@@ -242,7 +244,7 @@ int Astar::search(Eigen::Vector3d start_pt, Eigen::Vector3d end_pt)
 
   // 搜索完所有可行点，即使没达到最大搜索次数，也没有找到路径
   // 这种一般是因为无人机周围被占据，或者无人机与目标点之间无可通行路径造成的
-  pub_message(message_pub, prometheus_msgs::Message::WARN, NODE_NAME, "max_search_num: open set empty.");
+  pub_message(message_pub, prometheus_msgs::Message::WARN, node_name, "max_search_num: open set empty.");
   return NO_PATH;
 }
 

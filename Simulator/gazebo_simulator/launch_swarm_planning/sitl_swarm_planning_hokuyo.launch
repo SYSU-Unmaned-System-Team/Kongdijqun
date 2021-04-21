@@ -27,7 +27,7 @@
         <!-- 传感器最大感知范围 (speedup!) -->
         <param name="sensor_model/max_range" value="5.0" />
         <!-- 局部点云输入 -->
-        <remap from="cloud_in" to="/prometheus/sensors/pcl2" />
+        <remap from="cloud_in" to="/prometheus/sensor/pcl2" />
     </node>
 
     <!-- 启动全局规划算法 -->

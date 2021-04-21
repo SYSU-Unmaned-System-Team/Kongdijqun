@@ -47,7 +47,7 @@
             </range>
           </ray>
           <plugin name='3D_laser' filename='libgazebo_ros_velodyne_laser.so'>
-            <topicName>/prometheus/sensors/3Dlidar_scan</topicName>
+            <topicName>/prometheus/sensor/3Dlidar_scan</topicName>
             <frameName>3Dlidar_link</frameName>
             <min_range>0.4</min_range>
             <max_range>30</max_range>

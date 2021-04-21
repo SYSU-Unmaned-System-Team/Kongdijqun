@@ -33,8 +33,6 @@
 
 using namespace std;
 
-#define NODE_NAME "Global_Planner [main]"
-
 #define MIN_DIS 0.1
 
 namespace Global_Planning
@@ -49,6 +47,7 @@ private:
     ros::NodeHandle global_planner_nh;
     int swarm_num;                                  // 集群数量
     string uav_name;                                // 无人机名字
+    string node_name;
     int uav_id;                                     // 无人机编号
     // 参数
     int algorithm_mode;

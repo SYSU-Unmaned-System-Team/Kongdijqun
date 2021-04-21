@@ -16,8 +16,6 @@
 #include "tools.h"
 #include "message_utils.h"
 
-#define NODE_NAME "Global_Planner [Astar]"
-
 namespace Global_Planning
 {
 
@@ -119,6 +117,8 @@ class Astar
         std::priority_queue<NodePtr, std::vector<NodePtr>, NodeComparator0> open_set_;
         // 最终路径点容器
         std::vector<NodePtr> path_nodes_;  
+        string node_name;
+        string uav_name;
 
         // 参数
         // 启发式参数

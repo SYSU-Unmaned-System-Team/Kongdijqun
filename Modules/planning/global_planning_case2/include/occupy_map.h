@@ -26,8 +26,6 @@
 #include "tools.h"
 #include "message_utils.h"
 
-#define NODE_NAME "Global_Planner [map]"
-
 namespace Global_Planning
 {
 
@@ -65,6 +63,7 @@ class Occupy_map
         std::vector<int> occupancy_buffer_;  // 0 is free, 1 is occupied
         // 地图分辨率
         double resolution_, inv_resolution_;
+        string node_name;
         // 膨胀参数
         double inflate_;
         //是否2D规划

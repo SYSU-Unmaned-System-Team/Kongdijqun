@@ -580,7 +580,7 @@
         </ray>
         <plugin name="laser" filename="libRayPlugin.so" />
         <plugin name="2Dlidar" filename="libgazebo_ros_laser.so">
-          <topicName>/uav1/prometheus/sensors/2Dlidar_scan</topicName>
+          <topicName>/uav1/prometheus/sensor/2Dlidar_scan</topicName>
           <frameName>lidar_link</frameName>
         </plugin>
         <always_on>1</always_on>
@@ -780,6 +780,5 @@
         </limit>
       </axis>
     </joint>  
-
   </model>
 </sdf>
