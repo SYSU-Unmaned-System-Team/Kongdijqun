@@ -1,0 +1,33 @@
+<?xml version="1.0" ?>
+<robot name="my_camera" xmlns:xacro="http://wiki.ros.org/xacro">
+    <link name="camera">
+        <visual>
+            <geometry>
+                <box size="0.01 0.01 0.01" />
+            </geometry>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+            <material name="black" />
+        </visual>
+        <collision>
+            <geometry>
+                <box size="0.01 0.01 0.01" />
+            </geometry>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+        </collision>
+        <inertial>
+            <mass value="0.001" />
+            <inertia ixx="4.15e-6" ixy="0" ixz="0"
+                   iyy="2.407e-6" iyz= "0"
+                   izz="2.407e-6" />
+        </inertial>
+    </link>
+
+    <joint name="camera2base_link" type="fixed">
+        <parent link="base_link" />
+        <child link="camera" />
+        <origin xyz="0.03 0 0.1" />
+    </joint>
+    <gazebo reference="camera">
+        <material>Gazebo/Blue</material>
+    </gazebo>
+</robot>

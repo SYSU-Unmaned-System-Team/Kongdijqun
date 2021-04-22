@@ -61,18 +61,18 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "turtlebot_formation");
     ros::NodeHandle nh("~");
 
-    ros::Subscriber tb3_1_odom_sub = nh.subscribe<nav_msgs::Odometry>("/tb3_1/odom", 10, tb3_1_odom_cb);
-    ros::Subscriber tb3_2_odom_sub = nh.subscribe<nav_msgs::Odometry>("/tb3_2/odom", 10, tb3_2_odom_cb);
-    ros::Subscriber tb3_3_odom_sub = nh.subscribe<nav_msgs::Odometry>("/tb3_3/odom", 10, tb3_3_odom_cb);
-    ros::Subscriber tb3_4_odom_sub = nh.subscribe<nav_msgs::Odometry>("/tb3_4/odom", 10, tb3_4_odom_cb);
+    ros::Subscriber tb3_1_odom_sub = nh.subscribe<nav_msgs::Odometry>("/ugv1/odom", 10, tb3_1_odom_cb);
+    ros::Subscriber tb3_2_odom_sub = nh.subscribe<nav_msgs::Odometry>("/ugv2/odom", 10, tb3_2_odom_cb);
+    ros::Subscriber tb3_3_odom_sub = nh.subscribe<nav_msgs::Odometry>("/ugv3/odom", 10, tb3_3_odom_cb);
+    ros::Subscriber tb3_4_odom_sub = nh.subscribe<nav_msgs::Odometry>("/ugv4/odom", 10, tb3_4_odom_cb);
 
     // 【发布】用于地面站显示的提示消息
     ros::Publisher message_pub = nh.advertise<prometheus_msgs::Message>("/prometheus/message/main", 10);
 
-    ros::Publisher tb3_1_cmd_pub = nh.advertise<geometry_msgs::Twist>("/tb3_1/cmd_vel", 10);
-    ros::Publisher tb3_2_cmd_pub = nh.advertise<geometry_msgs::Twist>("/tb3_2/cmd_vel", 10);
-    ros::Publisher tb3_3_cmd_pub = nh.advertise<geometry_msgs::Twist>("/tb3_3/cmd_vel", 10);
-    ros::Publisher tb3_4_cmd_pub = nh.advertise<geometry_msgs::Twist>("/tb3_4/cmd_vel", 10);
+    ros::Publisher tb3_1_cmd_pub = nh.advertise<geometry_msgs::Twist>("/ugv1/cmd_vel", 10);
+    ros::Publisher tb3_2_cmd_pub = nh.advertise<geometry_msgs::Twist>("/ugv2/cmd_vel", 10);
+    ros::Publisher tb3_3_cmd_pub = nh.advertise<geometry_msgs::Twist>("/ugv3/cmd_vel", 10);
+    ros::Publisher tb3_4_cmd_pub = nh.advertise<geometry_msgs::Twist>("/ugv4/cmd_vel", 10);
 
     //固定的浮点显示
     cout.setf(ios::fixed);
@@ -105,44 +105,30 @@ int main(int argc, char **argv)
     while (ros::ok())
     {
         // turtlebot3命令发布
-        tb3_1_cmd.linear.x = 0.4;
+        tb3_1_cmd.linear.x = 1.0;
         tb3_1_cmd.linear.y = 0.0;
         tb3_1_cmd.linear.z = 0.0;
 
         tb3_1_cmd.angular.x = 0.0;
         tb3_1_cmd.angular.y = 0.0;
-        tb3_1_cmd.angular.z = 0.2;
+        tb3_1_cmd.angular.z = 0.0;
 
-        tb3_2_cmd.linear.x = 0.2;
+        tb3_2_cmd.linear.x = 0.6;
         tb3_2_cmd.linear.y = 0.0;
         tb3_2_cmd.linear.z = 0.0;
 
         tb3_2_cmd.angular.x = 0.0;
         tb3_2_cmd.angular.y = 0.0;
-        tb3_2_cmd.angular.z = 0.2;
+        tb3_2_cmd.angular.z = 0.0;
 
-        tb3_3_cmd.linear.x = 0.2;
-        tb3_3_cmd.linear.y = 0.0;
-        tb3_3_cmd.linear.z = 0.0;
-
-        tb3_3_cmd.angular.x = 0.0;
-        tb3_3_cmd.angular.y = 0.0;
-        tb3_3_cmd.angular.z = 0.2;
-
-        tb3_4_cmd.linear.x = 0.4;
-        tb3_4_cmd.linear.y = 0.0;
-        tb3_4_cmd.linear.z = 0.0;
-
-        tb3_4_cmd.angular.x = 0.0;
-        tb3_4_cmd.angular.y = 0.0;
-        tb3_4_cmd.angular.z = 0.2;
 
         tb3_1_cmd_pub.publish(tb3_1_cmd);
         tb3_2_cmd_pub.publish(tb3_2_cmd);
-        tb3_3_cmd_pub.publish(tb3_3_cmd);
-        tb3_4_cmd_pub.publish(tb3_4_cmd);
 
-        rate.sleep();
+
+        cout << "ugv1:" << endl;
+        cout << "vel [x y z]" << tb3_1_odom.twist.twist.linear.x << "[m/s]" << tb3_1_odom.twist.twist.linear.y << "[m/s]" << tb3_1_odom.twist.twist.linear.z << "[m/s]" << endl;
+
         ros::spinOnce();
     }
 
