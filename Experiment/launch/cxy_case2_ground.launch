@@ -1,0 +1,29 @@
+<launch>
+
+	<arg name="uav1_name" default="/uav1"/>
+
+	<!-- vrpn -->
+	<!-- 注意修改vicon电脑ip地址 -->
+	<include file="$(find vrpn_client_ros)/launch/sample.launch">
+		<arg name="server" value="192.168.1.2"/>
+	</include>
+
+	<node pkg="prometheus_case2" type="case2_from_groundstation" name="case2_from_groundstation" output="screen" launch-prefix="gnome-terminal --">	
+	</node>
+
+	<node pkg="prometheus_case2" type="case2_to_groundstation" name="case2_to_groundstation" output="screen" launch-prefix="gnome-terminal --">	
+	</node>
+
+    <group ns="$(arg uav1_name)">
+        <!-- run the pub_goal.cpp -->
+        <node pkg="prometheus_mission" type="pub_goal" name="pub_goal" output="screen" launch-prefix="gnome-terminal --">	
+        </node>
+    </group>
+
+	<!-- run the rviz -->
+	<arg name="visualization" default="true"/>
+	<group if="$(arg visualization)">
+		<node type="rviz" name="rviz" pkg="rviz" args="-d $(find prometheus_experiment)/config/rviz_config/rviz_config_astar.rviz" />
+    </group>
+</launch>
+

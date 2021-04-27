@@ -19,6 +19,10 @@ void Global_Planner::init(ros::NodeHandle& nh)
     nh.param("global_planner/replan_time", replan_time, 2.0); 
     // 2D规划时,定高高度
     nh.param("global_planner/fly_height_2D", fly_height_2D, 1.0);  
+     // 控制方式, 0代表航点追踪模式, 1代表速度追踪模式
+     // 航点追踪模式: time_per_path 与 地图分辨率及期望速度有关 ,即一个单位时间执行一个单位地图距离
+     // 速度追踪模式: time_per_path设置为0.1, velocity_path_tracking设置为0.5, 分辨率设置为0.25
+    nh.param("global_planner/control_flag", control_flag, 0); 
     // 路径追踪间隔
     nh.param("global_planner/time_per_path", time_per_path, 1.0); 
     // 追踪速度
@@ -442,7 +446,7 @@ void Global_Planner::track_path_cb(const ros::TimerEvent& e)
     Command_Now.Command_ID                          = Command_Now.Command_ID + 1;
     Command_Now.source = node_name;
 
-    if(false)
+    if(control_flag == 0)
     {
         Command_Now.Move_mode           = prometheus_msgs::SwarmCommand::TRAJECTORY;
         Command_Now.position_ref[0]     = path_cmd.poses[i].pose.position.x;
@@ -455,7 +459,7 @@ void Global_Planner::track_path_cb(const ros::TimerEvent& e)
         Command_Now.velocity_ref[1]     = Command_Now.velocity_ref[1] / error * velocity_path_tracking;
         Command_Now.yaw_ref             = desired_yaw;
         cur_id = cur_id + 1;
-    }else if (true)
+    }else if (control_flag == 1)
     {
         Command_Now.Move_mode           = prometheus_msgs::SwarmCommand::XY_VEL_Z_POS;
         Command_Now.velocity_ref[0]     = path_cmd.poses[i].pose.position.x - _DroneState.position[0];
@@ -471,6 +475,7 @@ void Global_Planner::track_path_cb(const ros::TimerEvent& e)
         cout << "velocity_ref: [ " << error <<  " ] "<<endl;
         
         track_path_num++;
+        // 计算当前追踪的航点
         // 5 = (resolution/期望速度)/time_per_path(即0.1)
         if(track_path_num % 5 == 0)
         {

@@ -58,7 +58,7 @@ private:
     double replan_time;
     bool consider_neighbour;
     bool sim_mode;
-    
+    int control_flag;
 
     // 本机位置
     // 邻机位置

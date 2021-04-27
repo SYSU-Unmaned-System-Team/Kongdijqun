@@ -1,21 +1,12 @@
 <launch>
 
-	<!-- 无人车阵型 -->
-	<node pkg="prometheus_mission" type="turtlebot_formation" name="turtlebot_formation" output="screen" launch-prefix="gnome-terminal --">
-	</node>
-
 	<arg name="ugv1_name"  default="ugv1"/>
-	<arg name="ugv2_name" default="ugv2"/>
 
 	<arg name="ugv1_init_x" 	default=" 2.0"/>
 	<arg name="ugv1_init_y" 	default=" 0.0"/>
 	<arg name="ugv1_init_z" 	default=" 0.05"/>
 	<arg name="ugv1_init_yaw"   default=" 0.0"/>
 
-	<arg name="ugv2_init_x" 	default=" 1.0"/>
-	<arg name="ugv2_init_y" 	default=" 0.0"/>
-	<arg name="ugv2_init_z" 	default=" 0.05"/>
-	<arg name="ugv2_init_yaw"   default=" 0.0"/>
 
 	<group ns = "$(arg ugv1_name)">
 		<param name="robot_description" command="$(find xacro)/xacro --inorder $(find prometheus_gazebo)/turtlebot3_model/urdf/turtlebot3_burger.urdf.xacro" />
@@ -27,24 +18,6 @@
 		
 		<node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -model $(arg ugv1_name) -x $(arg ugv1_init_x) -y $(arg ugv1_init_y) -z $(arg ugv1_init_z) -Y $(arg ugv1_init_yaw) -param robot_description" />
 	</group>
-
-	<group ns = "$(arg ugv2_name)">
-		<param name="robot_description" command="$(find xacro)/xacro --inorder $(find prometheus_gazebo)/turtlebot3_model/urdf/turtlebot3_burger.urdf.xacro" />
-
-		<node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" output="screen">
-		<param name="publish_frequency" type="double" value="50.0" />
-		<param name="tf_prefix" value="$(arg ugv2_name)" />
-		</node>
-
-		<node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -model $(arg ugv2_name) -x $(arg ugv2_init_x) -y $(arg ugv2_init_y) -z $(arg ugv2_init_z) -Y $(arg ugv2_init_yaw) -param robot_description" />
-	</group>
-
-	<!-- 启动rviz,设为false可关闭 -->
-	<arg name="visualization" default="false"/>
-	<group if="$(arg visualization)">
-        <node type="rviz" name="rviz" pkg="rviz" args="-d $(find prometheus_gazebo)/config/cxy_config/rviz_cxy_case2_ugv.rviz" />
-    </group>
-
 
 	<!-- 启动Gazebo -->
 	<!-- Gazebo configs -->

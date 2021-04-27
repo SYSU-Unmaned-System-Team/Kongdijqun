@@ -1,4 +1,5 @@
 <launch>
+	<!-- case2 astar测试程序，手动指定目标点  -->
 	<!-- 无人机集群数量 -->
 	<arg name="swarm_num" default="1"/>
 	<!-- 无人机名称 -->
@@ -80,9 +81,8 @@
 		<param name="global_planner/replan_time" value="2.0" type="double"/>
 		<!-- ２维高度，建议与起飞高度一致 -->
 		<param name="global_planner/fly_height_2D" value="1.0" type="double"/>
-		<param name="global_planner/velocity" value="0.6" type="double"/>
         <!-- 目标点模式 -->
-		<param name="global_planner/manual_mode" value="false" type="bool"/>
+		<param name="global_planner/manual_mode" value="true" type="bool"/>
 		<param name="global_planner/goal_num" value="3" />
 		<param name="global_planner/waypoint0_x" value="6.0" />
 		<param name="global_planner/waypoint0_y" value="6.0" />
