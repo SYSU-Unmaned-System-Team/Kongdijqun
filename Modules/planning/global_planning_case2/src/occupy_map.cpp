@@ -115,7 +115,6 @@ void Occupy_map::map_update_gpcl(const sensor_msgs::PointCloud2ConstPtr & global
     cout << "global" << endl;
     if(show_border)
     {
-        cout << "ashid" << endl;
         *transformed_cloud = *global_point_cloud_map + border;
     }
     has_global_point = true;
@@ -181,10 +180,8 @@ void Occupy_map::local_map_merge_odom(const nav_msgs::Odometry & odom)
         vg.filter(*pcl_ptr);
 
         // border
-        cout << "local" << endl;
         if(show_border)
         {
-            cout << "ssssashid" << endl;
             // tf to lidar frame
             pcl::transformPointCloud(border,*transformed_cloud,pcl::getTransformation(f_x-x, f_y-y, f_z-z, 0, 0, 0));
             border = *transformed_cloud;
@@ -208,7 +205,6 @@ void Occupy_map::local_map_merge_odom(const nav_msgs::Odometry & odom)
     else
     {
         has_global_point = false;
-        //cout << "map update failed."<< endl;
     } 
 }
 
@@ -248,16 +244,13 @@ void Occupy_map::inflate_point_cloud(void)
     if(show_border)
     {
         pcl::toROSMsg(*transformed_cloud,global_env_);
-        cout << "toRosMsg" << endl;
         if(queue_size==-1)
         {
             global_env_.header.frame_id = "world";
-            cout << "-1" << endl;
         }
         else
         {
             global_env_.header.frame_id = uav_name+"/lidar_link";
-            cout << "111" << endl;
         }
     }
     else
