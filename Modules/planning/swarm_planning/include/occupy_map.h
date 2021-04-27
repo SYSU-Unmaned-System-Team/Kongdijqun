@@ -52,6 +52,7 @@ class Occupy_map
         // 占据图尺寸 = 地图尺寸 / 分辨率
         Eigen::Vector3i grid_size_;
 
+        bool show_border;
         bool has_global_point;
 
         pcl::PointXYZ nei_pos1;

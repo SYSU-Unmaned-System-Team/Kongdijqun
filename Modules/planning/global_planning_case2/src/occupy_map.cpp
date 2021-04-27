@@ -36,7 +36,7 @@ void Occupy_map::init(ros::NodeHandle& nh)
     nh.param("map/map_size_y", map_size_3d_(1), 10.0);
     nh.param("map/map_size_z", map_size_3d_(2), 5.0);
     // localmap slide window
-    nh.param("map/queue_size", queue_size, 20);
+    nh.param("map/queue_size", queue_size, -1);
     // show border
     nh.param("map/border", show_border, false);
     // 地图分辨率，单位：米
@@ -74,26 +74,34 @@ void Occupy_map::init(ros::NodeHandle& nh)
     }
 
     // 生成地图边界：点云形式
-    border.width = 4000;
+	double dist = 0.1; //每多少距离一个点
+	int numdist_x = (max_range_(0)-min_range_(0))/dist; //x的点数
+	int numdist_y = (max_range_(1)-min_range_(1))/dist; //y的点数 
+	int numdist = 2*(numdist_x+numdist_y); //总点数
+	border.width = numdist;
     border.height = 1;
-    border.points.resize(4000);
-    for(int i=0 ; i<1000; i++) //todo: auto border
+    border.points.resize(numdist);
+
+    for(int i=0 ; i<numdist_x; i++) //x边界
     {
-        border.points[i].x = min_range_(0)+i*(max_range_(0)-min_range_(0))/1000.0;
+        border.points[i].x = min_range_(0)+i*dist;
         border.points[i].y = min_range_(1);
         border.points[i].z = min_range_(2);
 
-        border.points[i+1000].x = min_range_(0)+i*(max_range_(0)-min_range_(0))/1000.0;
-        border.points[i+1000].y = max_range_(1);
-        border.points[i+1000].z = min_range_(2);
+        border.points[i+numdist_x].x = min_range_(0)+i*dist;
+        border.points[i+numdist_x].y = max_range_(1);
+        border.points[i+numdist_x].z = min_range_(2);
+	}
+	
+    for(int i=0 ; i<numdist_y; i++) //y边界
+    {
+        border.points[i+2*numdist_x].x = min_range_(0);
+        border.points[i+2*numdist_x].y = min_range_(1)+i*dist;
+        border.points[i+2*numdist_x].z = min_range_(2);
 
-        border.points[i+2000].x = min_range_(0);
-        border.points[i+2000].y = min_range_(1)+i*(max_range_(1)-min_range_(1))/1000.0;
-        border.points[i+2000].z = min_range_(2);
-
-        border.points[i+3000].x = max_range_(0);
-        border.points[i+3000].y = min_range_(1)+i*(max_range_(1)-min_range_(1))/1000.0;
-        border.points[i+3000].z = min_range_(2);
+        border.points[i+2*numdist_x+numdist_y].x = max_range_(0);
+        border.points[i+2*numdist_x+numdist_y].y = min_range_(1)+i*dist;
+        border.points[i+2*numdist_x+numdist_y].z = min_range_(2);
     }
 }
 
@@ -104,8 +112,10 @@ void Occupy_map::map_update_gpcl(const sensor_msgs::PointCloud2ConstPtr & global
     pcl::fromROSMsg(*global_point,*input_point_cloud);
     global_point_cloud_map = input_point_cloud;
     // map border
+    cout << "global" << endl;
     if(show_border)
     {
+        cout << "ashid" << endl;
         *transformed_cloud = *global_point_cloud_map + border;
     }
     has_global_point = true;
@@ -125,23 +135,19 @@ void Occupy_map::local_map_merge_odom(const nav_msgs::Odometry & odom)
     tf::quaternionMsgToTF(odom.pose.pose.orientation, orientation);    
     tf::Matrix3x3(orientation).getRPY(roll, pitch, yaw);
 
+    // 只有移动了一定距离，才接收局部点云（过滤过多的点云）；达成指定高度才建图
+    bool pos_change = (abs(f_x-x)>0.1 || abs(f_y-y)>0.1) && (abs(fly_height_2D-z)<0.1);
+    // 只有在无人机平稳（角度足够小）时更新点云 （此条件必须满足）
+    // 将无人机飞行时 角度限制在5度以内(0.09 约等于5度)
+    bool ang_change = abs(f_pitch-pitch)<0.08 && abs(f_roll-roll)<0.08; //俯仰，翻滚
     // 即使不移动,时间达到阈值,也会更新地图
     static int update_num = 0;
-    update_num++;
-    if (update_num > 40)
+    if(!pos_change && ang_change)
     {
-        update_num = 0;
+        update_num = (update_num+1) % 10;
     }
-
-    // 只有移动了一定距离，才接收局部点云（过滤过多的点云）；达成指定高度才建图
-    bool pos_change = (abs(f_x-x)>0.1 || abs(f_y-y)>0.1) && (fly_height_2D-0.1<z && z<fly_height_2D+0.1);
-    // 只有在无人机平稳（角度足够小）时更新点云 （此条件必须满足）
-    // 0.09 约等于5度
-    // 将无人机飞行时 角度限制在5度以内
-    // 偏航角???
-    bool ang_change = abs(f_pitch-pitch)<0.08 && abs(f_roll-roll)<0.08 && abs(f_yaw-yaw)<0.08;
-    // 合并局部点云，形成局部地图, todo: incremental merge?
-    if((global_point_cloud_map == nullptr || pos_change || update_num == 40) && ang_change) 
+    // 合并局部点云，形成局部地图
+    if((global_point_cloud_map == nullptr || pos_change || update_num == 10) && ang_change) 
     {
         // 为滑窗的点云累计odom
         map<int,pcl::PointCloud<pcl::PointXYZ>>::iterator iter;
@@ -155,7 +161,7 @@ void Occupy_map::local_map_merge_odom(const nav_msgs::Odometry & odom)
         point_cloud_pair[st_it] = *input_point_cloud; // 加入新点云到滑窗
         st_it = (st_it + 1) % queue_size; // 指向下一个移除的点云位置
 
-        // 累计局部地图
+        // 累计局部地图：需要20个加法，O（1）内存；增量式：需要19个加法，O（1.5）内存
         pcl_ptr.reset(new pcl::PointCloud<pcl::PointXYZ>);
         for(iter = point_cloud_pair.begin(); iter != point_cloud_pair.end(); iter++)
         {
@@ -164,7 +170,7 @@ void Occupy_map::local_map_merge_odom(const nav_msgs::Odometry & odom)
 
         // remove outlier
         sor.setInputCloud(pcl_ptr);
-        sor.setMeanK(20); // kNN的最少的邻居数
+        sor.setMeanK(20); // kNN neighbor
         sor.setStddevMulThresh(1.0); // threshold
         sor.setNegative(false);
         sor.filter(*global_point_cloud_map);
@@ -175,8 +181,10 @@ void Occupy_map::local_map_merge_odom(const nav_msgs::Odometry & odom)
         vg.filter(*pcl_ptr);
 
         // border
+        cout << "local" << endl;
         if(show_border)
         {
+            cout << "ssssashid" << endl;
             // tf to lidar frame
             pcl::transformPointCloud(border,*transformed_cloud,pcl::getTransformation(f_x-x, f_y-y, f_z-z, 0, 0, 0));
             border = *transformed_cloud;
@@ -240,13 +248,16 @@ void Occupy_map::inflate_point_cloud(void)
     if(show_border)
     {
         pcl::toROSMsg(*transformed_cloud,global_env_);
+        cout << "toRosMsg" << endl;
         if(queue_size==-1)
         {
             global_env_.header.frame_id = "world";
+            cout << "-1" << endl;
         }
         else
         {
             global_env_.header.frame_id = uav_name+"/lidar_link";
+            cout << "111" << endl;
         }
     }
     else
