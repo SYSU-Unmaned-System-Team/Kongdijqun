@@ -1,7 +1,8 @@
 <launch>
-<arg name="swarm_num" default="1"/>
+	<arg name="swarm_num" default="1"/>
 	<arg name="uav1_name" default="/uav1"/>
     <arg name="uav1_id" default="1"/>
+	
 	<!-- vrpn -->
 	<!-- 注意修改vicon电脑ip地址 -->
 	<include file="$(find vrpn_client_ros)/launch/sample.launch">
@@ -32,6 +33,10 @@
         <node pkg="prometheus_mission" type="pub_goal" name="pub_goal" output="screen" launch-prefix="gnome-terminal --">	
         </node>
     </group>
+
+	<!-- TF transform-->
+	<include file="$(find prometheus_experiment)/launch/tf_transform.launch">
+	</include>
 
 	<!-- run the rviz -->
 	<arg name="visualization" default="true"/>

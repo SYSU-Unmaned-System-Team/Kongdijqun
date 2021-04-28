@@ -93,14 +93,13 @@
         <!-- 启发式函数系数 -->
         <param name="astar/lambda_heu" value="2.0" type="double"/>
         <!-- 分辨率 -->
-       
+        <param name="map/resolution" value="0.2" type="double"/>
       	<!-- 控制方式, 0代表航点追踪模式, 1代表速度追踪模式 -->
      	<!-- 航点追踪模式: time_per_path 与 地图分辨率及期望速度有关 ,即一个单位时间执行一个单位地图距离 -->
       	<!-- 速度追踪模式: time_per_path设置为0.1, velocity_path_tracking设置为0.5, 分辨率设置为0.25 -->
-	 	<param name="global_planner/control_flag" value="1" type="int"/>
-	    <param name="map/resolution" value="0.25" type="double"/>
-		<param name="global_planner/time_per_path" value="0.1" type="double"/>
-		<param name="global_planner/velocity_path_tracking" value="0.6" type="double"/>
+	 	<param name="global_planner/control_flag" value="0" type="int"/>
+		<param name="global_planner/time_per_path" value="0.5" type="double"/>
+		<param name="global_planner/velocity_path_tracking" value="0.2" type="double"/>
 		<!-- 检测范围 -->
 		<param name="global_planner/detection_range_x_min" value="-4.5" type="double"/>
 		<param name="global_planner/detection_range_x_max" value="0.0" type="double"/>
