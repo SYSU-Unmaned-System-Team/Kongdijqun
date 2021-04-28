@@ -1,12 +1,25 @@
 <launch>
-
+<arg name="swarm_num" default="1"/>
 	<arg name="uav1_name" default="/uav1"/>
-
+    <arg name="uav1_id" default="1"/>
 	<!-- vrpn -->
 	<!-- 注意修改vicon电脑ip地址 -->
 	<include file="$(find vrpn_client_ros)/launch/sample.launch">
 		<arg name="server" value="192.168.1.2"/>
 	</include>
+
+	<!-- 启动地面站 -->
+	<node pkg="prometheus_swarm_control" type="swarm_ground_station" name="swarm_ground_station" output="screen" launch-prefix="gnome-terminal --tab --">	
+		<param name="swarm_num" value="$(arg swarm_num)"/>
+		<param name="uav1_name" value="$(arg uav1_name)" />
+		<param name="uav1_id" value="$(arg uav1_id)" />
+	</node>
+
+	<node pkg="prometheus_swarm_control" type="swarm_ground_station_msg" name="swarm_ground_station_msg" output="screen" launch-prefix="gnome-terminal --tab --">	
+		<param name="swarm_num" value="$(arg swarm_num)"/>
+		<param name="uav1_name" value="$(arg uav1_name)" />
+		<param name="uav1_id" value="$(arg uav1_id)" />
+	</node>
 
 	<node pkg="prometheus_case2" type="case2_from_groundstation" name="case2_from_groundstation" output="screen" launch-prefix="gnome-terminal --">	
 	</node>
@@ -26,4 +39,3 @@
 		<node type="rviz" name="rviz" pkg="rviz" args="-d $(find prometheus_experiment)/config/rviz_config/rviz_config_astar.rviz" />
     </group>
 </launch>
-
