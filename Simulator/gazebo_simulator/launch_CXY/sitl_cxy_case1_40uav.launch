@@ -1633,7 +1633,7 @@
 		<param name="uav27_id" value="$(arg uav27_id)" />
 		<param name="uav28_id" value="$(arg uav28_id)" />
 		<param name="uav29_id" value="$(arg uav29_id)" />
-		<param name="uav20_id" value="$(arg uav20_id)" />
+		<param name="uav30_id" value="$(arg uav30_id)" />
 		<param name="uav31_id" value="$(arg uav31_id)" />
 		<param name="uav32_id" value="$(arg uav32_id)" />
 		<param name="uav33_id" value="$(arg uav33_id)" />
@@ -1650,6 +1650,7 @@
 	<node pkg="prometheus_swarm_control" type="swarm_formation_control" name="swarm_formation_control" output="screen" launch-prefix="gnome-terminal --">
 		<param name="swarm_num" value="$(arg swarm_num)"/>
 		<param name="formation_size" value="1.0"/>
+		<param name="sim_mode" value="true"/>
 		<param name="uav1_name" value="$(arg uav1_name)" />
 		<param name="uav2_name" value="$(arg uav2_name)" />
 		<param name="uav3_name" value="$(arg uav3_name)" />

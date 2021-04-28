@@ -22,6 +22,7 @@ ros::Publisher command_pub[MAX_NUM+1];
 
 int controller_num;
 float formation_size;
+bool sim_mode;
 
 Eigen::Vector3f virtual_leader_pos;
 Eigen::Vector3f virtual_leader_vel;
@@ -42,6 +43,7 @@ int main(int argc, char **argv)
     // 0代表位置追踪模式，１代表速度追踪模式，２代表加速度追踪模式 
     nh.param<int>("controller_num", controller_num, 0);
     nh.param<float>("formation_size", formation_size, 1.0);
+    nh.param<bool>("sim_mode",sim_mode,true);
 
     virtual_leader_pos << 0.0,0.0,1.0;
     virtual_leader_yaw = 0.0;
@@ -78,7 +80,7 @@ int main(int argc, char **argv)
 
     printf_param();
 
-    while(start_flag == 0)
+    while(sim_mode && (start_flag == 0))
     {
         cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>Formation Flight Mission<<<<<<<<<<<<<<<<<<<<<<<<< "<< endl;
         cout << "Please enter 1 to disarm all the UAVs."<<endl;
