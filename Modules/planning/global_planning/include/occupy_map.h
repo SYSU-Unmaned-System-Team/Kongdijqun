@@ -1,13 +1,15 @@
+// 定义了Occupy_map类
+// 根据激光摄像头得到的点云数据建图
 #ifndef _OCCUPY_MAP_H
 #define _OCCUPY_MAP_H
 
 #include <iostream>
-#include <algorithm>
+#include <algorithm>    // stl算法库
 
 #include <ros/ros.h>
-#include <Eigen/Eigen>
+#include <Eigen/Eigen>  // 内置矩阵库
 
-#include <pcl_ros/point_cloud.h>
+#include <pcl_ros/point_cloud.h>    // pcl - point cloud library
 #include <pcl_ros/transforms.h>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>

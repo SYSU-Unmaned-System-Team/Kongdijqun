@@ -1,3 +1,5 @@
+// 这个tools.h是干什么用的？
+
 #ifndef _TOOLS_H
 #define _TOOLS_H
 

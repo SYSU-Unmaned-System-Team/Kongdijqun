@@ -257,9 +257,6 @@ void Astar::retrievePath(NodePtr end_node)
 
   // 反转顺序
   reverse(path_nodes_.begin(), path_nodes_.end());
-
-
-  // 直接在这里生成路径？
 }
 
 std::vector<Eigen::Vector3d> Astar::getPath()
