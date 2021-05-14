@@ -14,12 +14,14 @@
 
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/TwistStamped.h>
+#include <geometry_msgs/TransformStamped.h>
 
 #include <sensor_msgs/Imu.h>
 #include <nav_msgs/Odometry.h>
 #include <nav_msgs/Path.h>
 #include <std_msgs/Float64.h>
 
+#include "tf2_ros/transform_broadcaster.h"  //发布动态坐标关系
 #include "math_utils.h"
 #include "message_utils.h"
 
@@ -44,6 +46,7 @@ Eigen::Quaterniond q_gazebo;                // 无人机当前姿态 - 四元数
 Eigen::Vector3d Euler_gazebo;               // 无人机当前姿态 - 欧拉角 (gazebo)
 prometheus_msgs::Message message;           // 待打印的文字消息
 nav_msgs::Odometry Drone_odom;              // 无人机里程计,用于rviz显示
+geometry_msgs::PoseStamped vision;
 std::vector<geometry_msgs::PoseStamped> posehistory_vector_;    // 无人机轨迹容器,用于rviz显示
 // 订阅话题
 ros::Subscriber state_sub;
@@ -85,12 +88,21 @@ void init()
     _DroneState.rel_alt = 0.0;
     //
     pos_drone_mocap = Eigen::Vector3d(0.0, 0.0, 0.0);
-    q_mocap         = Eigen::Quaterniond(0.0, 0.0, 0.0, 0.0);
     Euler_mocap     = Eigen::Vector3d(0.0, 0.0, 0.0);
+    q_mocap         = quaternion_from_rpy(Euler_mocap);
 
     pos_drone_gazebo = Eigen::Vector3d(0.0, 0.0, 0.0);
-    q_gazebo         = Eigen::Quaterniond(0.0, 0.0, 0.0, 0.0);
     Euler_gazebo     = Eigen::Vector3d(0.0, 0.0, 0.0);
+    q_gazebo         = quaternion_from_rpy(Euler_gazebo);
+
+    vision.pose.position.x = 0.0;
+    vision.pose.position.y = 0.0;
+    vision.pose.position.z = 0.0;
+
+    vision.pose.orientation.x = q_gazebo.x();
+    vision.pose.orientation.y = q_gazebo.y();
+    vision.pose.orientation.z = q_gazebo.z();
+    vision.pose.orientation.w = q_gazebo.w();
 }
 
 void state_cb(const mavros_msgs::State::ConstPtr &msg)
@@ -172,8 +184,6 @@ void gazebo_cb(const nav_msgs::Odometry::ConstPtr &msg)
 
 void timercb_vision(const ros::TimerEvent &e)
 {
-    geometry_msgs::PoseStamped vision;
-
     //mocap
     if (input_source == 0)
     {
@@ -210,6 +220,30 @@ void timercb_vision(const ros::TimerEvent &e)
 
     vision.header.stamp = ros::Time::now();
     vision_pub.publish(vision);
+
+    // 发布TF用于RVIZ显示
+    static tf2_ros::TransformBroadcaster broadcaster;
+    geometry_msgs::TransformStamped tfs;
+    //  |----头设置
+    tfs.header.frame_id = "world";  //相对于世界坐标系
+    tfs.header.stamp = ros::Time::now();  //时间戳
+    
+    //  |----坐标系 ID
+    tfs.child_frame_id = uav_name + "/lidar_link";  //子坐标系，无人机的坐标系
+
+    //  |----坐标系相对信息设置  偏移量  无人机相对于世界坐标系的坐标
+    tfs.transform.translation.x = vision.pose.position.x;
+    tfs.transform.translation.y = vision.pose.position.y;
+    tfs.transform.translation.z = vision.pose.position.z; 
+    //  |--------- 四元数设置  
+    tfs.transform.rotation.x = vision.pose.orientation.x;
+    tfs.transform.rotation.y = vision.pose.orientation.y;
+    tfs.transform.rotation.z = vision.pose.orientation.z;
+    tfs.transform.rotation.w = vision.pose.orientation.w;
+
+
+    //  5-3.广播器发布数据
+    broadcaster.sendTransform(tfs);
 }
 
 void timercb_drone_state(const ros::TimerEvent &e)

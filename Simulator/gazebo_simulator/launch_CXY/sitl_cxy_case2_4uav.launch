@@ -487,15 +487,8 @@
 	<node pkg="prometheus_case2" type="case2_to_groundstation" name="case2_to_groundstation" output="screen" launch-prefix="gnome-terminal --">	
 	</node>
 
-	<!-- TF transform -->
-	<include file="$(find prometheus_gazebo)/launch_CXY/tf_transform_cxy.launch">
-		<arg name="x" value="$(arg uav1_init_x)"/>
-    	<arg name="y" value="$(arg uav1_init_y)"/>
-    	<arg name="z" value="0.15"/>
-    </include>
-
 	<!-- 启动rviz,设为false可关闭 -->
-	<arg name="visualization" default="false"/>
+	<arg name="visualization" default="true"/>
 	<group if="$(arg visualization)">
         <node type="rviz" name="rviz" pkg="rviz" args="-d $(find prometheus_gazebo)/config/cxy_config/rviz_cxy_case2.rviz" />
     </group>
