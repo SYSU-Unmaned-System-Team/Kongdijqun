@@ -41,6 +41,8 @@ add_message_files(
   IndoorSearch.msg
   Case2Result.msg
   StationCommandCase2.msg
+  Case3Result.msg
+  StationCommandCase3.msg
 )
 
 add_action_files(

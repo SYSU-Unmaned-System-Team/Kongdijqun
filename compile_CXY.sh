@@ -2,6 +2,7 @@ catkin_make --source Modules/common/msgs --build build/msgs
 catkin_make --source Modules/swarm_control --build build/swarm_control
 catkin_make --source Modules/object_detection --build build/object_detection
 catkin_make --source Modules/planning --build build/planning
+catkin_make --source Modules/prometheus_case3 --build build/prometheus_case3
 catkin_make --source Simulator/gazebo_simulator --build build/prometheus_gazebo
 catkin_make --source Experiment --build build/prometheus_experiment
 if [ ! -f "Modules/object_detection_yolov5openvino/CMakeLists.txt" ]; then
