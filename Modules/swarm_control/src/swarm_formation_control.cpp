@@ -110,7 +110,7 @@ int main(int argc, char **argv)
     }
     
     float trajectory_total_time;
-    while (ros::ok()) // todo: only check start_flag=0, other function need tested
+    while(ros::ok()) // todo: only check start_flag=0, other function need tested
     {
         cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>Formation Flight Mission<<<<<<<<<<<<<<<<<<<<<<<<< 3 for Circle Trajectory Tracking,"<< endl;
         cout << "Please choose the action: 0 for Formation Shape, 1 for Virtual Leader Pos, 2 for Hold, 3 for Land, 5 for Disarm..."<<endl;

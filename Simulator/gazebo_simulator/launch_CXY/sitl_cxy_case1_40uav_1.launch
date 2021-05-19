@@ -175,10 +175,10 @@
 	<arg name="Disarm_height" default="0.2"/>
 	<arg name="Land_speed" default="0.2"/>
 	<!-- 地理围栏 -->
-	<arg name="x_min" default="-45"/>
-	<arg name="x_max" default="45"/>
-	<arg name="y_min" default="-25"/>
-	<arg name="y_max" default="25"/>
+	<arg name="x_min" default="-145"/>
+	<arg name="x_max" default="145"/>
+	<arg name="y_min" default="-125"/>
+	<arg name="y_max" default="125"/>
 	<arg name="z_min" default="-1.0"/>
 	<arg name="z_max" default="3.5"/>
 
@@ -687,7 +687,7 @@
 	<!-- 阵型控制程序 -->
 	<node pkg="prometheus_swarm_control" type="swarm_formation_control" name="swarm_formation_control" output="screen" launch-prefix="gnome-terminal --">
 		<param name="swarm_num" value="$(arg swarm_num)"/>
-		<param name="formation_size" value="1.0"/>
+		<param name="formation_size" value="4.0"/>
 		<param name="sim_mode" value="true"/>
 		<param name="uav1_name" value="$(arg uav1_name)" />
 		<param name="uav2_name" value="$(arg uav2_name)" />
