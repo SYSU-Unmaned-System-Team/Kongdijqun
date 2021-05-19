@@ -4,6 +4,7 @@ catkin_make --source Modules/object_detection --build build/object_detection
 catkin_make --source Modules/planning --build build/planning
 catkin_make --source Modules/prometheus_case3 --build build/prometheus_case3
 catkin_make --source Simulator/gazebo_simulator --build build/prometheus_gazebo
+catkin_make --source Modules/swarm_communication --build build/swarm_communication
 catkin_make --source Experiment --build build/prometheus_experiment
 if [ ! -f "Modules/object_detection_yolov5openvino/CMakeLists.txt" ]; then
   # submodule object_detection_yolov5openvino not exist, skip it

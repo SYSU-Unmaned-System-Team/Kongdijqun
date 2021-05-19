@@ -195,7 +195,7 @@ int main(int argc, char **argv)
     nh.param<int>("uav_id", uav_id, 1);
     nh.param<string>("uav_name", uav_name, "/uav1");
     // broadcast
-    nh.param<string>("broadcast_ip", udp_ip, "127.0.0.255");
+    nh.param<string>("broadcast_ip", udp_ip, "192.168.1.255");
     nh.param<int>("udp_port", UDP_PORT, 8081);
 
     drone_state_msg.reset(new prometheus_msgs::DroneState);
