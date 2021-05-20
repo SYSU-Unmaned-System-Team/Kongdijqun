@@ -30,22 +30,15 @@ include_directories(
 
 ## Specify libraries to link a library or executable target against
 
-add_executable(ground_station_bridge src/ground_station_bridge.cpp)
-target_link_libraries(ground_station_bridge ${catkin_LIBRARIES})
+add_executable(swarm_boardcast_bridge src/swarm_boardcast_bridge.cpp)
+add_dependencies(swarm_boardcast_bridge ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(swarm_boardcast_bridge ${catkin_LIBRARIES})
 
 
-add_executable(swarm_multicast_bridge
-  src/swarm_multicast_bridge.cpp
-)
+add_executable(swarm_multicast_bridge src/swarm_multicast_bridge.cpp)
 add_dependencies(swarm_multicast_bridge ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(swarm_multicast_bridge
-  ${catkin_LIBRARIES}
-)
+target_link_libraries(swarm_multicast_bridge ${catkin_LIBRARIES})
 
-add_executable(swarm_end2end_bridge
-  src/swarm_end2end_bridge.cpp
-)
+add_executable(swarm_end2end_bridge src/swarm_end2end_bridge.cpp)
 add_dependencies(swarm_end2end_bridge ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(swarm_end2end_bridge
-  ${catkin_LIBRARIES}
-)
+target_link_libraries(swarm_end2end_bridge ${catkin_LIBRARIES})

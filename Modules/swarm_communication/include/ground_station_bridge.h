@@ -14,8 +14,10 @@ using namespace std;
 enum MESSAGE_TYPE { ODOM = 888, MULTI_TRAJ, ONE_TRAJ, STOP } massage_type;
 
 int send_sock = 0, server_fd, recv_sock, TCP_PORT;
+int takeoff_state = 0; //没有起飞
 string tcp_ip;
-//int uav_id_; //uav_id
-//string uav_name_;
-char tcp_send_buf[BUF_LEN], tcp_recv_buf[BUF_LEN];
+bool debug_mode;
+char tcp_send_buf[BUF_LEN], tcp_recv_buf[BUF_LEN], udp_recv_buf[BUF_LEN];
 prometheus_msgs::DroneState::Ptr drone_state_msg;
+struct sockaddr_in serv_addr;
+
