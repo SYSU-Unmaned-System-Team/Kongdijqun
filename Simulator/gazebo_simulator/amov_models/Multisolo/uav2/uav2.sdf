@@ -654,7 +654,7 @@
         </camera>
         <always_on>1</always_on>
         <update_rate>30</update_rate>
-        <visualize>1</visualize>
+        <visualize>0</visualize>
         <plugin name='camera_plugin' filename='libgazebo_ros_camera.so'>
             <robotNamespace>/uav2/prometheus/sensor</robotNamespace>
             <alwaysOn>true</alwaysOn>
@@ -744,7 +744,7 @@
         </camera>
         <always_on>1</always_on>
         <update_rate>30</update_rate>
-        <visualize>1</visualize>
+        <visualize>0</visualize>
         <plugin name='camera_plugin' filename='libgazebo_ros_camera.so'>
             <robotNamespace>/uav2/prometheus/sensor</robotNamespace>
             <alwaysOn>true</alwaysOn>

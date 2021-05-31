@@ -1,11 +1,11 @@
 <launch>
-	<!-- Case1仿真启动脚本2 -->
+	<!-- Case1仿真启动脚本4-->
 
 	<!-- 启动顺序如下： -->
 	<!-- 设定40架无人机参数 -->
-	<!-- 启动11-20架无人机SITL,并加载模型 -->
-	<!-- 启动11-20架无人机 swarm_estimator -->
-	<!-- 启动11-20架无人机 swarm_controller -->
+	<!-- 启动31-40架无人机SITL,并加载模型 -->
+	<!-- 启动31-40架无人机 swarm_estimator -->
+	<!-- 启动31-40架无人机 swarm_controller -->
 
 	<!-- 参数设定 -->
 	<!-- 无人机集群数量 -->
@@ -188,183 +188,183 @@
 	<arg name="z_max" default="20.0"/>
 
 	<!-- 启动SITL -->
-	<!-- 11号飞机 -->
+	<!-- 31号飞机 -->
 	<include file="$(find prometheus_gazebo)/launch_CXY/sitl_cxy_basic.launch">
 		<arg name="swarm_num" value="$(arg swarm_num)"/>
-		<arg name="uav_name" value="$(arg uav11_name)"/>
-		<arg name="uav_id" value="$(arg uav11_id)"/>
-		<arg name="sdf" value="$(find prometheus_gazebo)/amov_models/Multisolo/uav11/uav11.sdf"/>
-		<arg name="model" value="uav11"/>
-		<arg name="uav_init_x" value="$(arg uav11_init_x)"/>
-		<arg name="uav_init_y" value="$(arg uav11_init_y)"/>
+		<arg name="uav_name" value="$(arg uav31_name)"/>
+		<arg name="uav_id" value="$(arg uav31_id)"/>
+		<arg name="sdf" value="$(find prometheus_gazebo)/amov_models/Multisolo/uav31/uav31.sdf"/>
+		<arg name="model" value="uav31"/>
+		<arg name="uav_init_x" value="$(arg uav31_init_x)"/>
+		<arg name="uav_init_y" value="$(arg uav31_init_y)"/>
 		<arg name="uav_init_z" value="0.15"/>
 		<arg name="uav_init_yaw" value="0.0"/>
 	</include>
 
-	<!-- 12号飞机 -->
+	<!-- 32号飞机 -->
 	<include file="$(find prometheus_gazebo)/launch_CXY/sitl_cxy_basic.launch">
 		<arg name="swarm_num" value="$(arg swarm_num)"/>
-		<arg name="uav_name" value="$(arg uav12_name)"/>
-		<arg name="uav_id" value="$(arg uav12_id)"/>
-		<arg name="sdf" value="$(find prometheus_gazebo)/amov_models/Multisolo/uav12/uav12.sdf"/>
-		<arg name="model" value="uav12"/>
-		<arg name="uav_init_x" value="$(arg uav12_init_x)"/>
-		<arg name="uav_init_y" value="$(arg uav12_init_y)"/>
+		<arg name="uav_name" value="$(arg uav32_name)"/>
+		<arg name="uav_id" value="$(arg uav32_id)"/>
+		<arg name="sdf" value="$(find prometheus_gazebo)/amov_models/Multisolo/uav32/uav32.sdf"/>
+		<arg name="model" value="uav32"/>
+		<arg name="uav_init_x" value="$(arg uav32_init_x)"/>
+		<arg name="uav_init_y" value="$(arg uav32_init_y)"/>
 		<arg name="uav_init_z" value="0.15"/>
 		<arg name="uav_init_yaw" value="0.0"/>
 	</include>
 
-	<!-- 13号飞机 -->
+	<!-- 33号飞机 -->
 	<include file="$(find prometheus_gazebo)/launch_CXY/sitl_cxy_basic.launch">
 		<arg name="swarm_num" value="$(arg swarm_num)"/>
-		<arg name="uav_name" value="$(arg uav13_name)"/>
-		<arg name="uav_id" value="$(arg uav13_id)"/>
-		<arg name="sdf" value="$(find prometheus_gazebo)/amov_models/Multisolo/uav13/uav13.sdf"/>
-		<arg name="model" value="uav13"/>
-		<arg name="uav_init_x" value="$(arg uav13_init_x)"/>
-		<arg name="uav_init_y" value="$(arg uav13_init_y)"/>
+		<arg name="uav_name" value="$(arg uav33_name)"/>
+		<arg name="uav_id" value="$(arg uav33_id)"/>
+		<arg name="sdf" value="$(find prometheus_gazebo)/amov_models/Multisolo/uav33/uav33.sdf"/>
+		<arg name="model" value="uav33"/>
+		<arg name="uav_init_x" value="$(arg uav33_init_x)"/>
+		<arg name="uav_init_y" value="$(arg uav33_init_y)"/>
 		<arg name="uav_init_z" value="0.15"/>
 		<arg name="uav_init_yaw" value="0.0"/>
 	</include>
 
-	<!-- 14号飞机 -->
+	<!-- 34号飞机 -->
 	<include file="$(find prometheus_gazebo)/launch_CXY/sitl_cxy_basic.launch">
 		<arg name="swarm_num" value="$(arg swarm_num)"/>
-		<arg name="uav_name" value="$(arg uav14_name)"/>
-		<arg name="uav_id" value="$(arg uav14_id)"/>
-		<arg name="sdf" value="$(find prometheus_gazebo)/amov_models/Multisolo/uav14/uav14.sdf"/>
-		<arg name="model" value="uav14"/>
-		<arg name="uav_init_x" value="$(arg uav14_init_x)"/>
-		<arg name="uav_init_y" value="$(arg uav14_init_y)"/>
+		<arg name="uav_name" value="$(arg uav34_name)"/>
+		<arg name="uav_id" value="$(arg uav34_id)"/>
+		<arg name="sdf" value="$(find prometheus_gazebo)/amov_models/Multisolo/uav34/uav34.sdf"/>
+		<arg name="model" value="uav34"/>
+		<arg name="uav_init_x" value="$(arg uav34_init_x)"/>
+		<arg name="uav_init_y" value="$(arg uav34_init_y)"/>
 		<arg name="uav_init_z" value="0.15"/>
 		<arg name="uav_init_yaw" value="0.0"/>
 	</include>
 
-	<!-- 15号飞机 -->
+	<!-- 35号飞机 -->
 	<include file="$(find prometheus_gazebo)/launch_CXY/sitl_cxy_basic.launch">
 		<arg name="swarm_num" value="$(arg swarm_num)"/>
-		<arg name="uav_name" value="$(arg uav15_name)"/>
-		<arg name="uav_id" value="$(arg uav15_id)"/>
-		<arg name="sdf" value="$(find prometheus_gazebo)/amov_models/Multisolo/uav15/uav15.sdf"/>
-		<arg name="model" value="uav15"/>
-		<arg name="uav_init_x" value="$(arg uav15_init_x)"/>
-		<arg name="uav_init_y" value="$(arg uav15_init_y)"/>
+		<arg name="uav_name" value="$(arg uav35_name)"/>
+		<arg name="uav_id" value="$(arg uav35_id)"/>
+		<arg name="sdf" value="$(find prometheus_gazebo)/amov_models/Multisolo/uav35/uav35.sdf"/>
+		<arg name="model" value="uav35"/>
+		<arg name="uav_init_x" value="$(arg uav35_init_x)"/>
+		<arg name="uav_init_y" value="$(arg uav35_init_y)"/>
 		<arg name="uav_init_z" value="0.15"/>
 		<arg name="uav_init_yaw" value="0.0"/>
 	</include>
 
-	<!-- 16号飞机 -->
+	<!-- 36号飞机 -->
 	<include file="$(find prometheus_gazebo)/launch_CXY/sitl_cxy_basic.launch">
 		<arg name="swarm_num" value="$(arg swarm_num)"/>
-		<arg name="uav_name" value="$(arg uav16_name)"/>
-		<arg name="uav_id" value="$(arg uav16_id)"/>
-		<arg name="sdf" value="$(find prometheus_gazebo)/amov_models/Multisolo/uav16/uav16.sdf"/>
-		<arg name="model" value="uav16"/>
-		<arg name="uav_init_x" value="$(arg uav16_init_x)"/>
-		<arg name="uav_init_y" value="$(arg uav16_init_y)"/>
+		<arg name="uav_name" value="$(arg uav36_name)"/>
+		<arg name="uav_id" value="$(arg uav36_id)"/>
+		<arg name="sdf" value="$(find prometheus_gazebo)/amov_models/Multisolo/uav36/uav36.sdf"/>
+		<arg name="model" value="uav36"/>
+		<arg name="uav_init_x" value="$(arg uav36_init_x)"/>
+		<arg name="uav_init_y" value="$(arg uav36_init_y)"/>
 		<arg name="uav_init_z" value="0.15"/>
 		<arg name="uav_init_yaw" value="0.0"/>
 	</include>
 
-	<!-- 17号飞机 -->
+	<!-- 37号飞机 -->
 	<include file="$(find prometheus_gazebo)/launch_CXY/sitl_cxy_basic.launch">
 		<arg name="swarm_num" value="$(arg swarm_num)"/>
-		<arg name="uav_name" value="$(arg uav17_name)"/>
-		<arg name="uav_id" value="$(arg uav17_id)"/>
-		<arg name="sdf" value="$(find prometheus_gazebo)/amov_models/Multisolo/uav17/uav17.sdf"/>
-		<arg name="model" value="uav17"/>
-		<arg name="uav_init_x" value="$(arg uav17_init_x)"/>
-		<arg name="uav_init_y" value="$(arg uav17_init_y)"/>
+		<arg name="uav_name" value="$(arg uav37_name)"/>
+		<arg name="uav_id" value="$(arg uav37_id)"/>
+		<arg name="sdf" value="$(find prometheus_gazebo)/amov_models/Multisolo/uav37/uav37.sdf"/>
+		<arg name="model" value="uav37"/>
+		<arg name="uav_init_x" value="$(arg uav37_init_x)"/>
+		<arg name="uav_init_y" value="$(arg uav37_init_y)"/>
 		<arg name="uav_init_z" value="0.15"/>
 		<arg name="uav_init_yaw" value="0.0"/>
 	</include>
 
-	<!-- 18号飞机 -->
+	<!-- 38号飞机 -->
 	<include file="$(find prometheus_gazebo)/launch_CXY/sitl_cxy_basic.launch">
 		<arg name="swarm_num" value="$(arg swarm_num)"/>
-		<arg name="uav_name" value="$(arg uav18_name)"/>
-		<arg name="uav_id" value="$(arg uav18_id)"/>
-		<arg name="sdf" value="$(find prometheus_gazebo)/amov_models/Multisolo/uav18/uav18.sdf"/>
-		<arg name="model" value="uav18"/>
-		<arg name="uav_init_x" value="$(arg uav18_init_x)"/>
-		<arg name="uav_init_y" value="$(arg uav18_init_y)"/>
+		<arg name="uav_name" value="$(arg uav38_name)"/>
+		<arg name="uav_id" value="$(arg uav38_id)"/>
+		<arg name="sdf" value="$(find prometheus_gazebo)/amov_models/Multisolo/uav38/uav38.sdf"/>
+		<arg name="model" value="uav38"/>
+		<arg name="uav_init_x" value="$(arg uav38_init_x)"/>
+		<arg name="uav_init_y" value="$(arg uav38_init_y)"/>
 		<arg name="uav_init_z" value="0.15"/>
 		<arg name="uav_init_yaw" value="0.0"/>
 	</include>
 
-	<!-- 19号飞机 -->
+	<!-- 39号飞机 -->
 	<include file="$(find prometheus_gazebo)/launch_CXY/sitl_cxy_basic.launch">
 		<arg name="swarm_num" value="$(arg swarm_num)"/>
-		<arg name="uav_name" value="$(arg uav19_name)"/>
-		<arg name="uav_id" value="$(arg uav19_id)"/>
-		<arg name="sdf" value="$(find prometheus_gazebo)/amov_models/Multisolo/uav19/uav19.sdf"/>
-		<arg name="model" value="uav19"/>
-		<arg name="uav_init_x" value="$(arg uav19_init_x)"/>
-		<arg name="uav_init_y" value="$(arg uav19_init_y)"/>
+		<arg name="uav_name" value="$(arg uav39_name)"/>
+		<arg name="uav_id" value="$(arg uav39_id)"/>
+		<arg name="sdf" value="$(find prometheus_gazebo)/amov_models/Multisolo/uav39/uav39.sdf"/>
+		<arg name="model" value="uav39"/>
+		<arg name="uav_init_x" value="$(arg uav39_init_x)"/>
+		<arg name="uav_init_y" value="$(arg uav39_init_y)"/>
 		<arg name="uav_init_z" value="0.15"/>
 		<arg name="uav_init_yaw" value="0.0"/>
 	</include>
 
-	<!-- 20号飞机 -->
+	<!-- 40号飞机 -->
 	<include file="$(find prometheus_gazebo)/launch_CXY/sitl_cxy_basic.launch">
 		<arg name="swarm_num" value="$(arg swarm_num)"/>
-		<arg name="uav_name" value="$(arg uav20_name)"/>
-		<arg name="uav_id" value="$(arg uav20_id)"/>
-		<arg name="sdf" value="$(find prometheus_gazebo)/amov_models/Multisolo/uav20/uav20.sdf"/>
-		<arg name="model" value="uav20"/>
-		<arg name="uav_init_x" value="$(arg uav20_init_x)"/>
-		<arg name="uav_init_y" value="$(arg uav20_init_y)"/>
+		<arg name="uav_name" value="$(arg uav40_name)"/>
+		<arg name="uav_id" value="$(arg uav40_id)"/>
+		<arg name="sdf" value="$(find prometheus_gazebo)/amov_models/Multisolo/uav40/uav40.sdf"/>
+		<arg name="model" value="uav40"/>
+		<arg name="uav_init_x" value="$(arg uav40_init_x)"/>
+		<arg name="uav_init_y" value="$(arg uav40_init_y)"/>
 		<arg name="uav_init_z" value="0.15"/>
 		<arg name="uav_init_yaw" value="0.0"/>
 	</include>
 
 	<!-- 启动 swarm_estimator -->
-	<node pkg="prometheus_swarm_control" type="swarm_estimator" name="swarm_estimator_uav11" output="screen">
-		<param name="uav_name" value="$(arg uav11_name)"/>
+	<node pkg="prometheus_swarm_control" type="swarm_estimator" name="swarm_estimator_uav31" output="screen">
+		<param name="uav_name" value="$(arg uav31_name)"/>
 		<param name="input_source" value="$(arg input_source)" />
 	</node>
-	<node pkg="prometheus_swarm_control" type="swarm_estimator" name="swarm_estimator_uav12" output="screen">
-		<param name="uav_name" value="$(arg uav12_name)"/>
+	<node pkg="prometheus_swarm_control" type="swarm_estimator" name="swarm_estimator_uav32" output="screen">
+		<param name="uav_name" value="$(arg uav32_name)"/>
 		<param name="input_source" value="$(arg input_source)" />
 	</node>
-	<node pkg="prometheus_swarm_control" type="swarm_estimator" name="swarm_estimator_uav13" output="screen">
-		<param name="uav_name" value="$(arg uav13_name)"/>
+	<node pkg="prometheus_swarm_control" type="swarm_estimator" name="swarm_estimator_uav33" output="screen">
+		<param name="uav_name" value="$(arg uav33_name)"/>
 		<param name="input_source" value="$(arg input_source)" />
 	</node>
-	<node pkg="prometheus_swarm_control" type="swarm_estimator" name="swarm_estimator_uav14" output="screen">
-		<param name="uav_name" value="$(arg uav14_name)"/>
+	<node pkg="prometheus_swarm_control" type="swarm_estimator" name="swarm_estimator_uav34" output="screen">
+		<param name="uav_name" value="$(arg uav34_name)"/>
 		<param name="input_source" value="$(arg input_source)" />
 	</node>
-	<node pkg="prometheus_swarm_control" type="swarm_estimator" name="swarm_estimator_uav15" output="screen">
-		<param name="uav_name" value="$(arg uav15_name)"/>
+	<node pkg="prometheus_swarm_control" type="swarm_estimator" name="swarm_estimator_uav35" output="screen">
+		<param name="uav_name" value="$(arg uav35_name)"/>
 		<param name="input_source" value="$(arg input_source)" />
 	</node>
-	<node pkg="prometheus_swarm_control" type="swarm_estimator" name="swarm_estimator_uav16" output="screen">
-		<param name="uav_name" value="$(arg uav16_name)"/>
+	<node pkg="prometheus_swarm_control" type="swarm_estimator" name="swarm_estimator_uav36" output="screen">
+		<param name="uav_name" value="$(arg uav36_name)"/>
 		<param name="input_source" value="$(arg input_source)" />
 	</node>
-	<node pkg="prometheus_swarm_control" type="swarm_estimator" name="swarm_estimator_uav17" output="screen">
-		<param name="uav_name" value="$(arg uav17_name)"/>
+	<node pkg="prometheus_swarm_control" type="swarm_estimator" name="swarm_estimator_uav37" output="screen">
+		<param name="uav_name" value="$(arg uav37_name)"/>
 		<param name="input_source" value="$(arg input_source)" />
 	</node>
-	<node pkg="prometheus_swarm_control" type="swarm_estimator" name="swarm_estimator_uav18" output="screen">
-		<param name="uav_name" value="$(arg uav18_name)"/>
+	<node pkg="prometheus_swarm_control" type="swarm_estimator" name="swarm_estimator_uav38" output="screen">
+		<param name="uav_name" value="$(arg uav38_name)"/>
 		<param name="input_source" value="$(arg input_source)" />
 	</node>
-	<node pkg="prometheus_swarm_control" type="swarm_estimator" name="swarm_estimator_uav19" output="screen">
-		<param name="uav_name" value="$(arg uav19_name)"/>
+	<node pkg="prometheus_swarm_control" type="swarm_estimator" name="swarm_estimator_uav39" output="screen">
+		<param name="uav_name" value="$(arg uav39_name)"/>
 		<param name="input_source" value="$(arg input_source)" />
-	</node>
-	<node pkg="prometheus_swarm_control" type="swarm_estimator" name="swarm_estimator_uav20" output="screen">
-		<param name="uav_name" value="$(arg uav20_name)"/>
+	</node>	
+	<node pkg="prometheus_swarm_control" type="swarm_estimator" name="swarm_estimator_uav40" output="screen">
+		<param name="uav_name" value="$(arg uav40_name)"/>
 		<param name="input_source" value="$(arg input_source)" />
 	</node>
 
 	<!-- 启动swarm_controller -->
-	<node pkg="prometheus_swarm_control" type="swarm_controller" name="swarm_controller_uav11" output="screen">
+	<node pkg="prometheus_swarm_control" type="swarm_controller" name="swarm_controller_uav31" output="screen">
 		<param name="swarm_num" value="$(arg swarm_num)"/>
-		<param name="uav_id" value="$(arg uav11_id)"/>
-		<param name="uav_name" value="$(arg uav11_name)"/>
+		<param name="uav_id" value="$(arg uav31_id)"/>
+		<param name="uav_name" value="$(arg uav31_name)"/>
 		<param name="Takeoff_height" value="$(arg Takeoff_height)"/>
 		<param name="Disarm_height" value="$(arg Disarm_height)"/>
 		<param name="Land_speed" value="$(arg Land_speed)"/>
@@ -375,10 +375,10 @@
 		<param name="geo_fence/z_min" value="$(arg z_min)"/>
 		<param name="geo_fence/z_max" value="$(arg z_max)"/>
 	</node>
-	<node pkg="prometheus_swarm_control" type="swarm_controller" name="swarm_controller_uav12" output="screen">
+	<node pkg="prometheus_swarm_control" type="swarm_controller" name="swarm_controller_uav32" output="screen">
 		<param name="swarm_num" value="$(arg swarm_num)"/>
-		<param name="uav_id" value="$(arg uav12_id)"/>
-		<param name="uav_name" value="$(arg uav12_name)"/>
+		<param name="uav_id" value="$(arg uav32_id)"/>
+		<param name="uav_name" value="$(arg uav32_name)"/>
 		<param name="Takeoff_height" value="$(arg Takeoff_height)"/>
 		<param name="Disarm_height" value="$(arg Disarm_height)"/>
 		<param name="Land_speed" value="$(arg Land_speed)"/>
@@ -389,10 +389,10 @@
 		<param name="geo_fence/z_min" value="$(arg z_min)"/>
 		<param name="geo_fence/z_max" value="$(arg z_max)"/>
 	</node>
-	<node pkg="prometheus_swarm_control" type="swarm_controller" name="swarm_controller_uav13" output="screen">
+	<node pkg="prometheus_swarm_control" type="swarm_controller" name="swarm_controller_uav33" output="screen">
 		<param name="swarm_num" value="$(arg swarm_num)"/>
-		<param name="uav_id" value="$(arg uav13_id)"/>
-		<param name="uav_name" value="$(arg uav13_name)"/>
+		<param name="uav_id" value="$(arg uav33_id)"/>
+		<param name="uav_name" value="$(arg uav33_name)"/>
 		<param name="Takeoff_height" value="$(arg Takeoff_height)"/>
 		<param name="Disarm_height" value="$(arg Disarm_height)"/>
 		<param name="Land_speed" value="$(arg Land_speed)"/>
@@ -403,10 +403,10 @@
 		<param name="geo_fence/z_min" value="$(arg z_min)"/>
 		<param name="geo_fence/z_max" value="$(arg z_max)"/>
 	</node>
-	<node pkg="prometheus_swarm_control" type="swarm_controller" name="swarm_controller_uav14" output="screen">
+	<node pkg="prometheus_swarm_control" type="swarm_controller" name="swarm_controller_uav34" output="screen">
 		<param name="swarm_num" value="$(arg swarm_num)"/>
-		<param name="uav_id" value="$(arg uav14_id)"/>
-		<param name="uav_name" value="$(arg uav14_name)"/>
+		<param name="uav_id" value="$(arg uav34_id)"/>
+		<param name="uav_name" value="$(arg uav34_name)"/>
 		<param name="Takeoff_height" value="$(arg Takeoff_height)"/>
 		<param name="Disarm_height" value="$(arg Disarm_height)"/>
 		<param name="Land_speed" value="$(arg Land_speed)"/>
@@ -417,10 +417,10 @@
 		<param name="geo_fence/z_min" value="$(arg z_min)"/>
 		<param name="geo_fence/z_max" value="$(arg z_max)"/>
 	</node>
-	<node pkg="prometheus_swarm_control" type="swarm_controller" name="swarm_controller_uav15" output="screen">
+	<node pkg="prometheus_swarm_control" type="swarm_controller" name="swarm_controller_uav35" output="screen">
 		<param name="swarm_num" value="$(arg swarm_num)"/>
-		<param name="uav_id" value="$(arg uav15_id)"/>
-		<param name="uav_name" value="$(arg uav15_name)"/>
+		<param name="uav_id" value="$(arg uav35_id)"/>
+		<param name="uav_name" value="$(arg uav35_name)"/>
 		<param name="Takeoff_height" value="$(arg Takeoff_height)"/>
 		<param name="Disarm_height" value="$(arg Disarm_height)"/>
 		<param name="Land_speed" value="$(arg Land_speed)"/>
@@ -431,10 +431,10 @@
 		<param name="geo_fence/z_min" value="$(arg z_min)"/>
 		<param name="geo_fence/z_max" value="$(arg z_max)"/>
 	</node>
-	<node pkg="prometheus_swarm_control" type="swarm_controller" name="swarm_controller_uav16" output="screen">
+	<node pkg="prometheus_swarm_control" type="swarm_controller" name="swarm_controller_uav36" output="screen">
 		<param name="swarm_num" value="$(arg swarm_num)"/>
-		<param name="uav_id" value="$(arg uav16_id)"/>
-		<param name="uav_name" value="$(arg uav16_name)"/>
+		<param name="uav_id" value="$(arg uav36_id)"/>
+		<param name="uav_name" value="$(arg uav36_name)"/>
 		<param name="Takeoff_height" value="$(arg Takeoff_height)"/>
 		<param name="Disarm_height" value="$(arg Disarm_height)"/>
 		<param name="Land_speed" value="$(arg Land_speed)"/>
@@ -445,10 +445,10 @@
 		<param name="geo_fence/z_min" value="$(arg z_min)"/>
 		<param name="geo_fence/z_max" value="$(arg z_max)"/>
 	</node>
-	<node pkg="prometheus_swarm_control" type="swarm_controller" name="swarm_controller_uav17" output="screen">
+	<node pkg="prometheus_swarm_control" type="swarm_controller" name="swarm_controller_uav37" output="screen">
 		<param name="swarm_num" value="$(arg swarm_num)"/>
-		<param name="uav_id" value="$(arg uav17_id)"/>
-		<param name="uav_name" value="$(arg uav17_name)"/>
+		<param name="uav_id" value="$(arg uav37_id)"/>
+		<param name="uav_name" value="$(arg uav37_name)"/>
 		<param name="Takeoff_height" value="$(arg Takeoff_height)"/>
 		<param name="Disarm_height" value="$(arg Disarm_height)"/>
 		<param name="Land_speed" value="$(arg Land_speed)"/>
@@ -459,10 +459,10 @@
 		<param name="geo_fence/z_min" value="$(arg z_min)"/>
 		<param name="geo_fence/z_max" value="$(arg z_max)"/>
 	</node>
-	<node pkg="prometheus_swarm_control" type="swarm_controller" name="swarm_controller_uav18" output="screen">
+	<node pkg="prometheus_swarm_control" type="swarm_controller" name="swarm_controller_uav38" output="screen">
 		<param name="swarm_num" value="$(arg swarm_num)"/>
-		<param name="uav_id" value="$(arg uav18_id)"/>
-		<param name="uav_name" value="$(arg uav18_name)"/>
+		<param name="uav_id" value="$(arg uav38_id)"/>
+		<param name="uav_name" value="$(arg uav38_name)"/>
 		<param name="Takeoff_height" value="$(arg Takeoff_height)"/>
 		<param name="Disarm_height" value="$(arg Disarm_height)"/>
 		<param name="Land_speed" value="$(arg Land_speed)"/>
@@ -473,10 +473,10 @@
 		<param name="geo_fence/z_min" value="$(arg z_min)"/>
 		<param name="geo_fence/z_max" value="$(arg z_max)"/>
 	</node>
-	<node pkg="prometheus_swarm_control" type="swarm_controller" name="swarm_controller_uav19" output="screen">
+	<node pkg="prometheus_swarm_control" type="swarm_controller" name="swarm_controller_uav39" output="screen">
 		<param name="swarm_num" value="$(arg swarm_num)"/>
-		<param name="uav_id" value="$(arg uav19_id)"/>
-		<param name="uav_name" value="$(arg uav19_name)"/>
+		<param name="uav_id" value="$(arg uav39_id)"/>
+		<param name="uav_name" value="$(arg uav39_name)"/>
 		<param name="Takeoff_height" value="$(arg Takeoff_height)"/>
 		<param name="Disarm_height" value="$(arg Disarm_height)"/>
 		<param name="Land_speed" value="$(arg Land_speed)"/>
@@ -487,10 +487,10 @@
 		<param name="geo_fence/z_min" value="$(arg z_min)"/>
 		<param name="geo_fence/z_max" value="$(arg z_max)"/>
 	</node>
-	<node pkg="prometheus_swarm_control" type="swarm_controller" name="swarm_controller_uav20" output="screen">
+	<node pkg="prometheus_swarm_control" type="swarm_controller" name="swarm_controller_uav40" output="screen">
 		<param name="swarm_num" value="$(arg swarm_num)"/>
-		<param name="uav_id" value="$(arg uav20_id)"/>
-		<param name="uav_name" value="$(arg uav20_name)"/>
+		<param name="uav_id" value="$(arg uav40_id)"/>
+		<param name="uav_name" value="$(arg uav40_name)"/>
 		<param name="Takeoff_height" value="$(arg Takeoff_height)"/>
 		<param name="Disarm_height" value="$(arg Disarm_height)"/>
 		<param name="Land_speed" value="$(arg Land_speed)"/>
