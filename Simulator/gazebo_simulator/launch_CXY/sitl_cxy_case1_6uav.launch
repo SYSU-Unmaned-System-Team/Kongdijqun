@@ -315,6 +315,11 @@
 		<param name="uav8_id" value="$(arg uav8_id)" />
 	</node>
 
+	<!-- 启动rviz,设为false可关闭 -->
+	<arg name="visualization" default="true"/>
+	<group if="$(arg visualization)">
+        <node type="rviz" name="rviz" pkg="rviz" args="-d $(find prometheus_gazebo)/config/cxy_config/rviz_cxy_case1.rviz" />
+    </group>
 
 	<!-- 启动Gazebo -->
 	<!-- Gazebo configs -->

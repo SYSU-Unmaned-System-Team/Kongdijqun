@@ -5,11 +5,11 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /TF1/Frames1
-        - /UAV61/Path1
-        - /UAV71/Path1
-        - /UAV81/Path1
+        - /UAV371/Pose1
+        - /UAV391/Pose1
+        - /UAV401/Pose1
       Splitter Ratio: 0.5
-    Tree Height: 546
+    Tree Height: 674
   - Class: rviz/Selection
     Name: Selection
   - Class: rviz/Tool Properties
@@ -53,6 +53,18 @@ Visualization Manager:
           Value: false
         odom_ned:
           Value: false
+        uav1/lidar_link:
+          Value: true
+        uav2/lidar_link:
+          Value: true
+        uav3/lidar_link:
+          Value: true
+        uav4/lidar_link:
+          Value: true
+        uav5/lidar_link:
+          Value: true
+        uav6/lidar_link:
+          Value: true
         world:
           Value: false
       Marker Scale: 1
@@ -65,6 +77,18 @@ Visualization Manager:
           base_link:
             base_link_frd:
               {}
+          uav1/lidar_link:
+            {}
+          uav2/lidar_link:
+            {}
+          uav3/lidar_link:
+            {}
+          uav4/lidar_link:
+            {}
+          uav5/lidar_link:
+            {}
+          uav6/lidar_link:
+            {}
       Update Interval: 0
       Value: true
     - Alpha: 0.5
@@ -125,21 +149,6 @@ Visualization Manager:
           Topic: /uav1/prometheus/drone_trajectory
           Unreliable: false
           Value: true
-        - Alpha: 1
-          Axes Length: 0.699999988079071
-          Axes Radius: 0.25
-          Class: rviz/Pose
-          Color: 255; 25; 0
-          Enabled: false
-          Head Length: 0.30000001192092896
-          Head Radius: 0.10000000149011612
-          Name: Ref_Pose
-          Shaft Length: 1
-          Shaft Radius: 0.05000000074505806
-          Shape: Axes
-          Topic: /uav1/prometheus/control/ref_pose_rviz
-          Unreliable: false
-          Value: false
       Enabled: true
       Name: UAV1
     - Class: rviz/Group
@@ -182,21 +191,6 @@ Visualization Manager:
           Topic: /uav2/prometheus/drone_trajectory
           Unreliable: false
           Value: true
-        - Alpha: 1
-          Axes Length: 0.699999988079071
-          Axes Radius: 0.25
-          Class: rviz/Pose
-          Color: 255; 25; 0
-          Enabled: false
-          Head Length: 0.30000001192092896
-          Head Radius: 0.10000000149011612
-          Name: Ref_Pose
-          Shaft Length: 1
-          Shaft Radius: 0.05000000074505806
-          Shape: Axes
-          Topic: /uav2/prometheus/control/ref_pose_rviz
-          Unreliable: false
-          Value: false
       Enabled: true
       Name: UAV2
     - Class: rviz/Group
@@ -239,21 +233,6 @@ Visualization Manager:
           Topic: /uav3/prometheus/drone_trajectory
           Unreliable: false
           Value: true
-        - Alpha: 1
-          Axes Length: 0.699999988079071
-          Axes Radius: 0.25
-          Class: rviz/Pose
-          Color: 255; 25; 0
-          Enabled: false
-          Head Length: 0.30000001192092896
-          Head Radius: 0.10000000149011612
-          Name: Ref_Pose
-          Shaft Length: 1
-          Shaft Radius: 0.05000000074505806
-          Shape: Axes
-          Topic: /uav3/prometheus/control/ref_pose_rviz
-          Unreliable: false
-          Value: false
       Enabled: true
       Name: UAV3
     - Class: rviz/Group
@@ -296,21 +275,6 @@ Visualization Manager:
           Topic: /uav4/prometheus/drone_trajectory
           Unreliable: false
           Value: true
-        - Alpha: 1
-          Axes Length: 0.699999988079071
-          Axes Radius: 0.25
-          Class: rviz/Pose
-          Color: 255; 25; 0
-          Enabled: false
-          Head Length: 0.30000001192092896
-          Head Radius: 0.10000000149011612
-          Name: Ref_Pose
-          Shaft Length: 1
-          Shaft Radius: 0.05000000074505806
-          Shape: Axes
-          Topic: /uav4/prometheus/control/ref_pose_rviz
-          Unreliable: false
-          Value: false
       Enabled: true
       Name: UAV4
     - Class: rviz/Group
@@ -353,21 +317,6 @@ Visualization Manager:
           Topic: /uav5/prometheus/drone_trajectory
           Unreliable: false
           Value: true
-        - Alpha: 1
-          Axes Length: 0.699999988079071
-          Axes Radius: 0.25
-          Class: rviz/Pose
-          Color: 255; 25; 0
-          Enabled: false
-          Head Length: 0.30000001192092896
-          Head Radius: 0.10000000149011612
-          Name: Ref_Pose
-          Shaft Length: 1
-          Shaft Radius: 0.05000000074505806
-          Shape: Axes
-          Topic: /uav5/prometheus/control/ref_pose_rviz
-          Unreliable: false
-          Value: false
       Enabled: true
       Name: UAV5
     - Class: rviz/Group
@@ -410,21 +359,6 @@ Visualization Manager:
           Topic: /uav6/prometheus/drone_trajectory
           Unreliable: false
           Value: true
-        - Alpha: 1
-          Axes Length: 0.699999988079071
-          Axes Radius: 0.25
-          Class: rviz/Pose
-          Color: 255; 25; 0
-          Enabled: false
-          Head Length: 0.30000001192092896
-          Head Radius: 0.10000000149011612
-          Name: Ref_Pose
-          Shaft Length: 1
-          Shaft Radius: 0.05000000074505806
-          Shape: Axes
-          Topic: /uav5/prometheus/control/ref_pose_rviz
-          Unreliable: false
-          Value: false
       Enabled: true
       Name: UAV6
     - Class: rviz/Group
@@ -467,21 +401,6 @@ Visualization Manager:
           Topic: /uav7/prometheus/drone_trajectory
           Unreliable: false
           Value: true
-        - Alpha: 1
-          Axes Length: 0.699999988079071
-          Axes Radius: 0.25
-          Class: rviz/Pose
-          Color: 255; 25; 0
-          Enabled: false
-          Head Length: 0.30000001192092896
-          Head Radius: 0.10000000149011612
-          Name: Ref_Pose
-          Shaft Length: 1
-          Shaft Radius: 0.05000000074505806
-          Shape: Axes
-          Topic: /uav5/prometheus/control/ref_pose_rviz
-          Unreliable: false
-          Value: false
       Enabled: true
       Name: UAV7
     - Class: rviz/Group
@@ -498,7 +417,1225 @@ Visualization Manager:
           Shaft Length: 1
           Shaft Radius: 0.05000000074505806
           Shape: Axes
-          Topic: /uav8/mavros/local_position/pose
+          Topic: /uav38/mavros/local_position/pose
+          Unreliable: false
+          Value: true
+        - Alpha: 2
+          Buffer Length: 1
+          Class: rviz/Path
+          Color: 170; 85; 10
+          Enabled: true
+          Head Diameter: 0.30000001192092896
+          Head Length: 0.20000000298023224
+          Length: 0.30000001192092896
+          Line Style: Billboards
+          Line Width: 0.05000000074505806
+          Name: Path
+          Offset:
+            X: 0
+            Y: 0
+            Z: 0
+          Pose Color: 255; 85; 255
+          Pose Style: None
+          Radius: 0.029999999329447746
+          Shaft Diameter: 0.10000000149011612
+          Shaft Length: 0.10000000149011612
+          Topic: /uav38/prometheus/drone_trajectory
+          Unreliable: false
+          Value: true
+      Enabled: true
+      Name: UAV8
+    - Class: rviz/Group
+      Displays:
+        - Alpha: 1
+          Axes Length: 1
+          Axes Radius: 0.20000000298023224
+          Class: rviz/Pose
+          Color: 255; 25; 0
+          Enabled: true
+          Head Length: 0.30000001192092896
+          Head Radius: 0.10000000149011612
+          Name: Pose
+          Shaft Length: 1
+          Shaft Radius: 0.05000000074505806
+          Shape: Axes
+          Topic: /uav9/mavros/local_position/pose
+          Unreliable: false
+          Value: true
+        - Alpha: 2
+          Buffer Length: 1
+          Class: rviz/Path
+          Color: 100; 60; 100
+          Enabled: true
+          Head Diameter: 0.30000001192092896
+          Head Length: 0.20000000298023224
+          Length: 0.30000001192092896
+          Line Style: Billboards
+          Line Width: 0.05000000074505806
+          Name: Path
+          Offset:
+            X: 0
+            Y: 0
+            Z: 0
+          Pose Color: 255; 85; 255
+          Pose Style: None
+          Radius: 0.029999999329447746
+          Shaft Diameter: 0.10000000149011612
+          Shaft Length: 0.10000000149011612
+          Topic: /uav9/prometheus/drone_trajectory
+          Unreliable: false
+          Value: true
+      Enabled: true
+      Name: UAV9
+    - Class: rviz/Group
+      Displays:
+        - Alpha: 1
+          Axes Length: 1
+          Axes Radius: 0.20000000298023224
+          Class: rviz/Pose
+          Color: 255; 25; 0
+          Enabled: true
+          Head Length: 0.30000001192092896
+          Head Radius: 0.10000000149011612
+          Name: Pose
+          Shaft Length: 1
+          Shaft Radius: 0.05000000074505806
+          Shape: Axes
+          Topic: /uav10/mavros/local_position/pose
+          Unreliable: false
+          Value: true
+        - Alpha: 2
+          Buffer Length: 1
+          Class: rviz/Path
+          Color: 170; 85; 20
+          Enabled: true
+          Head Diameter: 0.30000001192092896
+          Head Length: 0.20000000298023224
+          Length: 0.30000001192092896
+          Line Style: Billboards
+          Line Width: 0.05000000074505806
+          Name: Path
+          Offset:
+            X: 0
+            Y: 0
+            Z: 0
+          Pose Color: 255; 85; 255
+          Pose Style: None
+          Radius: 0.029999999329447746
+          Shaft Diameter: 0.10000000149011612
+          Shaft Length: 0.10000000149011612
+          Topic: /uav10/prometheus/drone_trajectory
+          Unreliable: false
+          Value: true
+      Enabled: true
+      Name: UAV10
+    - Class: rviz/Group
+      Displays:
+        - Alpha: 1
+          Axes Length: 1
+          Axes Radius: 0.20000000298023224
+          Class: rviz/Pose
+          Color: 255; 25; 0
+          Enabled: true
+          Head Length: 0.30000001192092896
+          Head Radius: 0.10000000149011612
+          Name: Pose
+          Shaft Length: 1
+          Shaft Radius: 0.05000000074505806
+          Shape: Axes
+          Topic: /uav11/mavros/local_position/pose
+          Unreliable: false
+          Value: true
+        - Alpha: 2
+          Buffer Length: 1
+          Class: rviz/Path
+          Color: 170; 60; 10
+          Enabled: true
+          Head Diameter: 0.30000001192092896
+          Head Length: 0.20000000298023224
+          Length: 0.30000001192092896
+          Line Style: Billboards
+          Line Width: 0.05000000074505806
+          Name: Path
+          Offset:
+            X: 0
+            Y: 0
+            Z: 0
+          Pose Color: 255; 85; 255
+          Pose Style: None
+          Radius: 0.029999999329447746
+          Shaft Diameter: 0.10000000149011612
+          Shaft Length: 0.10000000149011612
+          Topic: /uav11/prometheus/drone_trajectory
+          Unreliable: false
+          Value: true
+      Enabled: true
+      Name: UAV11
+    - Class: rviz/Group
+      Displays:
+        - Alpha: 1
+          Axes Length: 1
+          Axes Radius: 0.20000000298023224
+          Class: rviz/Pose
+          Color: 255; 25; 0
+          Enabled: true
+          Head Length: 0.30000001192092896
+          Head Radius: 0.10000000149011612
+          Name: Pose
+          Shaft Length: 1
+          Shaft Radius: 0.05000000074505806
+          Shape: Axes
+          Topic: /uav12/mavros/local_position/pose
+          Unreliable: false
+          Value: true
+        - Alpha: 2
+          Buffer Length: 1
+          Class: rviz/Path
+          Color: 170; 85; 30
+          Enabled: true
+          Head Diameter: 0.30000001192092896
+          Head Length: 0.20000000298023224
+          Length: 0.30000001192092896
+          Line Style: Billboards
+          Line Width: 0.05000000074505806
+          Name: Path
+          Offset:
+            X: 0
+            Y: 0
+            Z: 0
+          Pose Color: 255; 85; 255
+          Pose Style: None
+          Radius: 0.029999999329447746
+          Shaft Diameter: 0.10000000149011612
+          Shaft Length: 0.10000000149011612
+          Topic: /uav12/prometheus/drone_trajectory
+          Unreliable: false
+          Value: true
+      Enabled: true
+      Name: UAV12
+    - Class: rviz/Group
+      Displays:
+        - Alpha: 1
+          Axes Length: 1
+          Axes Radius: 0.20000000298023224
+          Class: rviz/Pose
+          Color: 255; 25; 0
+          Enabled: true
+          Head Length: 0.30000001192092896
+          Head Radius: 0.10000000149011612
+          Name: Pose
+          Shaft Length: 1
+          Shaft Radius: 0.05000000074505806
+          Shape: Axes
+          Topic: /uav13/mavros/local_position/pose
+          Unreliable: false
+          Value: true
+        - Alpha: 2
+          Buffer Length: 1
+          Class: rviz/Path
+          Color: 100; 60; 0
+          Enabled: true
+          Head Diameter: 0.30000001192092896
+          Head Length: 0.20000000298023224
+          Length: 0.30000001192092896
+          Line Style: Billboards
+          Line Width: 0.05000000074505806
+          Name: Path
+          Offset:
+            X: 0
+            Y: 0
+            Z: 0
+          Pose Color: 255; 85; 255
+          Pose Style: None
+          Radius: 0.029999999329447746
+          Shaft Diameter: 0.10000000149011612
+          Shaft Length: 0.10000000149011612
+          Topic: /uav13/prometheus/drone_trajectory
+          Unreliable: false
+          Value: true
+      Enabled: true
+      Name: UAV13
+    - Class: rviz/Group
+      Displays:
+        - Alpha: 1
+          Axes Length: 1
+          Axes Radius: 0.20000000298023224
+          Class: rviz/Pose
+          Color: 255; 25; 0
+          Enabled: true
+          Head Length: 0.30000001192092896
+          Head Radius: 0.10000000149011612
+          Name: Pose
+          Shaft Length: 1
+          Shaft Radius: 0.05000000074505806
+          Shape: Axes
+          Topic: /uav14/mavros/local_position/pose
+          Unreliable: false
+          Value: true
+        - Alpha: 2
+          Buffer Length: 1
+          Class: rviz/Path
+          Color: 170; 85; 40
+          Enabled: true
+          Head Diameter: 0.30000001192092896
+          Head Length: 0.20000000298023224
+          Length: 0.30000001192092896
+          Line Style: Billboards
+          Line Width: 0.05000000074505806
+          Name: Path
+          Offset:
+            X: 0
+            Y: 0
+            Z: 0
+          Pose Color: 255; 85; 255
+          Pose Style: None
+          Radius: 0.029999999329447746
+          Shaft Diameter: 0.10000000149011612
+          Shaft Length: 0.10000000149011612
+          Topic: /uav14/prometheus/drone_trajectory
+          Unreliable: false
+          Value: true
+      Enabled: true
+      Name: UAV14
+    - Class: rviz/Group
+      Displays:
+        - Alpha: 1
+          Axes Length: 1
+          Axes Radius: 0.20000000298023224
+          Class: rviz/Pose
+          Color: 255; 25; 0
+          Enabled: true
+          Head Length: 0.30000001192092896
+          Head Radius: 0.10000000149011612
+          Name: Pose
+          Shaft Length: 1
+          Shaft Radius: 0.05000000074505806
+          Shape: Axes
+          Topic: /uav15/mavros/local_position/pose
+          Unreliable: false
+          Value: true
+        - Alpha: 2
+          Buffer Length: 1
+          Class: rviz/Path
+          Color: 170; 60; 20
+          Enabled: true
+          Head Diameter: 0.30000001192092896
+          Head Length: 0.20000000298023224
+          Length: 0.30000001192092896
+          Line Style: Billboards
+          Line Width: 0.05000000074505806
+          Name: Path
+          Offset:
+            X: 0
+            Y: 0
+            Z: 0
+          Pose Color: 255; 85; 255
+          Pose Style: None
+          Radius: 0.029999999329447746
+          Shaft Diameter: 0.10000000149011612
+          Shaft Length: 0.10000000149011612
+          Topic: /uav15/prometheus/drone_trajectory
+          Unreliable: false
+          Value: true
+      Enabled: true
+      Name: UAV15
+    - Class: rviz/Group
+      Displays:
+        - Alpha: 1
+          Axes Length: 1
+          Axes Radius: 0.20000000298023224
+          Class: rviz/Pose
+          Color: 255; 25; 0
+          Enabled: true
+          Head Length: 0.30000001192092896
+          Head Radius: 0.10000000149011612
+          Name: Pose
+          Shaft Length: 1
+          Shaft Radius: 0.05000000074505806
+          Shape: Axes
+          Topic: /uav16/mavros/local_position/pose
+          Unreliable: false
+          Value: true
+        - Alpha: 2
+          Buffer Length: 1
+          Class: rviz/Path
+          Color: 170; 85; 50
+          Enabled: true
+          Head Diameter: 0.30000001192092896
+          Head Length: 0.20000000298023224
+          Length: 0.30000001192092896
+          Line Style: Billboards
+          Line Width: 0.05000000074505806
+          Name: Path
+          Offset:
+            X: 0
+            Y: 0
+            Z: 0
+          Pose Color: 255; 85; 255
+          Pose Style: None
+          Radius: 0.029999999329447746
+          Shaft Diameter: 0.10000000149011612
+          Shaft Length: 0.10000000149011612
+          Topic: /uav16/prometheus/drone_trajectory
+          Unreliable: false
+          Value: true
+      Enabled: true
+      Name: UAV16
+    - Class: rviz/Group
+      Displays:
+        - Alpha: 1
+          Axes Length: 1
+          Axes Radius: 0.20000000298023224
+          Class: rviz/Pose
+          Color: 255; 25; 0
+          Enabled: true
+          Head Length: 0.30000001192092896
+          Head Radius: 0.10000000149011612
+          Name: Pose
+          Shaft Length: 1
+          Shaft Radius: 0.05000000074505806
+          Shape: Axes
+          Topic: /uav17/mavros/local_position/pose
+          Unreliable: false
+          Value: true
+        - Alpha: 2
+          Buffer Length: 1
+          Class: rviz/Path
+          Color: 100; 60; 10
+          Enabled: true
+          Head Diameter: 0.30000001192092896
+          Head Length: 0.20000000298023224
+          Length: 0.30000001192092896
+          Line Style: Billboards
+          Line Width: 0.05000000074505806
+          Name: Path
+          Offset:
+            X: 0
+            Y: 0
+            Z: 0
+          Pose Color: 255; 85; 255
+          Pose Style: None
+          Radius: 0.029999999329447746
+          Shaft Diameter: 0.10000000149011612
+          Shaft Length: 0.10000000149011612
+          Topic: /uav17/prometheus/drone_trajectory
+          Unreliable: false
+          Value: true
+      Enabled: true
+      Name: UAV17
+    - Class: rviz/Group
+      Displays:
+        - Alpha: 1
+          Axes Length: 1
+          Axes Radius: 0.20000000298023224
+          Class: rviz/Pose
+          Color: 255; 25; 0
+          Enabled: true
+          Head Length: 0.30000001192092896
+          Head Radius: 0.10000000149011612
+          Name: Pose
+          Shaft Length: 1
+          Shaft Radius: 0.05000000074505806
+          Shape: Axes
+          Topic: /uav18/mavros/local_position/pose
+          Unreliable: false
+          Value: true
+        - Alpha: 2
+          Buffer Length: 1
+          Class: rviz/Path
+          Color: 170; 85; 60
+          Enabled: true
+          Head Diameter: 0.30000001192092896
+          Head Length: 0.20000000298023224
+          Length: 0.30000001192092896
+          Line Style: Billboards
+          Line Width: 0.05000000074505806
+          Name: Path
+          Offset:
+            X: 0
+            Y: 0
+            Z: 0
+          Pose Color: 255; 85; 255
+          Pose Style: None
+          Radius: 0.029999999329447746
+          Shaft Diameter: 0.10000000149011612
+          Shaft Length: 0.10000000149011612
+          Topic: /uav18/prometheus/drone_trajectory
+          Unreliable: false
+          Value: true
+      Enabled: true
+      Name: UAV18
+    - Class: rviz/Group
+      Displays:
+        - Alpha: 1
+          Axes Length: 1
+          Axes Radius: 0.20000000298023224
+          Class: rviz/Pose
+          Color: 255; 25; 0
+          Enabled: true
+          Head Length: 0.30000001192092896
+          Head Radius: 0.10000000149011612
+          Name: Pose
+          Shaft Length: 1
+          Shaft Radius: 0.05000000074505806
+          Shape: Axes
+          Topic: /uav19/mavros/local_position/pose
+          Unreliable: false
+          Value: true
+        - Alpha: 2
+          Buffer Length: 1
+          Class: rviz/Path
+          Color: 170; 60; 30
+          Enabled: true
+          Head Diameter: 0.30000001192092896
+          Head Length: 0.20000000298023224
+          Length: 0.30000001192092896
+          Line Style: Billboards
+          Line Width: 0.05000000074505806
+          Name: Path
+          Offset:
+            X: 0
+            Y: 0
+            Z: 0
+          Pose Color: 255; 85; 255
+          Pose Style: None
+          Radius: 0.029999999329447746
+          Shaft Diameter: 0.10000000149011612
+          Shaft Length: 0.10000000149011612
+          Topic: /uav19/prometheus/drone_trajectory
+          Unreliable: false
+          Value: true
+      Enabled: true
+      Name: UAV19
+    - Class: rviz/Group
+      Displays:
+        - Alpha: 1
+          Axes Length: 1
+          Axes Radius: 0.20000000298023224
+          Class: rviz/Pose
+          Color: 255; 25; 0
+          Enabled: true
+          Head Length: 0.30000001192092896
+          Head Radius: 0.10000000149011612
+          Name: Pose
+          Shaft Length: 1
+          Shaft Radius: 0.05000000074505806
+          Shape: Axes
+          Topic: /uav20/mavros/local_position/pose
+          Unreliable: false
+          Value: true
+        - Alpha: 2
+          Buffer Length: 1
+          Class: rviz/Path
+          Color: 170; 85; 70
+          Enabled: true
+          Head Diameter: 0.30000001192092896
+          Head Length: 0.20000000298023224
+          Length: 0.30000001192092896
+          Line Style: Billboards
+          Line Width: 0.05000000074505806
+          Name: Path
+          Offset:
+            X: 0
+            Y: 0
+            Z: 0
+          Pose Color: 255; 85; 255
+          Pose Style: None
+          Radius: 0.029999999329447746
+          Shaft Diameter: 0.10000000149011612
+          Shaft Length: 0.10000000149011612
+          Topic: /uav20/prometheus/drone_trajectory
+          Unreliable: false
+          Value: true
+      Enabled: true
+      Name: UAV20
+    - Class: rviz/Group
+      Displays:
+        - Alpha: 1
+          Axes Length: 1
+          Axes Radius: 0.20000000298023224
+          Class: rviz/Pose
+          Color: 255; 25; 0
+          Enabled: true
+          Head Length: 0.30000001192092896
+          Head Radius: 0.10000000149011612
+          Name: Pose
+          Shaft Length: 1
+          Shaft Radius: 0.05000000074505806
+          Shape: Axes
+          Topic: /uav21/mavros/local_position/pose
+          Unreliable: false
+          Value: true
+        - Alpha: 2
+          Buffer Length: 1
+          Class: rviz/Path
+          Color: 100; 60; 120
+          Enabled: true
+          Head Diameter: 0.30000001192092896
+          Head Length: 0.20000000298023224
+          Length: 0.30000001192092896
+          Line Style: Billboards
+          Line Width: 0.05000000074505806
+          Name: Path
+          Offset:
+            X: 0
+            Y: 0
+            Z: 0
+          Pose Color: 255; 85; 255
+          Pose Style: None
+          Radius: 0.029999999329447746
+          Shaft Diameter: 0.10000000149011612
+          Shaft Length: 0.10000000149011612
+          Topic: /uav21/prometheus/drone_trajectory
+          Unreliable: false
+          Value: true
+      Enabled: true
+      Name: UAV21
+    - Class: rviz/Group
+      Displays:
+        - Alpha: 1
+          Axes Length: 1
+          Axes Radius: 0.20000000298023224
+          Class: rviz/Pose
+          Color: 255; 25; 0
+          Enabled: true
+          Head Length: 0.30000001192092896
+          Head Radius: 0.10000000149011612
+          Name: Pose
+          Shaft Length: 1
+          Shaft Radius: 0.05000000074505806
+          Shape: Axes
+          Topic: /uav22/mavros/local_position/pose
+          Unreliable: false
+          Value: true
+        - Alpha: 2
+          Buffer Length: 1
+          Class: rviz/Path
+          Color: 170; 85; 80
+          Enabled: true
+          Head Diameter: 0.30000001192092896
+          Head Length: 0.20000000298023224
+          Length: 0.30000001192092896
+          Line Style: Billboards
+          Line Width: 0.05000000074505806
+          Name: Path
+          Offset:
+            X: 0
+            Y: 0
+            Z: 0
+          Pose Color: 255; 85; 255
+          Pose Style: None
+          Radius: 0.029999999329447746
+          Shaft Diameter: 0.10000000149011612
+          Shaft Length: 0.10000000149011612
+          Topic: /uav22/prometheus/drone_trajectory
+          Unreliable: false
+          Value: true
+      Enabled: true
+      Name: UAV22
+    - Class: rviz/Group
+      Displays:
+        - Alpha: 1
+          Axes Length: 1
+          Axes Radius: 0.20000000298023224
+          Class: rviz/Pose
+          Color: 255; 25; 0
+          Enabled: true
+          Head Length: 0.30000001192092896
+          Head Radius: 0.10000000149011612
+          Name: Pose
+          Shaft Length: 1
+          Shaft Radius: 0.05000000074505806
+          Shape: Axes
+          Topic: /uav23/mavros/local_position/pose
+          Unreliable: false
+          Value: true
+        - Alpha: 2
+          Buffer Length: 1
+          Class: rviz/Path
+          Color: 170; 60; 40
+          Enabled: true
+          Head Diameter: 0.30000001192092896
+          Head Length: 0.20000000298023224
+          Length: 0.30000001192092896
+          Line Style: Billboards
+          Line Width: 0.05000000074505806
+          Name: Path
+          Offset:
+            X: 0
+            Y: 0
+            Z: 0
+          Pose Color: 255; 85; 255
+          Pose Style: None
+          Radius: 0.029999999329447746
+          Shaft Diameter: 0.10000000149011612
+          Shaft Length: 0.10000000149011612
+          Topic: /uav23/prometheus/drone_trajectory
+          Unreliable: false
+          Value: true
+      Enabled: true
+      Name: UAV23
+    - Class: rviz/Group
+      Displays:
+        - Alpha: 1
+          Axes Length: 1
+          Axes Radius: 0.20000000298023224
+          Class: rviz/Pose
+          Color: 255; 25; 0
+          Enabled: true
+          Head Length: 0.30000001192092896
+          Head Radius: 0.10000000149011612
+          Name: Pose
+          Shaft Length: 1
+          Shaft Radius: 0.05000000074505806
+          Shape: Axes
+          Topic: /uav24/mavros/local_position/pose
+          Unreliable: false
+          Value: true
+        - Alpha: 2
+          Buffer Length: 1
+          Class: rviz/Path
+          Color: 170; 85; 90
+          Enabled: true
+          Head Diameter: 0.30000001192092896
+          Head Length: 0.20000000298023224
+          Length: 0.30000001192092896
+          Line Style: Billboards
+          Line Width: 0.05000000074505806
+          Name: Path
+          Offset:
+            X: 0
+            Y: 0
+            Z: 0
+          Pose Color: 255; 85; 255
+          Pose Style: None
+          Radius: 0.029999999329447746
+          Shaft Diameter: 0.10000000149011612
+          Shaft Length: 0.10000000149011612
+          Topic: /uav24/prometheus/drone_trajectory
+          Unreliable: false
+          Value: true
+      Enabled: true
+      Name: UAV24
+    - Class: rviz/Group
+      Displays:
+        - Alpha: 1
+          Axes Length: 1
+          Axes Radius: 0.20000000298023224
+          Class: rviz/Pose
+          Color: 255; 25; 0
+          Enabled: true
+          Head Length: 0.30000001192092896
+          Head Radius: 0.10000000149011612
+          Name: Pose
+          Shaft Length: 1
+          Shaft Radius: 0.05000000074505806
+          Shape: Axes
+          Topic: /uav25/mavros/local_position/pose
+          Unreliable: false
+          Value: true
+        - Alpha: 2
+          Buffer Length: 1
+          Class: rviz/Path
+          Color: 100; 60; 30
+          Enabled: true
+          Head Diameter: 0.30000001192092896
+          Head Length: 0.20000000298023224
+          Length: 0.30000001192092896
+          Line Style: Billboards
+          Line Width: 0.05000000074505806
+          Name: Path
+          Offset:
+            X: 0
+            Y: 0
+            Z: 0
+          Pose Color: 255; 85; 255
+          Pose Style: None
+          Radius: 0.029999999329447746
+          Shaft Diameter: 0.10000000149011612
+          Shaft Length: 0.10000000149011612
+          Topic: /uav25/prometheus/drone_trajectory
+          Unreliable: false
+          Value: true
+      Enabled: true
+      Name: UAV25
+    - Class: rviz/Group
+      Displays:
+        - Alpha: 1
+          Axes Length: 1
+          Axes Radius: 0.20000000298023224
+          Class: rviz/Pose
+          Color: 255; 25; 0
+          Enabled: true
+          Head Length: 0.30000001192092896
+          Head Radius: 0.10000000149011612
+          Name: Pose
+          Shaft Length: 1
+          Shaft Radius: 0.05000000074505806
+          Shape: Axes
+          Topic: /uav26/mavros/local_position/pose
+          Unreliable: false
+          Value: true
+        - Alpha: 2
+          Buffer Length: 1
+          Class: rviz/Path
+          Color: 170; 85; 100
+          Enabled: true
+          Head Diameter: 0.30000001192092896
+          Head Length: 0.20000000298023224
+          Length: 0.30000001192092896
+          Line Style: Billboards
+          Line Width: 0.05000000074505806
+          Name: Path
+          Offset:
+            X: 0
+            Y: 0
+            Z: 0
+          Pose Color: 255; 85; 255
+          Pose Style: None
+          Radius: 0.029999999329447746
+          Shaft Diameter: 0.10000000149011612
+          Shaft Length: 0.10000000149011612
+          Topic: /uav26/prometheus/drone_trajectory
+          Unreliable: false
+          Value: true
+      Enabled: true
+      Name: UAV26
+    - Class: rviz/Group
+      Displays:
+        - Alpha: 1
+          Axes Length: 1
+          Axes Radius: 0.20000000298023224
+          Class: rviz/Pose
+          Color: 255; 25; 0
+          Enabled: true
+          Head Length: 0.30000001192092896
+          Head Radius: 0.10000000149011612
+          Name: Pose
+          Shaft Length: 1
+          Shaft Radius: 0.05000000074505806
+          Shape: Axes
+          Topic: /uav27/mavros/local_position/pose
+          Unreliable: false
+          Value: true
+        - Alpha: 2
+          Buffer Length: 1
+          Class: rviz/Path
+          Color: 170; 60; 50
+          Enabled: true
+          Head Diameter: 0.30000001192092896
+          Head Length: 0.20000000298023224
+          Length: 0.30000001192092896
+          Line Style: Billboards
+          Line Width: 0.05000000074505806
+          Name: Path
+          Offset:
+            X: 0
+            Y: 0
+            Z: 0
+          Pose Color: 255; 85; 255
+          Pose Style: None
+          Radius: 0.029999999329447746
+          Shaft Diameter: 0.10000000149011612
+          Shaft Length: 0.10000000149011612
+          Topic: /uav27/prometheus/drone_trajectory
+          Unreliable: false
+          Value: true
+      Enabled: true
+      Name: UAV27
+    - Class: rviz/Group
+      Displays:
+        - Alpha: 1
+          Axes Length: 1
+          Axes Radius: 0.20000000298023224
+          Class: rviz/Pose
+          Color: 255; 25; 0
+          Enabled: true
+          Head Length: 0.30000001192092896
+          Head Radius: 0.10000000149011612
+          Name: Pose
+          Shaft Length: 1
+          Shaft Radius: 0.05000000074505806
+          Shape: Axes
+          Topic: /uav28/mavros/local_position/pose
+          Unreliable: false
+          Value: true
+        - Alpha: 2
+          Buffer Length: 1
+          Class: rviz/Path
+          Color: 170; 0; 0
+          Enabled: true
+          Head Diameter: 0.30000001192092896
+          Head Length: 0.20000000298023224
+          Length: 0.30000001192092896
+          Line Style: Billboards
+          Line Width: 0.05000000074505806
+          Name: Path
+          Offset:
+            X: 0
+            Y: 0
+            Z: 0
+          Pose Color: 255; 85; 255
+          Pose Style: None
+          Radius: 0.029999999329447746
+          Shaft Diameter: 0.10000000149011612
+          Shaft Length: 0.10000000149011612
+          Topic: /uav28/prometheus/drone_trajectory
+          Unreliable: false
+          Value: true
+      Enabled: true
+      Name: UAV28
+    - Class: rviz/Group
+      Displays:
+        - Alpha: 1
+          Axes Length: 1
+          Axes Radius: 0.20000000298023224
+          Class: rviz/Pose
+          Color: 255; 25; 0
+          Enabled: true
+          Head Length: 0.30000001192092896
+          Head Radius: 0.10000000149011612
+          Name: Pose
+          Shaft Length: 1
+          Shaft Radius: 0.05000000074505806
+          Shape: Axes
+          Topic: /uav29/mavros/local_position/pose
+          Unreliable: false
+          Value: true
+        - Alpha: 2
+          Buffer Length: 1
+          Class: rviz/Path
+          Color: 100; 60; 50
+          Enabled: true
+          Head Diameter: 0.30000001192092896
+          Head Length: 0.20000000298023224
+          Length: 0.30000001192092896
+          Line Style: Billboards
+          Line Width: 0.05000000074505806
+          Name: Path
+          Offset:
+            X: 0
+            Y: 0
+            Z: 0
+          Pose Color: 255; 85; 255
+          Pose Style: None
+          Radius: 0.029999999329447746
+          Shaft Diameter: 0.10000000149011612
+          Shaft Length: 0.10000000149011612
+          Topic: /uav29/prometheus/drone_trajectory
+          Unreliable: false
+          Value: true
+      Enabled: true
+      Name: UAV29
+    - Class: rviz/Group
+      Displays:
+        - Alpha: 1
+          Axes Length: 1
+          Axes Radius: 0.20000000298023224
+          Class: rviz/Pose
+          Color: 255; 25; 0
+          Enabled: true
+          Head Length: 0.30000001192092896
+          Head Radius: 0.10000000149011612
+          Name: Pose
+          Shaft Length: 1
+          Shaft Radius: 0.05000000074505806
+          Shape: Axes
+          Topic: /uav30/mavros/local_position/pose
+          Unreliable: false
+          Value: true
+        - Alpha: 2
+          Buffer Length: 1
+          Class: rviz/Path
+          Color: 170; 10; 0
+          Enabled: true
+          Head Diameter: 0.30000001192092896
+          Head Length: 0.20000000298023224
+          Length: 0.30000001192092896
+          Line Style: Billboards
+          Line Width: 0.05000000074505806
+          Name: Path
+          Offset:
+            X: 0
+            Y: 0
+            Z: 0
+          Pose Color: 255; 85; 255
+          Pose Style: None
+          Radius: 0.029999999329447746
+          Shaft Diameter: 0.10000000149011612
+          Shaft Length: 0.10000000149011612
+          Topic: /uav30/prometheus/drone_trajectory
+          Unreliable: false
+          Value: true
+      Enabled: true
+      Name: UAV30
+    - Class: rviz/Group
+      Displays:
+        - Alpha: 1
+          Axes Length: 1
+          Axes Radius: 0.20000000298023224
+          Class: rviz/Pose
+          Color: 255; 25; 0
+          Enabled: true
+          Head Length: 0.30000001192092896
+          Head Radius: 0.10000000149011612
+          Name: Pose
+          Shaft Length: 1
+          Shaft Radius: 0.05000000074505806
+          Shape: Axes
+          Topic: /uav31/mavros/local_position/pose
+          Unreliable: false
+          Value: true
+        - Alpha: 2
+          Buffer Length: 1
+          Class: rviz/Path
+          Color: 170; 60; 80
+          Enabled: true
+          Head Diameter: 0.30000001192092896
+          Head Length: 0.20000000298023224
+          Length: 0.30000001192092896
+          Line Style: Billboards
+          Line Width: 0.05000000074505806
+          Name: Path
+          Offset:
+            X: 0
+            Y: 0
+            Z: 0
+          Pose Color: 255; 85; 255
+          Pose Style: None
+          Radius: 0.029999999329447746
+          Shaft Diameter: 0.10000000149011612
+          Shaft Length: 0.10000000149011612
+          Topic: /uav31/prometheus/drone_trajectory
+          Unreliable: false
+          Value: true
+      Enabled: true
+      Name: UAV31
+    - Class: rviz/Group
+      Displays:
+        - Alpha: 1
+          Axes Length: 1
+          Axes Radius: 0.20000000298023224
+          Class: rviz/Pose
+          Color: 255; 25; 0
+          Enabled: true
+          Head Length: 0.30000001192092896
+          Head Radius: 0.10000000149011612
+          Name: Pose
+          Shaft Length: 1
+          Shaft Radius: 0.05000000074505806
+          Shape: Axes
+          Topic: /uav32/mavros/local_position/pose
+          Unreliable: false
+          Value: true
+        - Alpha: 2
+          Buffer Length: 1
+          Class: rviz/Path
+          Color: 170; 20; 0
+          Enabled: true
+          Head Diameter: 0.30000001192092896
+          Head Length: 0.20000000298023224
+          Length: 0.30000001192092896
+          Line Style: Billboards
+          Line Width: 0.05000000074505806
+          Name: Path
+          Offset:
+            X: 0
+            Y: 0
+            Z: 0
+          Pose Color: 255; 85; 255
+          Pose Style: None
+          Radius: 0.029999999329447746
+          Shaft Diameter: 0.10000000149011612
+          Shaft Length: 0.10000000149011612
+          Topic: /uav32/prometheus/drone_trajectory
+          Unreliable: false
+          Value: true
+      Enabled: true
+      Name: UAV32
+    - Class: rviz/Group
+      Displays:
+        - Alpha: 1
+          Axes Length: 1
+          Axes Radius: 0.20000000298023224
+          Class: rviz/Pose
+          Color: 255; 25; 0
+          Enabled: true
+          Head Length: 0.30000001192092896
+          Head Radius: 0.10000000149011612
+          Name: Pose
+          Shaft Length: 1
+          Shaft Radius: 0.05000000074505806
+          Shape: Axes
+          Topic: /uav33/mavros/local_position/pose
+          Unreliable: false
+          Value: true
+        - Alpha: 2
+          Buffer Length: 1
+          Class: rviz/Path
+          Color: 100; 60; 80
+          Enabled: true
+          Head Diameter: 0.30000001192092896
+          Head Length: 0.20000000298023224
+          Length: 0.30000001192092896
+          Line Style: Billboards
+          Line Width: 0.05000000074505806
+          Name: Path
+          Offset:
+            X: 0
+            Y: 0
+            Z: 0
+          Pose Color: 255; 85; 255
+          Pose Style: None
+          Radius: 0.029999999329447746
+          Shaft Diameter: 0.10000000149011612
+          Shaft Length: 0.10000000149011612
+          Topic: /uav33/prometheus/drone_trajectory
+          Unreliable: false
+          Value: true
+      Enabled: true
+      Name: UAV33
+    - Class: rviz/Group
+      Displays:
+        - Alpha: 1
+          Axes Length: 1
+          Axes Radius: 0.20000000298023224
+          Class: rviz/Pose
+          Color: 255; 25; 0
+          Enabled: true
+          Head Length: 0.30000001192092896
+          Head Radius: 0.10000000149011612
+          Name: Pose
+          Shaft Length: 1
+          Shaft Radius: 0.05000000074505806
+          Shape: Axes
+          Topic: /uav34/mavros/local_position/pose
+          Unreliable: false
+          Value: true
+        - Alpha: 2
+          Buffer Length: 1
+          Class: rviz/Path
+          Color: 170; 30; 0
+          Enabled: true
+          Head Diameter: 0.30000001192092896
+          Head Length: 0.20000000298023224
+          Length: 0.30000001192092896
+          Line Style: Billboards
+          Line Width: 0.05000000074505806
+          Name: Path
+          Offset:
+            X: 0
+            Y: 0
+            Z: 0
+          Pose Color: 255; 85; 255
+          Pose Style: None
+          Radius: 0.029999999329447746
+          Shaft Diameter: 0.10000000149011612
+          Shaft Length: 0.10000000149011612
+          Topic: /uav34/prometheus/drone_trajectory
+          Unreliable: false
+          Value: true
+      Enabled: true
+      Name: UAV34
+    - Class: rviz/Group
+      Displays:
+        - Alpha: 1
+          Axes Length: 1
+          Axes Radius: 0.20000000298023224
+          Class: rviz/Pose
+          Color: 255; 25; 0
+          Enabled: true
+          Head Length: 0.30000001192092896
+          Head Radius: 0.10000000149011612
+          Name: Pose
+          Shaft Length: 1
+          Shaft Radius: 0.05000000074505806
+          Shape: Axes
+          Topic: /uav35/mavros/local_position/pose
+          Unreliable: false
+          Value: true
+        - Alpha: 2
+          Buffer Length: 1
+          Class: rviz/Path
+          Color: 170; 60; 90
+          Enabled: true
+          Head Diameter: 0.30000001192092896
+          Head Length: 0.20000000298023224
+          Length: 0.30000001192092896
+          Line Style: Billboards
+          Line Width: 0.05000000074505806
+          Name: Path
+          Offset:
+            X: 0
+            Y: 0
+            Z: 0
+          Pose Color: 255; 85; 255
+          Pose Style: None
+          Radius: 0.029999999329447746
+          Shaft Diameter: 0.10000000149011612
+          Shaft Length: 0.10000000149011612
+          Topic: /uav35/prometheus/drone_trajectory
+          Unreliable: false
+          Value: true
+      Enabled: true
+      Name: UAV35
+    - Class: rviz/Group
+      Displays:
+        - Alpha: 1
+          Axes Length: 1
+          Axes Radius: 0.20000000298023224
+          Class: rviz/Pose
+          Color: 255; 25; 0
+          Enabled: true
+          Head Length: 0.30000001192092896
+          Head Radius: 0.10000000149011612
+          Name: Pose
+          Shaft Length: 1
+          Shaft Radius: 0.05000000074505806
+          Shape: Axes
+          Topic: /uav36/mavros/local_position/pose
+          Unreliable: false
+          Value: true
+        - Alpha: 2
+          Buffer Length: 1
+          Class: rviz/Path
+          Color: 170; 40; 0
+          Enabled: true
+          Head Diameter: 0.30000001192092896
+          Head Length: 0.20000000298023224
+          Length: 0.30000001192092896
+          Line Style: Billboards
+          Line Width: 0.05000000074505806
+          Name: Path
+          Offset:
+            X: 0
+            Y: 0
+            Z: 0
+          Pose Color: 255; 85; 255
+          Pose Style: None
+          Radius: 0.029999999329447746
+          Shaft Diameter: 0.10000000149011612
+          Shaft Length: 0.10000000149011612
+          Topic: /uav36/prometheus/drone_trajectory
+          Unreliable: false
+          Value: true
+      Enabled: true
+      Name: UAV36
+    - Class: rviz/Group
+      Displays:
+        - Alpha: 1
+          Axes Length: 1
+          Axes Radius: 0.20000000298023224
+          Class: rviz/Pose
+          Color: 255; 25; 0
+          Enabled: true
+          Head Length: 0.30000001192092896
+          Head Radius: 0.10000000149011612
+          Name: Pose
+          Shaft Length: 1
+          Shaft Radius: 0.05000000074505806
+          Shape: Axes
+          Topic: /uav37/mavros/local_position/pose
           Unreliable: false
           Value: true
         - Alpha: 2
@@ -521,26 +1658,137 @@ Visualization Manager:
           Radius: 0.029999999329447746
           Shaft Diameter: 0.10000000149011612
           Shaft Length: 0.10000000149011612
-          Topic: /uav8/prometheus/drone_trajectory
+          Topic: /uav37/prometheus/drone_trajectory
           Unreliable: false
           Value: true
+      Enabled: true
+      Name: UAV37
+    - Class: rviz/Group
+      Displays:
         - Alpha: 1
-          Axes Length: 0.699999988079071
-          Axes Radius: 0.25
+          Axes Length: 1
+          Axes Radius: 0.20000000298023224
           Class: rviz/Pose
           Color: 255; 25; 0
-          Enabled: false
+          Enabled: true
           Head Length: 0.30000001192092896
           Head Radius: 0.10000000149011612
-          Name: Ref_Pose
+          Name: Pose
           Shaft Length: 1
           Shaft Radius: 0.05000000074505806
           Shape: Axes
-          Topic: /uav5/prometheus/control/ref_pose_rviz
+          Topic: /uav38/mavros/local_position/pose
           Unreliable: false
-          Value: false
+          Value: true
+        - Alpha: 2
+          Buffer Length: 1
+          Class: rviz/Path
+          Color: 170; 90; 0
+          Enabled: true
+          Head Diameter: 0.30000001192092896
+          Head Length: 0.20000000298023224
+          Length: 0.30000001192092896
+          Line Style: Billboards
+          Line Width: 0.05000000074505806
+          Name: Path
+          Offset:
+            X: 0
+            Y: 0
+            Z: 0
+          Pose Color: 255; 85; 255
+          Pose Style: None
+          Radius: 0.029999999329447746
+          Shaft Diameter: 0.10000000149011612
+          Shaft Length: 0.10000000149011612
+          Topic: /uav38/prometheus/drone_trajectory
+          Unreliable: false
+          Value: true
       Enabled: true
-      Name: UAV8
+      Name: UAV38
+    - Class: rviz/Group
+      Displays:
+        - Alpha: 1
+          Axes Length: 1
+          Axes Radius: 0.20000000298023224
+          Class: rviz/Pose
+          Color: 255; 25; 0
+          Enabled: true
+          Head Length: 0.30000001192092896
+          Head Radius: 0.10000000149011612
+          Name: Pose
+          Shaft Length: 1
+          Shaft Radius: 0.05000000074505806
+          Shape: Axes
+          Topic: /uav39/mavros/local_position/pose
+          Unreliable: false
+          Value: true
+        - Alpha: 2
+          Buffer Length: 1
+          Class: rviz/Path
+          Color: 170; 60; 100
+          Enabled: true
+          Head Diameter: 0.30000001192092896
+          Head Length: 0.20000000298023224
+          Length: 0.30000001192092896
+          Line Style: Billboards
+          Line Width: 0.05000000074505806
+          Name: Path
+          Offset:
+            X: 0
+            Y: 0
+            Z: 0
+          Pose Color: 255; 85; 255
+          Pose Style: None
+          Radius: 0.029999999329447746
+          Shaft Diameter: 0.10000000149011612
+          Shaft Length: 0.10000000149011612
+          Topic: /uav39/prometheus/drone_trajectory
+          Unreliable: false
+          Value: true
+      Enabled: true
+      Name: UAV39
+    - Class: rviz/Group
+      Displays:
+        - Alpha: 1
+          Axes Length: 1
+          Axes Radius: 0.20000000298023224
+          Class: rviz/Pose
+          Color: 255; 25; 0
+          Enabled: true
+          Head Length: 0.30000001192092896
+          Head Radius: 0.10000000149011612
+          Name: Pose
+          Shaft Length: 1
+          Shaft Radius: 0.05000000074505806
+          Shape: Axes
+          Topic: /uav40/mavros/local_position/pose
+          Unreliable: false
+          Value: true
+        - Alpha: 2
+          Buffer Length: 1
+          Class: rviz/Path
+          Color: 170; 60; 0
+          Enabled: true
+          Head Diameter: 0.30000001192092896
+          Head Length: 0.20000000298023224
+          Length: 0.30000001192092896
+          Line Style: Billboards
+          Line Width: 0.05000000074505806
+          Name: Path
+          Offset:
+            X: 0
+            Y: 0
+            Z: 0
+          Pose Color: 255; 85; 255
+          Pose Style: None
+          Radius: 0.029999999329447746
+          Shaft Diameter: 0.10000000149011612
+          Shaft Length: 0.10000000149011612
+          Topic: /uav40/prometheus/drone_trajectory
+          Unreliable: false
+          Value: true
+      Enabled: true
+      Name: UAV40
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -569,7 +1817,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 20.504688262939453
+      Distance: 30.007429122924805
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -584,18 +1832,18 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.5397963523864746
+      Pitch: 0.7547973394393921
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 3.095412492752075
+      Yaw: 3.4104251861572266
     Saved: ~
 Window Geometry:
   Displays:
     collapsed: false
-  Height: 846
+  Height: 971
   Hide Left Dock: false
   Hide Right Dock: false
-  QMainWindow State: 000000ff00000000fd0000000400000000000001d5000002aefc0200000008fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073010000003e000002ae000000ca00fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261000000010000010f000002aefc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073010000003e000002ae000000a600fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000004b00000003efc0100000002fb0000000800540069006d00650100000000000004b00000026200fffffffb0000000800540069006d00650100000000000004500000000000000000000001c0000002ae00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd0000000400000000000001d50000032dfc0200000008fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073010000003d0000032d000000c900fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261000000010000010f0000032dfc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073010000003d0000032d000000a400fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000007800000003efc0100000002fb0000000800540069006d0065010000000000000780000002eb00fffffffb0000000800540069006d00650100000000000004500000000000000000000004900000032d00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Selection:
     collapsed: false
   Time:
@@ -604,6 +1852,6 @@ Window Geometry:
     collapsed: false
   Views:
     collapsed: false
-  Width: 1200
-  X: 1697
-  Y: 193
+  Width: 1920
+  X: 3883
+  Y: 310
