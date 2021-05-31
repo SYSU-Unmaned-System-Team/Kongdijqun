@@ -14,12 +14,12 @@
 	<arg name="Takeoff_height" default="1.0"/>
 	<arg name="Disarm_height" default="0.2"/>
 	<arg name="Land_speed" default="0.2"/>
-	<arg name="x_min" default="-4.5"/>
-	<arg name="x_max" default="4.5"/>
-	<arg name="y_min" default="-2.5"/>
-	<arg name="y_max" default="2.5"/>
+	<arg name="x_min" default="-100"/>
+	<arg name="x_max" default="100"/>
+	<arg name="y_min" default="-100"/>
+	<arg name="y_max" default="100"/>
 	<arg name="z_min" default="-1.0"/>
-	<arg name="z_max" default="3.5"/>
+	<arg name="z_max" default="50"/>
 
     <!-- 1号飞机 -->
 	<include file="$(find prometheus_gazebo)/launch_CXY/sitl_cxy_basic.launch">
@@ -34,7 +34,7 @@
 		<arg name="uav_init_yaw" value="0.0"/>
 	</include>
 
-	<!-- run the swarm_estimator.cpp -->
+	<!-- 启动swarm_estimator -->
 	<node pkg="prometheus_swarm_control" type="swarm_estimator" name="swarm_estimator_uav1" output="screen">
 		<param name="uav_name" value="$(arg uav1_name)"/>
 		<param name="input_source" value="$(arg input_source)" />
@@ -80,7 +80,7 @@
     <arg name="verbose" default="false"/>
     <arg name="paused" default="false"/>
     <arg name="respawn_gazebo" default="false"/>
-	<arg name="world" default="$(find prometheus_gazebo)/worlds/004_CXY/CXY_vicon_room.world"/>
+	<arg name="world" default="$(find prometheus_gazebo)/worlds/004_CXY/CXY_case1_sim.world"/>
     <!-- Gazebo sim -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
         <arg name="gui" value="$(arg gui)"/>

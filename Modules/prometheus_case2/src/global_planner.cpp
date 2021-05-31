@@ -702,7 +702,11 @@ void Global_Planner::mainloop_cb(const ros::TimerEvent& e)
         case EXEC_STATE::PATH_TRACKING:
         
             // 执行时间达到阈值 或者 运动路径达到阈值，重新执行一次规划
-            if(get_time_in_sec(tra_start_time) >= replan_time || distance_walked > 1.0)
+            if(get_time_in_sec(tra_start_time) >= replan_time)
+            {
+                pub_message(message_pub, prometheus_msgs::Message::NORMAL, node_name, "replan");  
+                exec_state = EXEC_STATE::PLANNING;
+            }else if(distance_walked > 1.0)
             {
                 exec_state = EXEC_STATE::PLANNING;
             }

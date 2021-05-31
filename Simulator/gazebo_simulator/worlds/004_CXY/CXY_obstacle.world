@@ -1,0 +1,295 @@
+<?xml version="1.0" ?>
+<sdf version="1.5">
+  <world name="default">
+
+    <!-- 初始视角 -->
+    <gui fullscreen='0'>
+      <camera name='user_camera'>
+        <pose>0.0 -26.0 10.0 0 0.35 1.5</pose>
+        <view_controller>orbit</view_controller>
+      </camera>
+    </gui>
+
+    <physics name='default_physics' default='0' type='ode'>
+      <gravity>0 0 -9.8066</gravity>
+      <ode>
+        <solver>
+          <type>quick</type>
+          <iters>150</iters>
+          <sor>1.3</sor>
+          <use_dynamic_moi_rescaling>0</use_dynamic_moi_rescaling>
+        </solver>
+        <constraints>
+          <cfm>0.00001</cfm>
+          <erp>0.2</erp>
+          <contact_max_correcting_vel>1000</contact_max_correcting_vel>
+          <contact_surface_layer>0.01</contact_surface_layer>
+        </constraints>
+      </ode>
+      <max_step_size>0.004</max_step_size>
+      <real_time_factor>1000.0</real_time_factor>
+      <real_time_update_rate>250</real_time_update_rate>
+      <magnetic_field>6.0e-6 2.3e-5 -4.2e-5</magnetic_field>
+    </physics>
+
+    <!-- A global light source -->
+    <include>
+      <uri>model://sun</uri>
+    </include>
+
+    <!-- A ground plane -->
+    <model name='ground_plane'>
+      <static>1</static>
+      <link name='link'>
+        <collision name='collision'>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>100</mu>
+                <mu2>50</mu2>
+              </ode>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <bounce/>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='visual'>
+          <cast_shadows>0</cast_shadows>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Grey</name>
+            </script>
+          </material>
+        </visual>
+        <velocity_decay>
+          <linear>0</linear>
+          <angular>0</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+    </model>
+
+    <!-- pillar_m半径为0.5米，pillar_s半径为0.2米 -->
+    <!-- 4个pillar_m，均匀分布 -->
+    <model name='pillar_m_1'>
+      <include>
+        <uri>model://pillar_m</uri>
+        <pose> 4 4 1.75 0 0 0 </pose>
+      </include>
+    </model>
+    <model name='pillar_m_2'>
+      <include>
+        <uri>model://pillar_m</uri>
+        <pose>4 -4.0 1.75 0 0 0</pose>
+      </include>
+    </model>
+    <model name='pillar_m_3'>
+      <include>
+        <uri>model://pillar_m</uri>
+        <pose>-4 4 1.75 0 0 0</pose>
+      </include>
+    </model>
+    <model name='pillar_m_4'>
+      <include>
+        <uri>model://pillar_m</uri>
+        <pose>-4 -4 1.75 0 0 0</pose>
+      </include>
+    </model>
+
+    <!-- 第一向限：6个 -->
+    <model name='pillar_s_11'>
+      <include>
+        <uri>model://pillar_s</uri>
+        <pose>1 2 1.75 0 0 0</pose>
+      </include>
+    </model>
+    <model name='pillar_s_12'>
+      <include>
+        <uri>model://pillar_s</uri>
+        <pose>3 1 1.75 0 0 0</pose>
+      </include>
+    </model>
+    <model name='pillar_s_13'>
+      <include>
+        <uri>model://pillar_s</uri>
+        <pose>2 4 1.75 0 0 0</pose>
+      </include>
+    </model>
+    <model name='pillar_s_14'>
+      <include>
+        <uri>model://pillar_s</uri>
+        <pose>2.0 7 1.75 0 0 0</pose>
+      </include>
+    </model>
+    <model name='pillar_s_15'>
+      <include>
+        <uri>model://pillar_s</uri>
+        <pose>0 4 1.75 0 0 0</pose>
+      </include>
+    </model>
+    <model name='pillar_s_16'>
+      <include>
+        <uri>model://pillar_s</uri>
+        <pose>5 2 1.75 0 0 0</pose>
+      </include>
+    </model>
+    <model name='pillar_s_17'>
+      <include>
+        <uri>model://pillar_s</uri>
+        <pose>5 6 1.75 0 0 0</pose>
+      </include>
+    </model>
+
+    <!-- 第二向限：6个 -->
+    <model name='pillar_s_21'>
+      <include>
+        <uri>model://pillar_s</uri>
+        <pose>-2 3 1.75 0 0 0</pose>
+      </include>
+    </model>
+    <model name='pillar_s_22'>
+      <include>
+        <uri>model://pillar_s</uri>
+        <pose>-4 6 1.75 0 0 0</pose>
+      </include>
+    </model>
+    <model name='pillar_s_23'>
+      <include>
+        <uri>model://pillar_s</uri>
+        <pose>-5 1 1.75 0 0 0</pose>
+      </include>
+    </model>
+    <model name='pillar_s_24'>
+      <include>
+        <uri>model://pillar_s</uri>
+        <pose>-1 1.5 1.75 0 0 0</pose>
+      </include>
+    </model>
+    <model name='pillar_s_25'>
+      <include>
+        <uri>model://pillar_s</uri>
+        <pose>-1.5 6.0 1.75 0 0 0</pose>
+      </include>
+    </model>
+    <model name='pillar_s_26'>
+      <include>
+        <uri>model://pillar_s</uri>
+        <pose>-6 5 1.75 0 0 0</pose>
+      </include>
+    </model>
+    <model name='pillar_s_27'>
+      <include>
+        <uri>model://pillar_s</uri>
+        <pose>-4 2.5 1.75 0 0 0</pose>
+      </include>
+    </model>
+    <!-- 第三向限：6个 -->
+    <model name='pillar_s_31'>
+      <include>
+        <uri>model://pillar_s</uri>
+        <pose>-3.5 -0 1.75 0 0 0</pose>
+      </include>
+    </model>
+    <model name='pillar_s_32'>
+      <include>
+        <uri>model://pillar_s</uri>
+        <pose>-2 -1 1.75 0 0 0</pose>
+      </include>
+    </model>
+    <model name='pillar_s_33'>
+      <include>
+        <uri>model://pillar_s</uri>
+        <pose>-2 -5 1.75 0 0 0</pose>
+      </include>
+    </model>
+    <model name='pillar_s_34'>
+      <include>
+        <uri>model://pillar_s</uri>
+        <pose>-1.5 -7 1.75 0 0 0</pose>
+      </include>
+    </model>
+    <model name='pillar_s_35'>
+      <include>
+        <uri>model://pillar_s</uri>
+        <pose>-0.5 -2.5 1.75 0 0 0</pose>
+      </include>
+    </model>
+    <model name='pillar_s_36'>
+      <include>
+        <uri>model://pillar_s</uri>
+        <pose>-5 -6 1.75 0 0 0</pose>
+      </include>
+    </model>
+    <model name='pillar_s_37'>
+      <include>
+        <uri>model://pillar_s</uri>
+        <pose>-5 -2 1.75 0 0 0</pose>
+      </include>
+    </model>
+    <!-- 第四向限：6个 -->
+    <model name='pillar_s_41'>
+      <include>
+        <uri>model://pillar_s</uri>
+        <pose>2 -1 1.75 0 0 0</pose>
+      </include>
+    </model>
+    <model name='pillar_s_42'>
+      <include>
+        <uri>model://pillar_s</uri>
+        <pose>4 -6 1.75 0 0 0</pose>
+      </include>
+    </model>
+    <model name='pillar_s_43'>
+      <include>
+        <uri>model://pillar_s</uri>
+        <pose>5 -7 1.75 0 0 0</pose>
+      </include>
+    </model>
+    <model name='pillar_s_44'>
+      <include>
+        <uri>model://pillar_s</uri>
+        <pose>1.5 -3 1.75 0 0 0</pose>
+      </include>
+    </model>
+    <model name='pillar_s_45'>
+      <include>
+        <uri>model://pillar_s</uri>
+        <pose>1 -5.5 1.75 0 0 0</pose>
+      </include>
+    </model>
+    <model name='pillar_s_46'>
+      <include>
+        <uri>model://pillar_s</uri>
+        <pose>7 -5 1.75 0 0 0</pose>
+      </include>
+    </model>
+    <model name='pillar_s_47'>
+      <include>
+        <uri>model://pillar_s</uri>
+        <pose>4 -2 1.75 0 0 0</pose>
+      </include>
+    </model>
+
+  </world>
+</sdf>

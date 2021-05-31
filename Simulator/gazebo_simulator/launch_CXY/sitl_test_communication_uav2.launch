@@ -36,7 +36,7 @@
 		<arg name="uav_init_yaw" value="0.0"/>
 	</include>
 
-	<!-- run the swarm_estimator.cpp -->
+	<!-- 启动swarm_estimator -->
 	<node pkg="prometheus_swarm_control" type="swarm_estimator" name="swarm_estimator_uav2" output="screen">
 		<param name="uav_name" value="$(arg uav2_name)"/>
 		<param name="input_source" value="$(arg input_source)" />

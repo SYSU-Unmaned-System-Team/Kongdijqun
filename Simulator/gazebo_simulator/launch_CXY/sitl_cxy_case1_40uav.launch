@@ -1,5 +1,5 @@
-<!-- Case 1 -->
 <launch>
+	<!-- Case1仿真完整启动脚本 -->	
 	<!-- 无人机集群数量 -->
 	<arg name="swarm_num" default="40"/>
 	<!-- 无人机名称 -->
@@ -175,12 +175,12 @@
 	<arg name="Disarm_height" default="0.2"/>
 	<arg name="Land_speed" default="0.2"/>
 	<!-- 地理围栏 -->
-	<arg name="x_min" default="-45"/>
-	<arg name="x_max" default="45"/>
-	<arg name="y_min" default="-25"/>
-	<arg name="y_max" default="25"/>
+	<arg name="x_min" default="-100"/>
+	<arg name="x_max" default="100"/>
+	<arg name="y_min" default="-100"/>
+	<arg name="y_max" default="100"/>
 	<arg name="z_min" default="-1.0"/>
-	<arg name="z_max" default="3.5"/>
+	<arg name="z_max" default="50.0"/>
 
 	<!-- 启动顺序 -->
 	<!-- 启动SITL,并加载模型 -->
@@ -710,7 +710,7 @@
 		<arg name="uav_init_yaw" value="0.0"/>
 	</include>
 
-	<!-- run the swarm_estimator.cpp -->
+	<!-- 启动swarm_estimator -->
 	<node pkg="prometheus_swarm_control" type="swarm_estimator" name="swarm_estimator_uav1" output="screen">
 		<param name="uav_name" value="$(arg uav1_name)"/>
 		<param name="input_source" value="$(arg input_source)" />
