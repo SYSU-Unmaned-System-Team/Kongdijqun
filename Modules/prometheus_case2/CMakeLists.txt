@@ -44,7 +44,6 @@ add_executable(case2_main
 	src/global_planner.cpp
 	src/A_star.cpp
 	src/occupy_map.cpp
-	src/tools.cpp
 	)
 
 target_link_libraries(case2_main

@@ -213,7 +213,7 @@
 		<param name="global_planner/waypoint2_y" value="1.8" />
 		<param name="global_planner/waypoint3_x" value="-0.2" />
 		<param name="global_planner/waypoint3_y" value="1.8" />
-        <param name="global_planner/map_input" value="2" type="int"/>
+        <param name="global_planner/map_input_source" value="2" type="int"/>
         <!-- 最大搜索步数 -->
         <param name="astar/allocate_num" value="50000" type="int"/>
         <!-- 启发式函数系数 -->
@@ -224,7 +224,7 @@
 		<!-- 位置控制: time_per_path = resolution/期望速度 -->
 		<!-- 速度控制: time_per_path = 0.1 -->
 		<param name="global_planner/time_per_path" value="0.1" type="double"/>
-		<param name="global_planner/velocity_path_tracking" value="0.2" type="double"/>
+		<param name="global_planner/vel_max" value="0.2" type="double"/>
 		<!-- 检测范围 -->
 		<param name="global_planner/detection_range_x_min" value="-4.5" type="double"/>
 		<param name="global_planner/detection_range_x_max" value="0.0" type="double"/>
@@ -265,7 +265,7 @@
 		<param name="global_planner/waypoint2_y" value="0.6" />
 		<param name="global_planner/waypoint3_x" value="-0.2" />
 		<param name="global_planner/waypoint3_y" value="0.6" />
-        <param name="global_planner/map_input" value="2" type="int"/>
+        <param name="global_planner/map_input_source" value="2" type="int"/>
         <!-- 最大搜索步数 -->
         <param name="astar/allocate_num" value="50000" type="int"/>
         <!-- 启发式函数系数 -->
@@ -276,7 +276,7 @@
 		<!-- 位置控制: time_per_path = resolution/期望速度 -->
 		<!-- 速度控制: time_per_path = 0.1 -->
 		<param name="global_planner/time_per_path" value="0.1" type="double"/>
-		<param name="global_planner/velocity_path_tracking" value="0.2" type="double"/>
+		<param name="global_planner/vel_max" value="0.2" type="double"/>
 		<!-- 检测范围 -->
 		<param name="global_planner/detection_range_x_min" value="-4.5" type="double"/>
 		<param name="global_planner/detection_range_x_max" value="0.0" type="double"/>
@@ -317,7 +317,7 @@
 		<param name="global_planner/waypoint2_y" value="-0.6" />
 		<param name="global_planner/waypoint3_x" value="-0.2" />
 		<param name="global_planner/waypoint3_y" value="-0.6" />
-        <param name="global_planner/map_input" value="2" type="int"/>
+        <param name="global_planner/map_input_source" value="2" type="int"/>
         <!-- 最大搜索步数 -->
         <param name="astar/allocate_num" value="50000" type="int"/>
         <!-- 启发式函数系数 -->
@@ -328,7 +328,7 @@
 		<!-- 位置控制: time_per_path = resolution/期望速度 -->
 		<!-- 速度控制: time_per_path = 0.1 -->
 		<param name="global_planner/time_per_path" value="0.1" type="double"/>
-		<param name="global_planner/velocity_path_tracking" value="0.2" type="double"/>
+		<param name="global_planner/vel_max" value="0.2" type="double"/>
 		<!-- 检测范围 -->
 		<param name="global_planner/detection_range_x_min" value="-4.5" type="double"/>
 		<param name="global_planner/detection_range_x_max" value="0.0" type="double"/>
@@ -369,7 +369,7 @@
 		<param name="global_planner/waypoint2_y" value="-1.8" />
 		<param name="global_planner/waypoint3_x" value="-0.2" />
 		<param name="global_planner/waypoint3_y" value="-1.8" />
-        <param name="global_planner/map_input" value="2" type="int"/>
+        <param name="global_planner/map_input_source" value="2" type="int"/>
         <!-- 最大搜索步数 -->
         <param name="astar/allocate_num" value="50000" type="int"/>
         <!-- 启发式函数系数 -->
@@ -380,7 +380,7 @@
 		<!-- 位置控制: time_per_path = resolution/期望速度 -->
 		<!-- 速度控制: time_per_path = 0.1 -->
 		<param name="global_planner/time_per_path" value="0.1" type="double"/>
-		<param name="global_planner/velocity_path_tracking" value="0.2" type="double"/>
+		<param name="global_planner/vel_max" value="0.2" type="double"/>
 		<!-- 检测范围 -->
 		<param name="global_planner/detection_range_x_min" value="-4.5" type="double"/>
 		<param name="global_planner/detection_range_x_max" value="0.0" type="double"/>

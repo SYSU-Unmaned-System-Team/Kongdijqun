@@ -51,6 +51,11 @@ void Astar::init(ros::NodeHandle& nh)
   // 读取地图参数
   origin_ =  Occupy_map_ptr->min_range_;
   map_size_3d_ = Occupy_map_ptr->max_range_ - Occupy_map_ptr->min_range_;
+  
+  red = "\033[0;1;31m";
+  green = "\033[0;1;32m";
+  yellow = "\033[0;1;33m";
+  tail =  "\033[0m";
 }
 
 void Astar::reset()
@@ -80,7 +85,7 @@ int Astar::search(Eigen::Vector3d start_pt, Eigen::Vector3d end_pt)
   // 首先检查目标点是否可到达
   if(Occupy_map_ptr->getOccupancy(end_pt))
   {
-    pub_message(message_pub, prometheus_msgs::Message::WARN, node_name, "Astar can't find path: goal point is occupied.");
+    cout << red << "Astar search: [ Astar can't find path: goal point is occupied ]"  << tail <<endl;
     return NO_PATH;
   }
 
@@ -124,12 +129,6 @@ int Astar::search(Eigen::Vector3d start_pt, Eigen::Vector3d end_pt)
       // 将当前点设为终止点，并往回形成路径
       terminate_node = cur_node;
       retrievePath(terminate_node);
-
-      // 时间一般很短，远远小于膨胀点云的时间
-      // char message_chars[256];
-      // sprintf(message_chars, "Astar take time %f [s].", (ros::Time::now()-time_astar_start).toSec());
-      // message = message_chars;
-      // pub_message(message_pub, prometheus_msgs::Message::NORMAL, node_name, message);
 
       return REACH_END;
     }
@@ -220,8 +219,8 @@ int Astar::search(Eigen::Vector3d start_pt, Eigen::Vector3d end_pt)
             // 超过最大搜索次数
             if (use_node_num_ == max_search_num)
             {
-                pub_message(message_pub, prometheus_msgs::Message::WARN, node_name, "Astar can't find path: reach the max_search_num.\n");
-                return NO_PATH;
+              cout << red << "Astar search: [ Astar can't find path: reach the max_search_num ]"  << tail <<endl;
+              return NO_PATH;
             }
           }
           // 如果当前节点已被扩展过，则更新其状态
@@ -229,11 +228,11 @@ int Astar::search(Eigen::Vector3d start_pt, Eigen::Vector3d end_pt)
           {
             if (tmp_g_score < expand_node->g_score)
             {
-                // expand_node->index = expand_node_id;
-                expand_node->position = expand_node_pos;
-                expand_node->f_score = tmp_f_score;
-                expand_node->g_score = tmp_g_score;
-                expand_node->parent = cur_node;
+              // expand_node->index = expand_node_id;
+              expand_node->position = expand_node_pos;
+              expand_node->f_score = tmp_f_score;
+              expand_node->g_score = tmp_g_score;
+              expand_node->parent = cur_node;
             }
           }
         }
@@ -244,7 +243,7 @@ int Astar::search(Eigen::Vector3d start_pt, Eigen::Vector3d end_pt)
 
   // 搜索完所有可行点，即使没达到最大搜索次数，也没有找到路径
   // 这种一般是因为无人机周围被占据，或者无人机与目标点之间无可通行路径造成的
-  pub_message(message_pub, prometheus_msgs::Message::WARN, node_name, "max_search_num: open set empty.");
+  cout << red << "Astar search: [ Astar can't find path: max_search_num: open set empty ]"  << tail <<endl;
   return NO_PATH;
 }
 

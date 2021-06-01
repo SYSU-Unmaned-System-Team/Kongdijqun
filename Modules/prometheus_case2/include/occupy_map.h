@@ -23,13 +23,10 @@
 #include <pcl/filters/voxel_grid.h>
 #include <map>
 
-#include "tools.h"
-#include "message_utils.h"
+using namespace std;
 
 namespace Global_Planning
 {
-
-extern ros::Publisher message_pub;
 
 class Occupy_map
 {
@@ -78,9 +75,8 @@ class Occupy_map
         string uav_name;                                // 无人机名字
         int uav_id;                                     // 无人机编号
         bool has_global_point;
-
-        string message;
-
+        //打印颜色设置
+        string red, green, yellow, tail;
         // 发布点云用于rviz显示
         ros::Publisher global_pcl_pub, inflate_pcl_pub;
 

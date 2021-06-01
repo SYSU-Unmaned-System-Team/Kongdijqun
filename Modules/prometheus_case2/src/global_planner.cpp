@@ -26,19 +26,26 @@ void Global_Planner::init(ros::NodeHandle& nh)
     // 路径追踪间隔
     nh.param("global_planner/time_per_path", time_per_path, 1.0); 
     // 追踪速度
-    nh.param("global_planner/velocity_path_tracking", velocity_path_tracking, 0.5); 
+    nh.param("global_planner/vel_max", vel_max, 0.5); 
     // 手动给定目标点模式 或 自动目标点模式
     nh.param("global_planner/manual_mode", manual_mode, false);
     // 检测范围
-    nh.param("global_planner/detection_range_x_min", detection_range_x(0), 0.0);
-    nh.param("global_planner/detection_range_x_max", detection_range_x(1), 0.0);
-    nh.param("global_planner/detection_range_y_min", detection_range_y(0), 0.0);
-    nh.param("global_planner/detection_range_y_max", detection_range_y(1), 0.0);
-            
+    nh.param("global_planner/detection_range_x_min", detection_range_x(0), -10.0);
+    nh.param("global_planner/detection_range_x_max", detection_range_x(1), 10.0);
+    nh.param("global_planner/detection_range_y_min", detection_range_y(0), -10.0);
+    nh.param("global_planner/detection_range_y_max", detection_range_y(1), 10.0);
+
+    red = "\033[0;1;31m";
+    green = "\033[0;1;32m";
+    yellow = "\033[0;1;33m";
+    tail =  "\033[0m";
+     
     if(!manual_mode)
     {
         // 自动目标点模式，读取目标点
         nh.param("global_planner/goal_num", goal_num, 1); 
+
+        cout << green << "Get predefined waypoints, total number: ["  << goal_num << " ]"  << tail <<endl;
 
         for(int i = 0; i < goal_num; i++) 
         {
@@ -46,11 +53,12 @@ void Global_Planner::init(ros::NodeHandle& nh)
             nh.param("global_planner/waypoint" + to_string(i) + "_y", waypoints_[i][1], -1.0);
             waypoints_[i][2] = fly_height_2D;
 
-            cout << "goal("<<i<<"): ["<< waypoints_[i][0] << ", "  << waypoints_[i][1]  << ", "  << waypoints_[i][2] << " ]"   <<endl;
+            cout << green << "goal("<<i<<"): ["<< waypoints_[i][0] << ", "  << waypoints_[i][1]  << ", "  << waypoints_[i][2] << " ]"  << tail <<endl;
         }
         goal_id = 0;
     }else
     {
+        cout << green << "Manual goal mode, subscirbe to "<< uav_name << "/prometheus/planning/goal" << tail <<endl;
         // 手动给定目标点模式 手动目标点
         goal_sub = nh.subscribe<geometry_msgs::PoseStamped>(uav_name + "/prometheus/planning/goal", 1, &Global_Planner::goal_cb, this);
     }
@@ -59,8 +67,6 @@ void Global_Planner::init(ros::NodeHandle& nh)
     station_cmd_sub = nh.subscribe<prometheus_msgs::StationCommandCase2>("/case2/command_uav", 1, &Global_Planner::cmd_cb, this);
     // 【地面站交互】将检测结果发送至地面站（所有从机均使用该指令）
     case2_result_pub = nh.advertise<prometheus_msgs::Case2Result>("/case2/uav_result", 10);
-    // 【地面站交互】发布提示消息
-    message_pub = nh.advertise<prometheus_msgs::Message>(uav_name + "/prometheus/message/main", 10);
 
     // 订阅 无人机状态
     drone_state_sub = nh.subscribe<prometheus_msgs::DroneState>(uav_name + "/prometheus/drone_state", 10, &Global_Planner::drone_state_cb, this);
@@ -69,25 +75,25 @@ void Global_Planner::init(ros::NodeHandle& nh)
     detection_sub = nh.subscribe<prometheus_msgs::ArucoInfo>(uav_name + "/prometheus/object_detection/aruco_det", 10, &Global_Planner::detection_cb, this);
 
     // 选择地图更新方式：　0代表全局点云，1代表局部点云，2代表激光雷达scan数据
-    nh.param("global_planner/map_input", map_input, 0); 
+    nh.param("global_planner/map_input_source", map_input_source, 2); 
     // 根据map_input选择地图更新方式
-    if(map_input == 0)
+    if(map_input_source == 0)
     {
         Gpointcloud_sub = nh.subscribe<sensor_msgs::PointCloud2>(uav_name + "/prometheus/global_planning/global_pcl", 1, &Global_Planner::Gpointcloud_cb, this);
-    }else if(map_input == 1)
+    }else if(map_input_source == 1)
     {
         Lpointcloud_sub = nh.subscribe<sensor_msgs::PointCloud2>(uav_name + "/prometheus/global_planning/local_pcl", 1, &Global_Planner::Lpointcloud_cb, this);
-    }else if(map_input == 2)
+    }else if(map_input_source == 2)
     {
         laserscan_sub = nh.subscribe<sensor_msgs::LaserScan>(uav_name + "/prometheus/global_planning/laser_scan", 1, &Global_Planner::laser_cb, this);
     }
 
     // 发布 路径指令 （发送至swarm_controller.cpp）
-    command_pub = nh.advertise<prometheus_msgs::SwarmCommand>(uav_name + "/prometheus/swarm_command", 10);
+    command_pub = nh.advertise<prometheus_msgs::SwarmCommand>(uav_name + "/prometheus/swarm_command", 1);
     // 发布路径用于显示（rviz显示）
-    path_cmd_pub   = nh.advertise<nav_msgs::Path>(uav_name + "/prometheus/global_planning/path_cmd",  10); 
+    path_cmd_pub   = nh.advertise<nav_msgs::Path>(uav_name + "/prometheus/global_planning/path_cmd",  1); 
     // 主循环执行定时器
-    mainloop_timer = nh.createTimer(ros::Duration(1.0), &Global_Planner::mainloop_cb, this);        
+    mainloop_timer = nh.createTimer(ros::Duration(0.1), &Global_Planner::mainloop_cb, this);        
     // 路径追踪定时器
     track_path_timer = nh.createTimer(ros::Duration(time_per_path), &Global_Planner::track_path_cb, this);        
     // 物体追踪定时器
@@ -96,7 +102,7 @@ void Global_Planner::init(ros::NodeHandle& nh)
     // Astar algorithm
     Astar_ptr.reset(new Astar);
     Astar_ptr->init(nh);
-    pub_message(message_pub, prometheus_msgs::Message::NORMAL, node_name, "A_star init.");
+    cout << green << "A_star init. " << tail <<endl;
 
     // 规划器状态参数初始化
     exec_state = EXEC_STATE::INIT;
@@ -125,7 +131,6 @@ void Global_Planner::init(ros::NodeHandle& nh)
     command_pub.publish(Command_Now);
 }
 
-
 void Global_Planner::goal_cb(const geometry_msgs::PoseStampedConstPtr& msg)
 {
     // 2D定高飞行
@@ -135,20 +140,7 @@ void Global_Planner::goal_cb(const geometry_msgs::PoseStampedConstPtr& msg)
 
     get_goal = true;
 
-    char message_chars[256];
-    sprintf(message_chars, "Get a new goal point: [%f, %f, %f].", goal_pos(0),goal_pos(1),goal_pos(2));
-    message = message_chars;
-    pub_message(message_pub, prometheus_msgs::Message::NORMAL, node_name, message);
-
-    // 当目标点为[99,99]时,无人机原地降落
-    if(goal_pos(0) == 99 && goal_pos(1) == 99 )
-    {
-        path_ok = false;
-        get_goal = false;
-        exec_state = EXEC_STATE::LAND;
-        pub_message(message_pub, prometheus_msgs::Message::NORMAL, node_name,"Get Land CMD.");
-    }
-
+    cout << green << "Get a new manual goal: ["<< goal_pos(0) << ", "  << goal_pos(1)  << ", "  << goal_pos(2) << " ]"  << tail <<endl;
 }
 
 void Global_Planner::cmd_cb(const prometheus_msgs::StationCommandCase2ConstPtr& msg)
@@ -158,18 +150,17 @@ void Global_Planner::cmd_cb(const prometheus_msgs::StationCommandCase2ConstPtr& 
     if(station_cmd.Command_uav == prometheus_msgs::StationCommandCase2::Start)
     {
         station_ready = true;
+        cout << yellow << "Get station_cmd: [ Start ]."  << tail <<endl;
         return;
     }else if(station_cmd.Command_uav == prometheus_msgs::StationCommandCase2::Return)
     {
         exec_state = EXEC_STATE::RETURN;
-        message = "Get command from ground station: [ RETURN ]";
-        pub_message(message_pub, prometheus_msgs::Message::NORMAL, node_name, message);
+        cout << yellow << "Get station_cmd: [ RETURN ]."  << tail <<endl;
         return;
     }else if(station_cmd.Command_uav == prometheus_msgs::StationCommandCase2::Land)
     {
         exec_state = EXEC_STATE::LAND;
-        message = "Get command from ground station: [ LAND ]";
-        pub_message(message_pub, prometheus_msgs::Message::NORMAL, node_name, message);
+        cout << yellow << "Get station_cmd: [ Land ]."  << tail <<endl;
         return;
     }
 
@@ -181,8 +172,7 @@ void Global_Planner::cmd_cb(const prometheus_msgs::StationCommandCase2ConstPtr& 
         // 防止继续追踪轨迹
         path_ok = false;
         exec_state = EXEC_STATE::RETURN;
-        message = "Detected by others，return.";
-        pub_message(message_pub, prometheus_msgs::Message::NORMAL, node_name, message);
+        cout << yellow << "Get station_cmd: [ Detected by others，return ]."  << tail <<endl;
     }
 }
 
@@ -209,7 +199,7 @@ void Global_Planner::detection_cb(const prometheus_msgs::ArucoInfoConstPtr &msg)
     {
         if(num_count_vision_lost > 10)
         {
-            pub_message(message_pub, prometheus_msgs::Message::WARN, node_name,"lost target.");
+            cout << yellow << "Detection: [ lost target ]."  << tail <<endl;
         }
         //  方向定义： 识别算法发布的目标位置位于相机坐标系（从相机往前看，物体在相机右方x为正，下方y为正，前方z为正）
         // 注意，此处与无人机姿态相关！！
@@ -222,7 +212,6 @@ void Global_Planner::detection_cb(const prometheus_msgs::ArucoInfoConstPtr &msg)
 
         object_pos_enu = enu_frame + start_pos;
         // 是否需要持续更新发布这个位置?
-
     }else
     {
         // 当连续到10帧，且目标在本无人机的任务范围内，则判定本机检测到目标
@@ -260,7 +249,7 @@ void Global_Planner::detection_cb(const prometheus_msgs::ArucoInfoConstPtr &msg)
                 case2_result_pub.publish(result);
             }else
             {
-                pub_message(message_pub, prometheus_msgs::Message::WARN, node_name,"target not in our zone.");
+                cout << yellow << "Detection: [ target not in our zone ]."  << tail <<endl;
             }
             
         }
@@ -300,8 +289,8 @@ void Global_Planner::drone_state_cb(const prometheus_msgs::DroneStateConstPtr& m
     start_vel << msg->velocity[0], msg->velocity[1], 0.0;
     start_acc << 0.0, 0.0, 0.0;
 
-    // 计算行走距离
-    distance_walked = (uav_pos_last - start_pos).norm();
+    // 计算行走距离 = 当前位置 - 上一次重置时的位置
+    distance_walked = ( start_pos - uav_pos_last).norm();
 }
 
 // 根据全局点云更新地图
@@ -342,12 +331,12 @@ void Global_Planner::Lpointcloud_cb(const sensor_msgs::PointCloud2ConstPtr &msg)
     
     sensor_ready = true;
     
-    if(exec_state != EXEC_STATE::INIT && exec_state != EXEC_STATE::LAND)
+    if(exec_state != EXEC_STATE::INIT && exec_state != EXEC_STATE::TAKEOFF && exec_state != EXEC_STATE::LAND)
     {
         // 若无人机实际高度与定点高度差值超过0.2米，则发出警告，且不更新地图
         if (abs( Drone_odom.pose.pose.position.z - fly_height_2D) > 0.2)
         {
-            pub_message(message_pub, prometheus_msgs::Message::NORMAL, node_name,"UAV is not in desired height.");
+            cout << red << "Mapping: [ UAV is not in desired height ]."  << tail <<endl;
         }else
         {
             // 对Astar中的地图进行更新（局部地图+odom）
@@ -371,12 +360,13 @@ void Global_Planner::laser_cb(const sensor_msgs::LaserScanConstPtr &msg)
     
     sensor_ready = true;
     
+    // 在init及land状态下不更新地图
     if(exec_state != EXEC_STATE::INIT && exec_state != EXEC_STATE::LAND)
     {
         // 若无人机实际高度与定点高度差值超过0.2米，则发出警告，且不更新地图
         if (abs( Drone_odom.pose.pose.position.z - fly_height_2D) > 0.2)
         {
-            pub_message(message_pub, prometheus_msgs::Message::NORMAL, node_name,"UAV is not in desired height.");
+            cout << red << "Mapping: [ UAV is not in desired height ]."  << tail <<endl;
         }else
         {
             // 对Astar中的地图进行更新（laser+odom）
@@ -412,10 +402,7 @@ void Global_Planner::track_path_cb(const ros::TimerEvent& e)
         Command_Now.yaw_ref             = desired_yaw;
         command_pub.publish(Command_Now);
 
-        char message_chars[256];
-        sprintf(message_chars, "Reach the goal.");
-        message = message_chars;
-        pub_message(message_pub, prometheus_msgs::Message::NORMAL, node_name, message);
+        cout << green << "Path tracking: [ Reach the goal ]."  << tail <<endl;
         
         // 停止执行
         path_ok = false;
@@ -433,10 +420,10 @@ void Global_Planner::track_path_cb(const ros::TimerEvent& e)
 
     int i = cur_id;
 
-    cout << "Moving to Waypoint: [ " << cur_id << " / "<< Num_total_wp<< " ] "<<endl;
-    cout << "Moving to Waypoint:"   << path_cmd.poses[i].pose.position.x  << " [m] "
-                                    << path_cmd.poses[i].pose.position.y  << " [m] "
-                                    << path_cmd.poses[i].pose.position.z  << " [m] "<<endl; 
+    // cout << "Moving to Waypoint: [ " << cur_id << " / "<< Num_total_wp<< " ] "<<endl;
+    // cout << "Moving to Waypoint:"   << path_cmd.poses[i].pose.position.x  << " [m] "
+    //                                 << path_cmd.poses[i].pose.position.y  << " [m] "
+    //                                 << path_cmd.poses[i].pose.position.z  << " [m] "<<endl; 
     
     // 控制方式如果是走航点，则需要对无人机进行限速，保证无人机的平滑移动
     // 采用轨迹控制的方式进行追踪，期望速度 = （期望位置 - 当前位置）/预计时间；
@@ -454,25 +441,29 @@ void Global_Planner::track_path_cb(const ros::TimerEvent& e)
         Command_Now.position_ref[2]     = path_cmd.poses[i].pose.position.z;
         Command_Now.velocity_ref[0]     = path_cmd.poses[i].pose.position.x - _DroneState.position[0];
         Command_Now.velocity_ref[1]     = path_cmd.poses[i].pose.position.y - _DroneState.position[1];
-        float error = sqrtf((pow(Command_Now.velocity_ref[0],2) + pow(Command_Now.velocity_ref[1],2)));
-        Command_Now.velocity_ref[0]     = Command_Now.velocity_ref[0] / error * velocity_path_tracking;
-        Command_Now.velocity_ref[1]     = Command_Now.velocity_ref[1] / error * velocity_path_tracking;
+        float vel_norm = sqrtf((pow(Command_Now.velocity_ref[0],2) + pow(Command_Now.velocity_ref[1],2)));
+        Command_Now.velocity_ref[0]     = Command_Now.velocity_ref[0] / vel_norm * vel_max;
+        Command_Now.velocity_ref[1]     = Command_Now.velocity_ref[1] / vel_norm * vel_max;
         Command_Now.yaw_ref             = desired_yaw;
         cur_id = cur_id + 1;
+
+        float vel_drone = sqrtf((pow(_DroneState.velocity[0],2) + pow(_DroneState.velocity[1],2)));
+        cout << "vel_drone: [ " << vel_drone <<  " ] "<<endl;
+
     }else if (control_flag == 1)
     {
         Command_Now.Move_mode           = prometheus_msgs::SwarmCommand::XY_VEL_Z_POS;
         Command_Now.velocity_ref[0]     = path_cmd.poses[i].pose.position.x - _DroneState.position[0];
         Command_Now.velocity_ref[1]     = path_cmd.poses[i].pose.position.y - _DroneState.position[1];
         float error = sqrtf((pow(Command_Now.velocity_ref[0],2) + pow(Command_Now.velocity_ref[1],2)));
-        Command_Now.velocity_ref[0]     = Command_Now.velocity_ref[0] / error * velocity_path_tracking;
-        Command_Now.velocity_ref[1]     = Command_Now.velocity_ref[1] / error * velocity_path_tracking;
+        Command_Now.velocity_ref[0]     = Command_Now.velocity_ref[0] / error * vel_max;
+        Command_Now.velocity_ref[1]     = Command_Now.velocity_ref[1] / error * vel_max;
         Command_Now.position_ref[2]     = path_cmd.poses[i].pose.position.z;
         Command_Now.yaw_ref             = desired_yaw;  
 
         error = sqrtf((pow(Command_Now.velocity_ref[0],2) + pow(Command_Now.velocity_ref[1],2)));
 
-        cout << "velocity_ref: [ " << error <<  " ] "<<endl;
+        //cout << "velocity_ref: [ " << error <<  " ] "<<endl;
         
         track_path_num++;
         // 计算当前追踪的航点
@@ -505,7 +496,6 @@ void Global_Planner::object_tracking_cb(const ros::TimerEvent& e)
     Command_Now.position_ref[2]     = fly_height_2D;
     Command_Now.yaw_ref             = 0.0;
     command_pub.publish(Command_Now);
-
 }
 
 
@@ -519,23 +509,21 @@ void Global_Planner::mainloop_cb(const ros::TimerEvent& e)
     if(!odom_ready || !drone_ready || !sensor_ready || !station_ready)
     {
         // 此处改为根据循环时间计算的数值
-        if(exec_num == 10)
+        if(exec_num == 100)
         {
             if(!odom_ready)
             {
-                message = "Need Odom.";
+                cout << red << "Main loop init check: [ Need Odom ]."  << tail <<endl;
             }else if(!drone_ready)
             {
-                message = "Drone is not ready.";
+                cout << red << "Main loop init check: [ Drone is not ready ]."  << tail <<endl;
             }else if(!sensor_ready)
             {
-                message = "Need sensor info.";
+                cout << red << "Main loop init check: [ Need sensor info ]."  << tail <<endl;
             }else if(!station_ready)
             {
-                message = "Need station start cmd.";
+                cout << red << "Main loop init check: [ Need station start cmd ]."  << tail <<endl;
             }
-
-            pub_message(message_pub, prometheus_msgs::Message::WARN, node_name, message);
             exec_num=0;
         }  
 
@@ -547,7 +535,7 @@ void Global_Planner::mainloop_cb(const ros::TimerEvent& e)
         drone_ready = false;
         sensor_ready = false;
 
-        if(exec_num >= 5)
+        if(exec_num >= 200)
         {
             // 状态打印
             printf_exec_state();
@@ -572,20 +560,18 @@ void Global_Planner::mainloop_cb(const ros::TimerEvent& e)
                 ros::Duration(3.0).sleep();
                 
                 exec_state = EXEC_STATE::TAKEOFF;
+                
             }else
             {
                 //　真实飞行情况：等待飞机状态变为offboard模式，然后发送起飞指令
                 // offboard指令由遥控器发出
                 if(_DroneState.mode != "OFFBOARD")
                 {
-                    message = "Waiting for the offboard mode";
-                    pub_message(message_pub, prometheus_msgs::Message::NORMAL, node_name, message);
-                    
+                    cout << red << "Waiting for the offboard mode."  << tail <<endl;                    
                     ros::Duration(1.0).sleep();
                 }else
                 {
                     exec_state = EXEC_STATE::TAKEOFF;
-                    pub_message(message_pub, prometheus_msgs::Message::NORMAL, node_name, message);
                 }
 
             }
@@ -603,10 +589,7 @@ void Global_Planner::mainloop_cb(const ros::TimerEvent& e)
             
             // 起飞的位置设置为返航点
             return_pos = start_pos;
-            char message_chars[256];
-            sprintf(message_chars, "Takeoff and return point is set as [%f, %f, %f].", return_pos(0),return_pos(1),return_pos(2));
-            message = message_chars;
-            pub_message(message_pub, prometheus_msgs::Message::NORMAL, node_name, message);
+            cout << green << "Takeoff and return point is set as:" << return_pos(0) << ", "<< return_pos(1) << ", "<< return_pos(2) << tail <<endl; 
 
             ros::Duration(5.0).sleep();
 
@@ -647,11 +630,9 @@ void Global_Planner::mainloop_cb(const ros::TimerEvent& e)
                 // 等待手动输入的目标值
                 if(!get_goal)
                 {
-                    if(exec_num == 10)
+                    if(exec_num == 100)
                     {
-                        message = "Waiting for a new goal.";
-                        pub_message(message_pub, prometheus_msgs::Message::WARN, node_name,message);
-                        exec_num=0;
+                        cout << green << "Waiting for a new goal, subscirbe to "<< uav_name << "/prometheus/planning/goal" << tail <<endl;
                     }
                 }else
                 {
@@ -677,7 +658,7 @@ void Global_Planner::mainloop_cb(const ros::TimerEvent& e)
                 path_ok = false;
                 // 找不到路径：返回等待目标点，若在自动目标点模式，则会前往下一个目标点
                 exec_state = EXEC_STATE::WAIT_GOAL;
-                pub_message(message_pub, prometheus_msgs::Message::WARN, node_name, "Planner can't find path!");
+                cout << red << "Main loop Planning [ Planner can't find path ]" << tail <<endl;
             }
             else
             {
@@ -694,7 +675,7 @@ void Global_Planner::mainloop_cb(const ros::TimerEvent& e)
                 exec_state = EXEC_STATE::PATH_TRACKING;
                 // 发布路劲用于rviz显示
                 path_cmd_pub.publish(path_cmd);
-                pub_message(message_pub, prometheus_msgs::Message::NORMAL, node_name, "Get a new path!");       
+                cout << green << "Main loop Planning [ Get a new path ]" << tail <<endl;
             }
 
             break;
@@ -704,10 +685,11 @@ void Global_Planner::mainloop_cb(const ros::TimerEvent& e)
             // 执行时间达到阈值 或者 运动路径达到阈值，重新执行一次规划
             if(get_time_in_sec(tra_start_time) >= replan_time)
             {
-                pub_message(message_pub, prometheus_msgs::Message::NORMAL, node_name, "replan");  
+                cout << green << "Main loop PATH_TRACKING [ replan for time ]" << tail <<endl;
                 exec_state = EXEC_STATE::PLANNING;
             }else if(distance_walked > 1.0)
             {
+                cout << green << "Main loop PATH_TRACKING [ replan for distance ]" << tail <<endl;
                 exec_state = EXEC_STATE::PLANNING;
             }
 
@@ -735,7 +717,7 @@ void Global_Planner::mainloop_cb(const ros::TimerEvent& e)
                 path_ok = false;
                 // 找不到路径：直接原地降落
                 exec_state = EXEC_STATE::LAND;
-                pub_message(message_pub, prometheus_msgs::Message::WARN, node_name, "Planner can't find path, LAND!");
+                cout << red << "Main loop RETURN_PLANNING [ Planner can't find path, LAND ]" << tail <<endl;
             }
             else
             {
@@ -747,7 +729,7 @@ void Global_Planner::mainloop_cb(const ros::TimerEvent& e)
                 cur_id = start_point_index;
                 tra_start_time = ros::Time::now();
                 path_cmd_pub.publish(path_cmd);
-                pub_message(message_pub, prometheus_msgs::Message::NORMAL, node_name, "Return: Get a new path!");       
+                cout << red << "Main loop RETURN_PLANNING [ Get a new path ]" << tail <<endl;
             }
             break;
 
@@ -790,53 +772,47 @@ float Global_Planner::get_time_in_sec(const ros::Time& begin_time)
 
 void Global_Planner::printf_exec_state()
 {
-    char message_chars[256];
     switch (exec_state)
     {
         case EXEC_STATE::INIT: 
-            sprintf(message_chars, "Exec_state [INIT].");
+            cout << green << "Main loop Exec_state: [ INIT ]."  << tail <<endl;
             break;
         case EXEC_STATE::TAKEOFF:
-            sprintf(message_chars, "Exec_state [TAKEOFF].");
+            cout << green << "Main loop Exec_state: [ TAKEOFF ]."  << tail <<endl;
             break;
         case EXEC_STATE::WAIT_GOAL:
-            sprintf(message_chars, "Exec_state [WAIT_GOAL].");
+            cout << green << "Main loop Exec_state: [ WAIT_GOAL ]."  << tail <<endl;
             break;
         case EXEC_STATE::PLANNING: 
-            sprintf(message_chars, "Exec_state [PLANNING].");
+            cout << green << "Main loop Exec_state: [ PLANNING ]."  << tail <<endl;
             break;
         case EXEC_STATE::PATH_TRACKING:
-            sprintf(message_chars, "Exec_state [PATH_TRACKING].");
+            cout << green << "Main loop Exec_state: [ PATH_TRACKING ]."  << tail <<endl;
             break;
         case EXEC_STATE::OBEJECT_TRACKING:
-            sprintf(message_chars, "Exec_state [OBEJECT_TRACKING].");
+            cout << green << "Main loop Exec_state: [ OBEJECT_TRACKING ]."  << tail <<endl;
             break;
         case EXEC_STATE::RETURN_PLANNING: 
-            sprintf(message_chars, "Exec_state [RETURN_PLANNING].");
+            cout << green << "Main loop Exec_state: [ RETURN_PLANNING ]."  << tail <<endl;
             break;
         case EXEC_STATE::RETURN:
-            sprintf(message_chars, "Exec_state [RETURN].");
+            cout << green << "Main loop Exec_state: [ RETURN ]."  << tail <<endl;
             break;
         case EXEC_STATE::LAND:
-            sprintf(message_chars, "Exec_state [LAND].");
+            cout << green << "Main loop Exec_state: [ LAND ]."  << tail <<endl;
             break;  
     }    
-    message = message_chars;
-    pub_message(message_pub, prometheus_msgs::Message::NORMAL, node_name, message); 
-
 
     if(detected_by_myself)
     {
-        sprintf(message_chars, "detected_by_myself, the target pos is: [%f, %f, %f].",object_pos_enu[0],object_pos_enu[1],object_pos_enu[2]);
+        cout << green << "detected_by_myself, the target pos is:" << object_pos_enu[0] << object_pos_enu[1] << object_pos_enu[2] << tail <<endl;
     }else if(detected_by_others)
     {
-        sprintf(message_chars, "detected_by_others, return.");
+        cout << green << "detected_by_others, return."  << tail <<endl;
     }else
     {
-        sprintf(message_chars, "no one find the target, keep searching.");
+        cout << green << "no one find the target, keep searching."  << tail <<endl;
     }
-    message = message_chars;
-    pub_message(message_pub, prometheus_msgs::Message::NORMAL, node_name, message);
 }
 
 

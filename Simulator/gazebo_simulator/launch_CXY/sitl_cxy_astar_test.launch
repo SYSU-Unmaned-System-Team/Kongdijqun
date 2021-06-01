@@ -58,44 +58,34 @@
 		<param name="geo_fence/z_max" value="$(arg z_max)"/>
 	</node>
 
-	<!-- 启动地面站 -->
-	<node pkg="prometheus_swarm_control" type="swarm_ground_station" name="swarm_ground_station" output="screen" launch-prefix="gnome-terminal --tab --">	
-		<param name="swarm_num" value="$(arg swarm_num)"/>
-		<param name="uav1_name" value="$(arg uav1_name)" />
-		<param name="uav1_id" value="$(arg uav1_id)" />
-	</node>
-
-	<node pkg="prometheus_swarm_control" type="swarm_ground_station_msg" name="swarm_ground_station_msg" output="screen"  launch-prefix="gnome-terminal --tab --">
-		<param name="swarm_num" value="$(arg swarm_num)"/>
-		<param name="uav1_name" value="$(arg uav1_name)" />
-		<param name="uav1_id" value="$(arg uav1_id)" />
-	</node>
-
     <!-- 启动全局规划算法 -->
     <arg name="topic_of_laser_scan" default="/uav1/prometheus/sensor/2Dlidar_scan"/>
-    <node pkg="prometheus_case2" type="case2_main" name="case2_main_uav1" output="screen" launch-prefix="gnome-terminal --tab --">
+    <node pkg="prometheus_case2" type="case2_main" name="case2_main_uav1" output="screen">
 		<param name="swarm_num" value="$(arg swarm_num)"/>
 		<param name="uav_name" value="$(arg uav1_name)" />
 		<param name="uav_id" value="$(arg uav1_id)" />
         <remap from="/uav1/prometheus/global_planning/laser_scan" to="$(arg topic_of_laser_scan)" />
+		<!-- 仿真模式 -->
 		<param name="global_planner/sim_mode" value="true" type="bool"/>
-		<param name="global_planner/replan_time" value="2.0" type="double"/>
 		<!-- ２维高度，建议与起飞高度一致 -->
 		<param name="global_planner/fly_height_2D" value="1.0" type="double"/>
         <!-- 目标点模式 -->
 		<param name="global_planner/manual_mode" value="true" type="bool"/>
-        <param name="global_planner/map_input" value="2" type="int"/>
+        <param name="global_planner/map_input_source" value="2" type="int"/>
         <!-- 最大搜索步数 -->
-        <param name="astar/allocate_num" value="50000" type="int"/>
+        <param name="astar/allocate_num" value="100000" type="int"/>
         <!-- 启发式函数系数 -->
         <param name="astar/lambda_heu" value="2.0" type="double"/>
         <!-- 分辨率 -->
-        <param name="map/resolution" value="0.2" type="double"/>
+        <param name="map/resolution" value="0.1" type="double"/>
+		<!-- 重规划时间 -->
+		<param name="global_planner/replan_time" value="1.0" type="double"/>
 		<!-- 注意不同控制方式选择不一样 -->
 		<!-- 位置控制: time_per_path = resolution/期望速度 -->
 		<!-- 速度控制: time_per_path = 0.1 -->
+		<param name="global_planner/control_flag" value="0" type="int"/>
 		<param name="global_planner/time_per_path" value="0.1" type="double"/>
-		<param name="global_planner/velocity_path_tracking" value="0.5" type="double"/>
+		<param name="global_planner/vel_max" value="1.0" type="double"/>
 		<!-- 检测范围 -->
 		<param name="global_planner/detection_range_x_min" value="-4.5" type="double"/>
 		<param name="global_planner/detection_range_x_max" value="0.0" type="double"/>
@@ -111,9 +101,17 @@
         <param name="map/map_size_x" value="30.0" type="double"/>
         <param name="map/map_size_y" value="30.0" type="double"/>
         <param name="map/map_size_z" value="3.0" type="double"/>
+		<!-- 局部地图滑窗 -->
 		<param name="map/queue_size" value="20" type="int"/>
 		<param name="map/border" value="false" type="bool"/>
     </node>
+
+	<!-- 启动地面站 -->
+	<node pkg="prometheus_swarm_control" type="swarm_ground_station" name="swarm_ground_station" output="screen" launch-prefix="gnome-terminal --tab --">	
+		<param name="swarm_num" value="$(arg swarm_num)"/>
+		<param name="uav1_name" value="$(arg uav1_name)" />
+		<param name="uav1_id" value="$(arg uav1_id)" />
+	</node>
 
     <group ns="$(arg uav1_name)">
         <!-- run the pub_goal.cpp -->

@@ -13,8 +13,8 @@
 #include <nav_msgs/Path.h>
 
 #include "occupy_map.h"
-#include "tools.h"
-#include "message_utils.h"
+
+using namespace std;
 
 namespace Global_Planning
 {
@@ -23,8 +23,6 @@ namespace Global_Planning
 #define IN_OPEN_SET 'b'
 #define NOT_EXPAND 'c'
 #define inf 1 >> 30
-
-extern ros::Publisher message_pub;
 
 class Node
 {
@@ -129,10 +127,6 @@ class Astar
         double tie_breaker_;
         bool is_2D;
         double fly_height;
-
-        string message;
-
-        /* ---------- record data ---------- */
         // 目标点
         Eigen::Vector3d goal_pos;
 
@@ -141,6 +135,9 @@ class Astar
         double resolution_, inv_resolution_;
         Eigen::Vector3d origin_, map_size_3d_;
         bool has_global_point;
+
+        //打印颜色设置
+        string red, green, yellow, tail;
 
         // 辅助函数
         Eigen::Vector3i posToIndex(Eigen::Vector3d pt);

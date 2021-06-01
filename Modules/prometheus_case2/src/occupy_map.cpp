@@ -103,6 +103,11 @@ void Occupy_map::init(ros::NodeHandle& nh)
         border.points[i+2*numdist_x+numdist_y].y = min_range_(1)+i*dist;
         border.points[i+2*numdist_x+numdist_y].z = min_range_(2);
     }
+
+    red = "\033[0;1;31m";
+    green = "\033[0;1;32m";
+    yellow = "\033[0;1;33m";
+    tail =  "\033[0m";
 }
 
 // 地图更新函数 - 输入：全局点云
@@ -138,16 +143,26 @@ void Occupy_map::local_map_merge_odom(const nav_msgs::Odometry & odom)
     bool pos_change = (abs(f_x-x)>0.1 || abs(f_y-y)>0.1) && (abs(fly_height_2D-z)<0.1);
     // 只有在无人机平稳（角度足够小）时更新点云 （此条件必须满足）
     // 将无人机飞行时 角度限制在5度以内(0.09 约等于5度)
-    bool ang_change = abs(f_pitch-pitch)<0.08 && abs(f_roll-roll)<0.08; //俯仰，翻滚
+    //bool ang_change = abs(f_pitch-pitch)<0.08 && abs(f_roll-roll)<0.08; //俯仰，翻滚
+    // 应该是当前角度小于5度
+    bool ang_change = abs(pitch)<0.15 && abs(roll)<0.15; //俯仰，翻滚
+
+    if(!ang_change)
+    {
+        cout << red << "Occupy map, too tilt for update map"  << tail <<endl;
+    }
     // 即使不移动,时间达到阈值,也会更新地图
     static int update_num = 0;
     if(!pos_change && ang_change)
     {
-        update_num = (update_num+1) % 10;
+        update_num++;
     }
+
     // 合并局部点云，形成局部地图
-    if((global_point_cloud_map == nullptr || pos_change || update_num == 10) && ang_change) 
+    if((global_point_cloud_map == nullptr || pos_change || update_num > 20) && ang_change) 
     {
+        update_num = 0;
+
         // 为滑窗的点云累计odom
         map<int,pcl::PointCloud<pcl::PointXYZ>>::iterator iter;
         for(iter = point_cloud_pair.begin(); iter != point_cloud_pair.end(); iter++)
@@ -235,7 +250,6 @@ void Occupy_map::inflate_point_cloud(void)
 {
     if(!has_global_point)
     {
-        // pub_message(message_pub, prometheus_msgs::Message::WARN, node_name, "Occupy_map [inflate point cloud]: don't have global point, can't inflate!\n");
         return;
     }
 
@@ -332,11 +346,7 @@ void Occupy_map::inflate_point_cloud(void)
     if(exec_num == 50)
     {
         // 膨胀地图效率与地图大小有关
-        // char message_chars[256];
-        // sprintf(message_chars, "inflate global point take %f [s].", (ros::Time::now()-time_start).toSec());
-        // message = message_chars;
-        // pub_message(message_pub, prometheus_msgs::Message::NORMAL, node_name, message);
-
+        // cout << yellow << "Occupy map: inflate global point take " << (ros::Time::now()-time_start).toSec() <<" [s]. " << tail <<endl;
         exec_num=0;
     }  
 }
@@ -345,7 +355,7 @@ void Occupy_map::setOccupancy(Eigen::Vector3d &pos, int occ)
 {
     if (occ != 1 && occ != 0) 
     {
-        pub_message(message_pub, prometheus_msgs::Message::WARN, node_name, "occ value error!\n");
+        cout << red << "Occupy map: occ value error " << tail <<endl;
         return;
     }
 
@@ -387,7 +397,7 @@ bool Occupy_map::check_safety(Eigen::Vector3d& pos, double check_distance)
     if(!isInMap(pos))
     {
         // 当前位置点不在地图内
-        pub_message(message_pub, prometheus_msgs::Message::WARN, node_name, "[check_safety]: the odom point is not in map\n");
+        cout << red << "Occupy map, the odom point is not in map"  << tail <<endl;
         return 0;
     }
     Eigen::Vector3i id;
@@ -406,12 +416,9 @@ bool Occupy_map::check_safety(Eigen::Vector3d& pos, double check_distance)
                 id_occ(2) = id(2)+iz;
                 indexToPos(id_occ, pos_occ);
                 if(!isInMap(pos_occ)){
-                    // printf("[check_safety]: current odom is near the boundary of the map\n");
-                    // pub_message(message_pub, prometheus_msgs::Message::WARN, node_name, "[check_safety]: current odom is near the boundary of the map\n");
                     return 0;
                 }
                 if(getOccupancy(id_occ)){
-                    // printf("[check_safety]: current state is dagerous, the pos [%d, %d, %d], is occupied\n", ix, iy, iz);
                     cnt++;             
                 }
             }
